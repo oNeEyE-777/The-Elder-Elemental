@@ -94,4 +94,39 @@ These tables are for scripts; they don’t need to be shown in any UI.
 | Back | 2 | Resolving Vigor | skill.resolving_vigor |
 | Back | 3 | Bull Netch / Blue Betty | skill.bull_netch |
 | Back | 4 | Wield Soul | skill.wield_soul |
-| Back | 5 | Blinding Fla
+| Back | 5 | Blinding Flare | skill.blinding_flare_back |
+| Back | ULT | Glacial Colossus | skill.glacial_colossus |
+
+### Gear set IDs
+
+| Gear slot | Set | set_id |
+|---|---|---|
+| Head | Nibenay (1pc) | set.nibenay_bay_battlereeve |
+| Shoulder | Adept Rider | set.adept_rider |
+| Chest | Adept Rider | set.adept_rider |
+| Hands | Adept Rider | set.adept_rider |
+| Waist | Adept Rider | set.adept_rider |
+| Legs | Adept Rider | set.adept_rider |
+| Feet | Mark of the Pariah | set.mark_of_the_pariah |
+| Neck | Mark of the Pariah | set.mark_of_the_pariah |
+| Ring 1 | Mark of the Pariah | set.mark_of_the_pariah |
+| Ring 2 (Mythic/Alt) | Ring of the Wild Hunt | set.ring_of_the_wild_hunt |
+| Front weapon | Mark of the Pariah (Ice staff) | set.mark_of_the_pariah |
+| Back weapon | Mark of the Pariah (Ice staff) | set.mark_of_the_pariah |
+
+### CP star IDs
+
+| Tree | Slot | Name | cp_id |
+|---|---|---|---|
+| Warfare | 1 | Ironclad | cp.ironclad |
+| Warfare | 2 | Duelist's Rebuff | cp.duelists_rebuff |
+| Warfare | 3 | Bulwark | cp.bulwark |
+| Warfare | 4 | Resilience | cp.resilience |
+| Fitness | 1 | Celerity | cp.celerity |
+| Fitness | 2 | Pain's Refuge | cp.pains_refuge |
+| Fitness | 3 | Sustained by Suffering | cp.sustained_by_suffering |
+| Fitness | 4 | Bastion | cp.bastion |
+| Craft | 1 | Steed's Blessing | cp.steeds_blessing |
+| Craft | 2 | War Mount | cp.war_mount |
+| Craft | 3 | Gifted Rider | cp.gifted_rider |
+| Craft | 4 | Sustaining Shadows | cp.sustaining_shadows |
