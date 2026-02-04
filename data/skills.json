@@ -1,253 +1,256 @@
 {
     "skills": [
         {
-            "id": "skill_permafrost",
-            "name": "Permafrost",
-            "line": "Warden - Winter's Embrace",
-            "morph": "Permafrost",
-            "bar": "back",
-            "slot": "U",
-            "role": [
-                "ultimate",
-                "control",
-                "defense"
-            ],
-            "tags": [
-                "frost",
-                "aoe",
-                "snare",
-                "mitigation"
-            ],
-            "effect_ids": [
-                "effect_major_protection",
-                "effect_snare_heavy",
-                "effect_status_chilled"
+            "id": "skill.deep_fissure",
+            "name": "Deep Fissure",
+            "line": "Warden: Animal Companions",
+            "type": "active",
+            "resource": "magicka",
+            "cost": null,
+            "cast_time": "instant",
+            "duration_seconds": 9,
+            "cooldown_seconds": null,
+            "tooltip_raw": "Summon shalks that erupt after a delay, dealing Magic damage and applying Major and Minor Breach to enemies hit.",
+            "effects": [
+                {
+                    "effect_id": "debuff.major_breach",
+                    "timing": "on_hit",
+                    "target": "enemy",
+                    "notes": "Applied to enemies hit by the fissure."
+                },
+                {
+                    "effect_id": "debuff.minor_breach",
+                    "timing": "on_hit",
+                    "target": "enemy",
+                    "notes": "Applied alongside Major Breach."
+                }
             ]
         },
         {
-            "id": "skill_northern_storm",
-            "name": "Northern Storm",
-            "line": "Warden - Winter's Embrace",
-            "morph": "Northern Storm",
-            "bar": "front",
-            "slot": "U",
-            "role": [
-                "ultimate",
-                "offense",
-                "defense"
-            ],
-            "tags": [
-                "frost",
-                "aoe",
-                "mitigation",
-                "max_magicka"
-            ],
-            "effect_ids": [
-                "effect_major_protection",
-                "effect_max_magicka_flat",
-                "effect_crit_damage_minor"
+            "id": "skill.unnerving_boneyard",
+            "name": "Unnerving Boneyard",
+            "line": "Necromancer: Grave Lord",
+            "type": "active",
+            "resource": "magicka",
+            "cost": null,
+            "cast_time": "instant",
+            "duration_seconds": 10,
+            "cooldown_seconds": null,
+            "tooltip_raw": "Create a graveyard that deals Frost damage over time and applies Major Breach and Minor Vulnerability to enemies in the area.",
+            "effects": [
+                {
+                    "effect_id": "debuff.major_breach",
+                    "timing": "on_hit",
+                    "target": "enemy",
+                    "notes": "Applied to enemies standing in the graveyard."
+                },
+                {
+                    "effect_id": "debuff.minor_vulnerability",
+                    "timing": "on_hit",
+                    "target": "enemy",
+                    "notes": "Increases damage taken from all sources."
+                }
             ]
         },
         {
-            "id": "skill_winter_revenge",
-            "name": "Winter's Revenge",
-            "line": "Warden - Winter's Embrace",
-            "morph": "Winter's Revenge",
-            "bar": "back",
-            "slot": "1",
-            "role": [
-                "dot",
-                "control"
-            ],
-            "tags": [
-                "frost",
-                "ground_aoe",
-                "snare"
-            ],
-            "effect_ids": [
-                "effect_snare_light",
-                "effect_status_chilled"
+            "id": "skill.hardened_armor",
+            "name": "Hardened Armor",
+            "line": "Dragonknight: Draconic Power",
+            "type": "active",
+            "resource": "magicka",
+            "cost": 2700,
+            "cast_time": "instant",
+            "duration_seconds": 20,
+            "cooldown_seconds": null,
+            "tooltip_raw": "Gain Major Resolve and a damage shield that scales with Max Health, returning damage to melee attackers.",
+            "effects": [
+                {
+                    "effect_id": "buff.major_resolve",
+                    "timing": "on_cast",
+                    "target": "self",
+                    "notes": "Boosts resistances for 20 seconds."
+                }
             ]
         },
         {
-            "id": "skill_ice_fortress",
-            "name": "Ice Fortress",
-            "line": "Warden - Winter's Embrace",
-            "morph": "Ice Fortress",
-            "bar": "back",
-            "slot": "2",
-            "role": [
-                "buff",
-                "defense"
-            ],
-            "tags": [
-                "armor_buff",
-                "mitigation"
-            ],
-            "effect_ids": [
-                "effect_major_resolve",
-                "effect_minor_protection"
+            "id": "skill.green_dragon_blood",
+            "name": "Green Dragon Blood",
+            "line": "Dragonknight: Draconic Power",
+            "type": "active",
+            "resource": "magicka",
+            "cost": null,
+            "cast_time": "instant",
+            "duration_seconds": 20,
+            "cooldown_seconds": null,
+            "tooltip_raw": "Heal yourself and gain Minor Vitality, Major Fortitude, and Major Endurance for 20 seconds.",
+            "effects": [
+                {
+                    "effect_id": "buff.minor_vitality",
+                    "timing": "on_cast",
+                    "target": "self"
+                },
+                {
+                    "effect_id": "buff.major_fortitude",
+                    "timing": "on_cast",
+                    "target": "self"
+                },
+                {
+                    "effect_id": "buff.major_endurance",
+                    "timing": "on_cast",
+                    "target": "self"
+                }
             ]
         },
         {
-            "id": "skill_blue_betty",
-            "name": "Blue Betty",
-            "line": "Warden - Animal Companions",
-            "morph": "Blue Betty",
-            "bar": "back",
-            "slot": "3",
-            "role": [
-                "buff",
-                "resource"
-            ],
-            "tags": [
-                "magicka_recovery",
-                "cleanse"
-            ],
-            "effect_ids": [
-                "effect_major_sorcery",
-                "effect_magicka_recovery_flat",
-                "effect_purge_single"
+            "id": "skill.blinding_flare",
+            "name": "Blinding Flare",
+            "line": "Alliance War: Support",
+            "type": "active",
+            "resource": "magicka",
+            "cost": null,
+            "cast_time": "instant",
+            "duration_seconds": 5,
+            "cooldown_seconds": null,
+            "tooltip_raw": "While slotted, grants Major Protection to you and nearby allies.",
+            "effects": [
+                {
+                    "effect_id": "buff.major_protection",
+                    "timing": "slotted",
+                    "target": "self"
+                }
             ]
         },
         {
-            "id": "skill_shimmering_shield",
-            "name": "Shimmering Shield",
-            "line": "Warden - Winter's Embrace",
-            "morph": "Shimmering Shield",
-            "bar": "back",
-            "slot": "4",
-            "role": [
-                "defense"
-            ],
-            "tags": [
-                "projectile_shield",
-                "mitigation",
-                "ultimate_gain"
-            ],
-            "effect_ids": [
-                "effect_projectile_absorb",
-                "effect_minor_heroism"
+            "id": "skill.reviving_barrier",
+            "name": "Reviving Barrier",
+            "line": "Alliance War: Support",
+            "type": "ultimate",
+            "resource": "ultimate",
+            "cost": 250,
+            "cast_time": "instant",
+            "duration_seconds": 30,
+            "cooldown_seconds": null,
+            "tooltip_raw": "Place large damage-absorbing wards on yourself and nearby allies and heal them over time.",
+            "effects": []
+        },
+        {
+            "id": "skill.ulfsilds_contingency",
+            "name": "Ulfsild's Contingency",
+            "line": "Mages Guild: Scribing",
+            "type": "active",
+            "resource": "magicka",
+            "cost": null,
+            "cast_time": "instant",
+            "duration_seconds": 22,
+            "cooldown_seconds": null,
+            "tooltip_raw": "Scribed shield skill with damage reduction signature and Minor Expedition affix.",
+            "effects": [
+                {
+                    "effect_id": "buff.minor_expedition",
+                    "timing": "on_cast",
+                    "target": "self"
+                }
             ]
         },
         {
-            "id": "skill_radiating_regeneration",
-            "name": "Radiating Regeneration",
-            "line": "Restoration Staff",
-            "morph": "Radiating Regeneration",
-            "bar": "back",
-            "slot": "5",
-            "role": [
-                "heal",
-                "hot"
-            ],
-            "tags": [
-                "heal_over_time",
-                "aoe_heal"
-            ],
-            "effect_ids": [
-                "effect_heal_over_time_generic"
+            "id": "skill.resolving_vigor",
+            "name": "Resolving Vigor",
+            "line": "Alliance War: Assault",
+            "type": "active",
+            "resource": "stamina",
+            "cost": null,
+            "cast_time": "instant",
+            "duration_seconds": 5,
+            "cooldown_seconds": null,
+            "tooltip_raw": "Heal yourself and nearby allies over time and gain Minor Resolve.",
+            "effects": [
+                {
+                    "effect_id": "buff.minor_resolve",
+                    "timing": "on_cast",
+                    "target": "self"
+                }
             ]
         },
         {
-            "id": "skill_screaming_cliff_racer",
-            "name": "Screaming Cliff Racer",
-            "line": "Warden - Animal Companions",
-            "morph": "Screaming Cliff Racer",
-            "bar": "front",
-            "slot": "1",
-            "role": [
-                "spammable",
-                "burst"
-            ],
-            "tags": [
-                "direct_damage",
-                "ranged"
-            ],
-            "effect_ids": [
-                "effect_minor_berserk",
-                "effect_execute_scaling"
+            "id": "skill.bull_netch",
+            "name": "Bull Netch / Blue Betty",
+            "line": "Warden: Animal Companions",
+            "type": "active",
+            "resource": "none",
+            "cost": 0,
+            "cast_time": "instant",
+            "duration_seconds": 25,
+            "cooldown_seconds": null,
+            "tooltip_raw": "Summon a netch that restores resources over time and grants Major Brutality and Major Sorcery.",
+            "effects": [
+                {
+                    "effect_id": "buff.major_brutality",
+                    "timing": "on_cast",
+                    "target": "self"
+                },
+                {
+                    "effect_id": "buff.major_sorcery",
+                    "timing": "on_cast",
+                    "target": "self"
+                }
             ]
         },
         {
-            "id": "skill_subterranean_assault",
-            "name": "Subterranean Assault",
-            "line": "Warden - Animal Companions",
-            "morph": "Subterranean Assault",
-            "bar": "front",
-            "slot": "2",
-            "role": [
-                "burst",
-                "aoe"
-            ],
-            "tags": [
-                "aoe",
-                "delayed_burst",
-                "bleed"
-            ],
-            "effect_ids": [
-                "effect_major_breach"
+            "id": "skill.wield_soul",
+            "name": "Wield Soul",
+            "line": "Soul Magic",
+            "type": "active",
+            "resource": "magicka",
+            "cost": null,
+            "cast_time": "instant",
+            "duration_seconds": 10,
+            "cooldown_seconds": null,
+            "tooltip_raw": "Soul Magic scribed skill focused on healing and magicka sustain, granting Major Vitality.",
+            "effects": [
+                {
+                    "effect_id": "buff.major_vitality",
+                    "timing": "on_cast",
+                    "target": "self"
+                }
             ]
         },
         {
-            "id": "skill_arctic_blast",
-            "name": "Arctic Blast",
-            "line": "Warden - Winter's Embrace",
-            "morph": "Arctic Blast",
-            "bar": "front",
-            "slot": "3",
-            "role": [
-                "heal",
-                "stun"
-            ],
-            "tags": [
-                "burst_heal",
-                "hot",
-                "stun",
-                "frost"
-            ],
-            "effect_ids": [
-                "effect_heal_over_time_generic",
-                "effect_stun_short"
+            "id": "skill.blinding_flare_back",
+            "name": "Blinding Flare (Back Bar)",
+            "line": "Alliance War: Support",
+            "type": "active",
+            "resource": "magicka",
+            "cost": null,
+            "cast_time": "instant",
+            "duration_seconds": 5,
+            "cooldown_seconds": null,
+            "tooltip_raw": "Second bar copy of Blinding Flare; while slotted, grants Major Protection.",
+            "effects": [
+                {
+                    "effect_id": "buff.major_protection",
+                    "timing": "slotted",
+                    "target": "self"
+                }
             ]
         },
         {
-            "id": "skill_ice_blockade",
-            "name": "Blockade of Frost",
-            "line": "Destruction Staff",
-            "morph": "Blockade of Frost",
-            "bar": "front",
-            "slot": "4",
-            "role": [
-                "dot",
-                "control"
-            ],
-            "tags": [
-                "frost",
-                "ground_aoe",
-                "snare",
-                "shield_proc"
-            ],
-            "effect_ids": [
-                "effect_status_chilled",
-                "effect_snare_light",
-                "effect_projectile_shield_minor"
+            "id": "skill.glacial_colossus",
+            "name": "Glacial Colossus",
+            "line": "Necromancer: Grave Lord",
+            "type": "ultimate",
+            "resource": "ultimate",
+            "cost": null,
+            "cast_time": "instant",
+            "duration_seconds": 12,
+            "cooldown_seconds": null,
+            "tooltip_raw": "Summon a frost colossus that smashes enemies and applies Major Vulnerability.",
+            "effects": [
+                {
+                    "effect_id": "debuff.major_vulnerability",
+                    "timing": "on_hit",
+                    "target": "enemy"
+                }
             ]
-        },
-        {
-            "id": "skill_flexible_slot",
-            "name": "Flex Slot",
-            "line": "Flexible",
-            "morph": "N/A",
-            "bar": "front",
-            "slot": "5",
-            "role": [
-                "flex"
-            ],
-            "tags": [
-                "flex"
-            ],
-            "effect_ids": []
         }
     ]
 }
