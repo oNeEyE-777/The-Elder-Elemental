@@ -1,4 +1,4 @@
-name: Mirror repo to Google Drive
+name: Mirror repo data to Google Drive
 
 on:
   push:
@@ -13,20 +13,6 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
-      - name: Create full repo archive
-        run: |
-          zip -r The-Elder-Elemental.zip .
-
-      - name: Upload archive to Google Drive
-        uses: mathisve/gdrive-upload-action@main
-        with:
-          filename: The-Elder-Elemental.zip
-          name: The-Elder-Elemental-latest.zip
-          folderId: ${{ secrets.GDRIVE_FOLDER_ID }}
-          credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
-          encoded: true
-          overwrite: true
 
       - name: Upload data folder (mirror structure)
         uses: adityak74/google-drive-upload-git-action@main
