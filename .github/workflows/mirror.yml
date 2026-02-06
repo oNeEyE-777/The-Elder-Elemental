@@ -1,0 +1,26 @@
+name: Mirror to backup repo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up mirror remote
+        run: |
+          git remote add mirror https://x-access-token:${{ secrets.MIRROR_BACKUP_TOKEN }}@github.com/oNeEyE-777/The-Elder-Elemental-mirror.git
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Push all refs to mirror
+        run: |
+          git push --mirror mirror
