@@ -14,20 +14,18 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Upload data folder (mirror structure)
+      - name: Upload JSON data files
         uses: adityak74/google-drive-upload-git-action@main
         with:
           credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
           folderId: ${{ secrets.GDRIVE_FOLDER_ID }}
-          filename: data
+          filename: "data/*.json"
           overwrite: "true"
-          mirrorDirectoryStructure: "true"
 
-      - name: Upload builds folder (mirror structure)
+      - name: Upload build markdown files
         uses: adityak74/google-drive-upload-git-action@main
         with:
           credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
           folderId: ${{ secrets.GDRIVE_FOLDER_ID }}
-          filename: builds
+          filename: "builds/*.md"
           overwrite: "true"
-          mirrorDirectoryStructure: "true"
