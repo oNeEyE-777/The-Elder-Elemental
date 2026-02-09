@@ -1,308 +1,450 @@
-1. Attached project documents (by filename, in priority order)
-ESO-Build-Engine-Data-Center-Scope.md
-​
+\# ESO Build Engine – Spaces Initial Thread Notes \*\*docs/ESO-Build-Engine-Spaces-Initial-Thread.md\*\*
 
-ESO-Build-Engine-Overview.md
-​
 
-ESO-Build-Engine-Data-Model-v1.md
-​
 
-ESO-Build-Engine-Global-Rules.md
-​
+\## 1. Attached project documents (by filename, in priority order)
 
-ESO Build Database Project Specification.md
-​
 
-ESO Build Engine – Data Center Tool Checklist.md
-​
 
-ESO Build Engine – Copilot Bootstrap.md
-​
+For the initial alignment, the following docs were treated as primary, in this order:\[file:23]
 
-The rest of this answer follows that priority, with the Data Center scope treated as the active focus.
 
-2. Purpose and role of each document (relative to Data Center)
-1) ESO-Build-Engine-Data-Center-Scope.md (current focus) [highest priority]
-Purpose (2–3 sentences)
-This document defines the complete data center for the ESO Build Engine: repo structure, data storage, Python tools, backend API, frontend, testing, deployment, and maintenance workflows. It describes what must exist in data/, builds/, tools/, backend/, frontend/, logs/, and docs/, and sets success criteria for the pipeline from test-dummy to Permafrost Marshal.
-​
 
-Fit in ESO Build Engine
-The Data Center scope is the operational contract between architecture ideas and real running code, describing how JSON, validators, API, and UI actually interact as a system. All other docs (overview, data model, global rules, database spec) either feed into it (what to implement) or sit on top of it (what to build once the data center is stable).
+1\. `docs/ESO-Build-Engine-Data-Center-Scope.md`
 
-2) ESO-Build-Engine-Overview.md
-Purpose (2–3 sentences)
-This document defines what the ESO Build Engine is and lays out non‑negotiable rules for architecture, data/logic separation, AI usage, and Git as the single source of truth. It explains the three-layer design (JSON data, Python logic, selector-only UI) and explicitly states that Markdown build grids are generated views, never sources of truth.
-​
+2\. `docs/ESO-Build-Engine-Overview.md`
 
-Fit in ESO Build Engine (relative to Data Center)
-The Overview defines the constraints the Data Center scope must obey: JSON in data/ and builds/, tools in tools/, no external runtime dependencies, and selector-only frontends. The Data Center doc operationalizes this by specifying concrete files, tools, and workflows that implement those non‑negotiables.
+3\. `docs/ESO-Build-Engine-Data-Model-v1.md`
 
-3) ESO-Build-Engine-Data-Model-v1.md
-Purpose (2–3 sentences)
-This document defines the minimal JSON schemas for v1: data/skills.json, data/effects.json, data/sets.json, data/cp-stars.json, and builds/permafrost-marshal.json. It includes detailed example objects and key principles (IDs not free text, centralized effects, scalable shapes) for the Permafrost Marshal build.
-​
+4\. `docs/ESO-Build-Engine-Global-Rules.md`
 
-Fit in ESO Build Engine (relative to Data Center)
-The v1 Data Model is the schema contract that the Data Center must enforce through validators, backend types, and frontend typing. The Data Center scope refers to “schema conformance” and TypeScript types; those derive directly from this document and must be kept in sync.
+5\. `docs/ESO Build Database Project Specification.md`
 
-4) ESO-Build-Engine-Global-Rules.md
-Purpose (2–3 sentences)
-This document defines structural rules (bars, gear, CP layout), set/CP constraints, and effect stacking logic, plus Python function contracts for validators and helpers. It specifies expected behaviors and signatures for validate_build_structure, aggregate_effects, validate_effect_stack_rules, and create_empty_build_template.
-​
+6\. `docs/ESO Build Engine – Data Center Tool Checklist.md`
 
-Fit in ESO Build Engine (relative to Data Center)
-Global Rules describe what Python validators and effect math must do, while the Data Center scope describes where those tools live and how they’re run (tools/*.py, logs, CLI usage). The Data Center’s tools list (validate_build.py, aggregate_effects.py, compute_pillars.py) must be implemented to satisfy the contracts in Global Rules.
+7\. `docs/ESO Build Engine – Copilot Bootstrap.md`\[file:1]\[file:2]\[file:3]\[file:4]\[file:5]\[file:6]\[file:7]
 
-5) ESO Build Database Project Specification.md
-Purpose (2–3 sentences)
-This spec describes a larger ESO build database project: canonical ESO data keyed by official IDs, meta-layer tables for builds/rotations/gear, an API layer, frontend, and potential addon. It lays out a phased roadmap (data center validation, schema design, meta layer, API, frontend, addon) and detailed data extraction requirements from ESO.
-​
 
-Fit in ESO Build Engine (relative to Data Center)
-The Database Project is a downstream consumer of the Data Center: it explicitly starts “after the data center validation phase is complete and proven stable.” Its canonical-layer and meta-layer ideas can inform future expansions of data/ and builds/, but for now it should be treated as a future phase built on top of the current Data Center pipeline.
 
-6) ESO Build Engine – Data Center Tool Checklist.md
-Purpose (2–3 sentences)
-This checklist distills the Data Center scope into a status-tracked list of required software, JSON data files, and Python tools, tagged as [DONE], [PLANNED], or [LATER]. It enumerates actual filenames in data/, builds/, and tools/, and describes each tool’s purpose, inputs, and outputs.
-​
+The rest of this document follows that priority, with the Data Center scope treated as the active focus.\[file:23]\[file:4]
 
-Fit in ESO Build Engine (relative to Data Center)
-The checklist is a progress tracker and thin implementation layer for the Data Center plan, confirming which pieces of the scope are already implemented locally. As the Data Center spec evolves, this file must be updated in lockstep to keep the operational picture accurate (especially as tools move from PLANNED to DONE).
 
-7) ESO Build Engine – Copilot Bootstrap.md
-Purpose (2–3 sentences)
-This document tells AI assistants how to work in the repo: obey architecture rules, provide full-file outputs, prefer validators, and never rely on hidden state or external services. It restates the three-layer architecture and expected repository structure in a way tailored to AI tooling.
-​
 
-Fit in ESO Build Engine (relative to Data Center)
-The Bootstrap doc governs how AI may modify Data Center components (JSON, tools, backend, frontend), ensuring all work respects the Overview and Data Center scope. Any updates to the Data Center (new tools, new data files) should be reflected in this bootstrap so AI helpers stay aligned with the current structure.
+---
 
-3. Why the Data Center scope must be first
-It defines the repo skeleton and execution pipeline.
-The Data Center doc specifies the top-level tree (data/, builds/, tools/, backend/, frontend/, logs/, docs/) and exactly which minimal files must exist to call the system “operational.” Without this skeleton, the Data Model, Global Rules, and Overview are not wired into runnable code paths.
-​
 
-It is the prerequisite for downstream projects.
-The Build Database spec explicitly states its project begins only after the “data center” validation phase is complete and stable. That dependency means the Data Center is the critical path before any broader database, API, or addon work is meaningful.
-​
 
-It connects control docs to real tools.
-Overview, Data Model, and Global Rules describe design and rules, but the Data Center scope translates them into concrete tools (validate_build*_test.py, validate_build.py, aggregate_effects.py, compute_pillars.py) and CI-like workflows. Implementing other docs without the Data Center’s execution plan risks drift and partial, unvalidated features.
+\## 2. Purpose and role of each document (relative to Data Center)
 
-It defines success criteria and phases.
-The Data Center doc declares when the pipeline is “operational” in Phase 1 (test-dummy), Phase 2 (Permafrost Marshal), and Phase 3 (full functionality). These milestones are essential to sequencing the rest of the work and avoiding premature expansion into the full database or addon.
-​
 
-Because of these dependencies, no other document can be “complete” in practice until the Data Center scope is implemented well enough to run validators and exporters on real builds.
 
-4. Gaps, TODOs, and missing clarifications in the Data Center scope
-Here are key items in the Data Center scope that need clarification or tightening before downstream implementation:
+\### 1) ESO-Build-Engine-Data-Center-Scope.md (current focus) \[highest priority]
 
-Schema coupling to Data Model v1
 
-The Data Center mentions “schema conformance” and TypeScript types but does not explicitly state that backend types/ and Python validators are generated from, or strictly aligned to, the v1 Data Model schemas.
 
-Clarify: whether schemas will be hand-maintained in TS and Python or derived from a single JSON-schema-like source (and where that lives under docs/ or data/).
+\*\*Purpose (2–3 sentences)\*\*  
 
-Backend vs Python authority for math and validation
+Defines the complete data center for the ESO Build Engine: repo structure, data storage, Python tools, backend API, frontend, testing, deployment, and maintenance workflows.\[file:4]  
 
-The backend lib/math.ts is described as doing effect aggregation and pillar computation, while Python tools also own aggregate_effects.py and compute_pillars.py.
+Describes what must exist in `data/`, `builds/`, `tools/`, `backend/`, `frontend/`, `logs/`, and `docs/`, and sets success criteria for the pipeline from `test-dummy` to Permafrost Marshal.\[file:4]
 
-Clarify: whether Python remains the single source for math/validation and the backend simply calls Python outputs, or whether math is duplicated in TS (which would violate “no duplicate ESO math” unless carefully managed).
 
-How frontend writes builds safely
 
-The Data Center describes a workflow where the frontend sends build JSON to the backend, which writes to builds/*.json after validation.
-​
+\*\*Fit in ESO Build Engine\*\*  
 
-Clarify:
+The Data Center scope is the operational contract between architecture ideas and real running code, describing how JSON, validators, API, and UI interact as a system.\[file:4]\[file:23]  
 
-Is the backend allowed to modify files directly in the repo, or does it only emit artifacts that the human later commits?
+All other docs (Overview, Data Model, Global Rules, Database Spec) either feed into it (what to implement) or sit on top of it (what to build once the data center is stable).\[file:1]\[file:2]\[file:3]\[file:5]\[file:23]
 
-How conflicts with local Git state are handled (since Overview insists Git is the single source of truth and all I/O is local).
 
-Logs structure and retention
 
-The doc mentions logs/ and logs/llm/ but doesn’t define log file naming, rotation, or whether logs are committed.
-​
+---
 
-Clarify:
 
-Are logs always .gitignored?
 
-Expected log format (JSON vs text) for validators and exporters.
+\### 2) ESO-Build-Engine-Overview.md
 
-Tool invocation API (CLI flags and conventions)
 
-Example commands are given for validate_build.py but the argument patterns (e.g., --build) are not fully specified in a single normative section.
-​
 
-Clarify: standard CLI interface and required flags for all tools (validate_build.py, export_build_md.py, aggregate_effects.py, compute_pillars.py, validate_data_integrity.py) so scripts and CI can call them consistently.
-​
+\*\*Purpose (2–3 sentences)\*\*  
 
-“Test-dummy” build specification
+Defines what the ESO Build Engine is and lays out non‑negotiable rules for architecture, data/logic separation, AI usage, and Git as the single source of truth.\[file:1]  
 
-The doc relies on builds/test-dummy.json as a pipeline smoke test but doesn’t normatively define its required content beyond “references test data IDs.”
-​
+Explains the three-layer design (JSON data, Python logic, selector-only UI) and states that Markdown build grids are generated views, never sources of truth.\[file:1]
 
-Clarify: a small, explicit spec for test-dummy (e.g., at least one front bar skill, at least one set, one CP star, and which specific IDs must appear), possibly in the Data Model or a small docs/test-dummy-spec.md referenced by the Data Center.
 
-Versioning strategy across docs and code
 
-The Data Center mentions versioning via Git and phases, but not how breaking changes in data/ schemas or rules will be coordinated with backend types and validators.
-​
+\*\*Fit in ESO Build Engine (relative to Data Center)\*\*  
 
-Clarify:
+The Overview defines the constraints the Data Center scope must obey: JSON in `data/` and `builds/`, tools in `tools/`, no external runtime dependencies, and selector-only frontends.\[file:1]\[file:4]  
 
-How schema changes are proposed (update docs first vs code first).
+The Data Center doc operationalizes this by specifying concrete files, tools, and workflows that implement those non‑negotiables.\[file:4]\[file:23]
 
-Whether any semantic versioning or “schema version” fields will be included in JSON or docs.
 
-Addressing these clarifications in the Data Center scope will prevent divergence between Python tools, backend TS, and the control docs as the project grows.
 
-5. Ordered work plan (Data Center first, aligned with repo structure)
-Below is a concrete, step‑by‑step plan that prioritizes the Data Center scope, then the other docs, always referencing how they depend on the Data Center. Paths assume the repo root The-Elder-Elemental/ and docs/ as described.
-​
+---
 
-Phase A – Finalize and lock the Data Center scope (docs/ESO-Build-Engine-Data-Center-Scope.md)
-Resolve Data Center clarifications (edit doc)
 
-Update docs/ESO-Build-Engine-Data-Center-Scope.md to:
 
-Declare that Python tools are the single source of truth for math and validation, and backend math.ts either wraps Python outputs or uses shared JSON-configurable math (no divergence).
+\### 3) ESO-Build-Engine-Data-Model-v1.md
 
-Specify the canonical place for schemas (Data Model v1) and how backend TS types and Python validators must follow it.
 
-Define standard CLI flags and usage for all tools (including --build and default locations).
-​
 
-Clarify logging policy for logs/ and logs/llm/ (format and .gitignore expectations).
-​
+\*\*Purpose (2–3 sentences)\*\*  
 
-Save the full updated doc under docs/ESO-Build-Engine-Data-Center-Scope.md.
+Defines the minimal JSON schemas for v1: `data/skills.json`, `data/effects.json`, `data/sets.json`, `data/cp-stars.json`, and `builds/permafrost-marshal.json`.\[file:2]  
 
-Align Data Center with Copilot Bootstrap
+Includes detailed example objects and key principles (IDs not free text, centralized effects, scalable shapes) for the Permafrost Marshal build.\[file:2]
 
-Ensure docs/ESO Build Engine – Copilot Bootstrap.md reflects the same repository tree and tool list described in the Data Center scope, especially for tools/ and builds/.
 
-If any paths differ, update both docs in the same commit (full-file edits).
 
-Confirm Data Center Tool Checklist matches the scope
+\*\*Fit in ESO Build Engine (relative to Data Center)\*\*  
 
-Review docs/ESO Build Engine – Data Center Tool Checklist.md and add any tools or data files that appear in the updated scope but not in the checklist (or mark removed items as obsolete).
+The v1 Data Model is the schema contract that the Data Center must enforce through validators, backend types, and frontend typing.\[file:2]\[file:4]  
 
-This yields a consistent high-level plan (scope doc) and operational status view (checklist).
+The Data Center scope refers to “schema conformance” and TypeScript types; those derive directly from this document and must be kept in sync.\[file:2]\[file:4]\[file:23]
 
-Phase B – Implement Data Center Phase 1 (test-dummy pipeline)
-Implement minimal data JSONs consistent with Data Model v1
 
-Use docs/ESO-Build-Engine-Data-Model-v1.md to create or verify:
 
-data/skills.json with at least one test skill following the schema.
-​
+---
 
-data/effects.json with at least one test effect.
-​
 
-data/sets.json with at least one test set.
-​
 
-data/cp-stars.json with at least one test CP star.
-​
+\### 4) ESO-Build-Engine-Global-Rules.md
 
-Treat these as test-only entries that can later be expanded for Permafrost Marshal.
 
-Create builds/test-dummy.json and MD export
 
-Define builds/test-dummy.json as a structurally valid build JSON, satisfying Global Rules (bars, gear, CP) but using test IDs from the minimal data JSONs.
+\*\*Purpose (2–3 sentences)\*\*  
 
-Run python tools/validate_build_test.py and python tools/export_build_test_md.py to generate builds/test-dummy.md, ensuring the Phase 1 success criteria in the Data Center doc are met.
+Defines structural rules (bars, gear, CP layout), set/CP constraints, and effect stacking logic, plus Python function contracts for validators and helpers.\[file:3]  
 
-Wire logs and execution examples
+Specifies expected behaviors for `validate\_build\_structure`, `aggregate\_effects`, `validate\_effect\_stack\_rules`, and `create\_empty\_build\_template`.\[file:3]
 
-Confirm validators and exporters log execution into logs/ according to the clarified logging conventions.
-​
 
-Update the Data Center doc if needed with the exact example commands you use (e.g., python tools/validate_build_test.py from repo root).
 
-Phase C – Implement Data Center Phase 2 (Permafrost Marshal build)
-Populate real data for Permafrost Marshal
+\*\*Fit in ESO Build Engine (relative to Data Center)\*\*  
 
-Expand data/skills.json, data/effects.json, data/sets.json, and data/cp-stars.json to include all entries required for Permafrost Marshal as per Data Model v1.
+Global Rules describe what Python validators and effect math must do, while the Data Center scope describes where those tools live and how they’re run (`tools/\*.py`, logs, CLI usage).\[file:3]\[file:4]  
 
-Ensure each new effect respects Global Rules semantics (Major/Minor, stacking) in data/effects.json.
-​
+The Data Center’s tools list (`validate\_build.py`, `aggregate\_effects.py`, `compute\_pillars.py`) must be implemented to satisfy the contracts in Global Rules.\[file:3]\[file:4]\[file:7]\[file:23]
 
-Create builds/permafrost-marshal.json aligned to Global Rules
 
-Author builds/permafrost-marshal.json using only IDs and numeric configs, matching the example structure in Data Model v1.
-​
 
-Validate it structurally against Global Rules using tools/validate_build.py (once implemented).
+---
 
-Implement Phase 2 tools per Data Center scope
 
-Implement or refine:
 
-tools/validate_build.py using contracts from Global Rules.
+\### 5) ESO Build Database Project Specification.md
 
-tools/export_build_md.py to generate builds/permafrost-marshal.md as a pure view.
-​
 
-tools/aggregate_effects.py and tools/compute_pillars.py, aligning behaviors to the functions described in Global Rules.
 
-tools/validate_data_integrity.py for ID uniqueness and reference sanity across data/*.json.
+\*\*Purpose (2–3 sentences)\*\*  
 
-Update the Tool Checklist statuses (PLANNED → DONE) as each one is implemented.
-​
+Describes a larger ESO build database project: canonical ESO data keyed by official IDs, meta-layer tables for builds/rotations/gear, an API layer, frontend, and potential addon.\[file:5]  
 
-Phase D – Backend and frontend wiring to the Data Center
-Implement backend skeleton using Data Center scope
+Lays out a phased roadmap (data center validation, schema design, meta layer, API, frontend, addon) and detailed data extraction requirements from ESO.\[file:5]
 
-Create backend/ with src/index.ts, routes/data.ts, routes/builds.ts, lib/loader.ts, lib/validator.ts, lib/math.ts, and types/index.ts as described.
-​
 
-Ensure loader reads from data/ and builds/, validator lib mirrors Python validate_build.py behavior (or delegates to Python outputs), and types align with Data Model v1.
 
-Implement frontend skeleton with selector-only UI
+\*\*Fit in ESO Build Engine (relative to Data Center)\*\*  
 
-Create frontend/ structure per Data Center doc, including App.tsx, BuildEditor.tsx, SkillSelector.tsx, GearSlot.tsx, CPSelector.tsx, EffectDisplay.tsx and shared lib/types.ts.
-​
+The Database Project is a downstream consumer of the Data Center: it explicitly begins only after the “data center” validation phase is complete and stable.\[file:4]\[file:5]\[file:23]  
 
-Ensure UI only uses selectors backed by global JSON via the backend API and never allows free-text editing of core entities, respecting the Overview doc.
+Its canonical-layer and meta-layer ideas can inform future expansions of `data/` and `builds/`, but for now it should be treated as a future phase built on top of the current Data Center pipeline.\[file:4]\[file:5]\[file:23]
 
-Verify Phase 2 success criteria
 
-Use the commands defined in the Data Center doc to verify:
 
-Validators pass, exporters generate accurate Markdown, Permafrost Marshal loads via the backend and displays correctly in the frontend editor.
-​
+---
 
-Update the Data Center scope’s success-criteria section with any necessary corrections discovered in implementation.
 
-Phase E – Refine control docs and then expand toward the full database
-Tighten Global Rules and Data Model against actual tools
 
-After tools and backend are working, reconcile docs/ESO-Build-Engine-Global-Rules.md and docs/ESO-Build-Engine-Data-Model-v1.md with the implemented behavior: where there’s mismatch, update the docs first or adjust code accordingly.
+\### 6) ESO Build Engine – Data Center Tool Checklist.md
 
-Add any missing edge cases found during Permafrost Marshal implementation (e.g., specific stacking exceptions) into data/effects.json and Global Rules text.
-​
 
-Refine Overview and Copilot Bootstrap
 
-Update docs/ESO-Build-Engine-Overview.md if implementation revealed any practical constraints (e.g., how external IDs are used in practice).
-​
+\*\*Purpose (2–3 sentences)\*\*  
 
-Refresh docs/ESO Build Engine – Copilot Bootstrap.md so AI helpers fully reflect the current set of tools and patterns (especially new validators or pipeline scripts you add).
-​
+Distills the Data Center scope into a status-tracked list of required software, JSON data files, and Python tools, tagged as \[DONE], \[PLANNED], or \[LATER].\[file:7]  
 
-Plan transition into ESO Build Database project
+Enumerates filenames in `data/`, `builds/`, and `tools/`, and describes each tool’s purpose, inputs, and outputs.\[file:4]\[file:7]
 
-Once the Data Center passes Phase 3 success criteria, use ESO Build Database Project Specification.md to design a gradual expansion from JSON-based data center to a canonical database and richer API.
 
-Keep the Data Center scope as the base layer; treat database work as an upper layer, ensuring no duplication of core logic and respecting the “data center validation first” requirement.
-​
 
-This plan keeps the Data Center scope as the active focus and ensures every other document is implemented or updated as a consumer or constraint of that central definition.
+\*\*Fit in ESO Build Engine (relative to Data Center)\*\*  
+
+The checklist is a progress tracker and thin implementation layer for the Data Center plan, confirming which pieces of the scope are already implemented locally.\[file:4]\[file:7]\[file:23]  
+
+As the Data Center spec evolves, this file must be updated in lockstep to keep the operational picture accurate (especially as tools move from PLANNED to DONE).\[file:4]\[file:7]\[file:23]
+
+
+
+---
+
+
+
+\### 7) ESO Build Engine – Copilot Bootstrap.md
+
+
+
+\*\*Purpose (2–3 sentences)\*\*  
+
+Tells AI assistants how to work in the repo: obey architecture rules, provide full-file outputs, prefer validators, and never rely on hidden state or external services.\[file:6]  
+
+Restates the three-layer architecture and expected repository structure in a way tailored to AI tooling.\[file:6]\[file:24]
+
+
+
+\*\*Fit in ESO Build Engine (relative to Data Center)\*\*  
+
+The Bootstrap doc governs how AI may modify Data Center components (JSON, tools, backend, frontend), ensuring all work respects the Overview and Data Center scope.\[file:1]\[file:4]\[file:6]\[file:24]  
+
+Any updates to the Data Center (new tools, new data files) should be reflected in this bootstrap so AI helpers stay aligned with the current structure.\[file:4]\[file:6]\[file:23]
+
+
+
+---
+
+
+
+\## 3. Why the Data Center scope must be first
+
+
+
+\- It defines the repo skeleton and execution pipeline.  
+
+&nbsp; The Data Center doc specifies the tree (`data/`, `builds/`, `tools/`, `backend/`, `frontend/`, `logs/`, `docs/`) and which minimal files must exist to call the system “operational.”\[file:4]\[file:23]
+
+
+
+\- It is the prerequisite for downstream projects.  
+
+&nbsp; The Build Database spec explicitly states its project begins only after the “data center” validation phase is complete and stable.\[file:4]\[file:5]\[file:23]
+
+
+
+\- It connects control docs to real tools.  
+
+&nbsp; Overview, Data Model, and Global Rules describe design and rules, but the Data Center scope translates them into concrete tools and workflows.\[file:1]\[file:2]\[file:3]\[file:4]
+
+
+
+\- It defines success criteria and phases.  
+
+&nbsp; The Data Center doc declares when the pipeline is “operational” for Phase 1 (test-dummy), Phase 2 (Permafrost Marshal), and Phase 3 (full functionality).\[file:4]
+
+
+
+Because of these dependencies, no other document can be “complete” in practice until the Data Center scope is implemented well enough to run validators and exporters on real builds.\[file:4]\[file:23]
+
+
+
+---
+
+
+
+\## 4. Gaps, TODOs, and missing clarifications in the Data Center scope
+
+
+
+These items were identified as needing clarification or tightening before downstream implementation.\[file:23]\[file:4]
+
+
+
+\### Schema coupling to Data Model v1
+
+
+
+\- The Data Center mentions “schema conformance” and TypeScript types but originally did not explicitly state that backend `types/` and Python validators must follow Data Model v1.\[file:2]\[file:4]\[file:23]  
+
+\- Clarification: Data Center now explicitly calls Data Model v1 the schema source of truth; any schema changes must update that doc first, then code.\[file:2]\[file:4]
+
+
+
+\### Backend vs Python authority for math and validation
+
+
+
+\- Backend `lib/math.ts` is described as doing effect aggregation and pillar computation, while Python tools also own `aggregate\_effects.py` and `compute\_pillars.py`.\[file:3]\[file:4]\[file:23]  
+
+\- Clarification needed: Python remains the single source for math/validation and backend either wraps Python outputs or shares JSON-configurable math; avoid duplicating ESO math in independent implementations.\[file:3]\[file:4]\[file:23]
+
+
+
+\### How frontend writes builds safely
+
+
+
+\- The Data Center describes frontend sending build JSON to backend, which writes `builds/\*.json` after validation.\[file:4]\[file:23]  
+
+\- Clarify:
+
+&nbsp; - Whether backend is allowed to modify repo files directly or only produce artifacts that the human later commits.
+
+&nbsp; - How conflicts with local Git state are handled, given Git is the single source of truth.\[file:1]\[file:4]\[file:23]
+
+
+
+\### Logs structure and retention
+
+
+
+\- `logs/` and `logs/llm/` are mentioned but log naming, rotation, and commit policy are not fully defined.\[file:4]\[file:23]  
+
+\- Clarify:
+
+&nbsp; - Whether logs are always `.gitignore`d.
+
+&nbsp; - Expected log format (JSON vs text) for validators and exporters.\[file:4]\[file:23]
+
+
+
+\### Tool invocation API (CLI flags and conventions)
+
+
+
+\- Example commands exist for `validate\_build.py`, but a single normative section for CLI interfaces across tools is missing.\[file:4]\[file:7]\[file:23]  
+
+\- Clarify:
+
+&nbsp; - Standard CLI interface and required flags for all tools (`validate\_build.py`, `export\_build\_md.py`, `aggregate\_effects.py`, `compute\_pillars.py`, `validate\_data\_integrity.py`) so scripts and CI can call them consistently.\[file:4]\[file:7]\[file:23]
+
+
+
+\### “Test-dummy” build specification
+
+
+
+\- `builds/test-dummy.json` is used as a pipeline smoke test but not fully specified.\[file:4]\[file:23]  
+
+\- Clarify:
+
+&nbsp; - A small, explicit spec for `test-dummy` (for example, at least one front bar skill, one set, one CP star, and required IDs), possibly via a dedicated `docs/test-dummy-spec.md` referenced by the Data Center.\[file:4]\[file:23]
+
+
+
+\### Versioning strategy across docs and code
+
+
+
+\- The Data Center mentions versioning via Git and phases but not how breaking changes in `data/` schemas or rules coordinate with backend types and validators.\[file:4]\[file:23]  
+
+\- Clarify:
+
+&nbsp; - How schema changes are proposed (update docs first vs code first).
+
+&nbsp; - Whether any schema version fields appear in JSON or docs.\[file:2]\[file:4]\[file:23]
+
+
+
+Addressing these clarifications in the Data Center scope keeps Python tools, backend TypeScript, and control docs in sync as the project grows.\[file:4]\[file:23]
+
+
+
+---
+
+
+
+\## 5. Ordered work plan (Data Center first, aligned with repo structure)
+
+
+
+Below is the work plan captured in the initial thread, structured by phases and aligned to `The-Elder-Elemental/` layout.\[file:23]\[file:4]
+
+
+
+\### Phase A – Finalize and lock the Data Center scope
+
+
+
+\- Resolve clarifications in `docs/ESO-Build-Engine-Data-Center-Scope.md`:
+
+&nbsp; - Declare Python tools as math/validation authority or define shared config with backend.
+
+&nbsp; - Tie backend TS types and validators explicitly to Data Model v1.
+
+&nbsp; - Define standard CLI flags for core tools.
+
+&nbsp; - Clarify logging policy for `logs/` and `logs/llm/`.\[file:2]\[file:3]\[file:4]\[file:23]
+
+\- Align Copilot Bootstrap to match Data Center structure and tool list.
+
+\- Ensure the Data Center Tool Checklist mirrors the scope (tools and data).\[file:4]\[file:6]\[file:7]\[file:23]
+
+
+
+\### Phase B – Implement Data Center Phase 1 (test-dummy pipeline)
+
+
+
+\- Implement minimal data JSONs consistent with Data Model v1:
+
+&nbsp; - `data/skills.json`, `data/effects.json`, `data/sets.json`, `data/cp-stars.json` with at least one test entry each.\[file:2]\[file:4]\[file:7]
+
+\- Create `builds/test-dummy.json` as a structurally valid build per Global Rules.\[file:3]\[file:4]\[file:7]
+
+\- Run:
+
+&nbsp; - `python tools/validate\_build\_test.py`
+
+&nbsp; - `python tools/export\_build\_test\_md.py`
+
+&nbsp; - Confirm `builds/test-dummy.md` is generated and valid.\[file:4]\[file:7]\[file:23]
+
+
+
+\### Phase C – Implement Data Center Phase 2 (Permafrost Marshal build)
+
+
+
+\- Populate real data for Permafrost Marshal in `data/\*.json` following Data Model v1.\[file:2]\[file:4]
+
+\- Author `builds/permafrost-marshal.json` using IDs and numeric configs, respecting Global Rules.\[file:2]\[file:3]\[file:4]
+
+\- Implement or refine Phase 2 tools:
+
+&nbsp; - `tools/validate\_build.py`
+
+&nbsp; - `tools/export\_build\_md.py`
+
+&nbsp; - `tools/aggregate\_effects.py`
+
+&nbsp; - `tools/compute\_pillars.py`
+
+&nbsp; - `tools/validate\_data\_integrity.py`\[file:3]\[file:4]\[file:7]\[file:23]
+
+\- Update Tool Checklist statuses from \[PLANNED] to \[DONE] as tools are implemented.\[file:7]\[file:23]
+
+
+
+\### Phase D – Backend and frontend wiring
+
+
+
+\- Implement backend skeleton (`backend/`) to load JSON, validate builds, and expose data/build endpoints per Data Center scope.\[file:4]\[file:23]
+
+\- Implement frontend skeleton (`frontend/`) with selector-only UI, reading from backend and never duplicating core ESO data.\[file:1]\[file:4]\[file:23]
+
+\- Verify Phase 2 success criteria from Data Center:
+
+&nbsp; - Validators and exporters pass.
+
+&nbsp; - Permafrost Marshal loads via backend and displays correctly in frontend.\[file:4]\[file:23]
+
+
+
+\### Phase E – Refine control docs and expand toward ESO Build Database
+
+
+
+\- Reconcile Global Rules and Data Model v1 with actual tool behavior; update docs first when discrepancies appear.\[file:2]\[file:3]\[file:23]
+
+\- Refresh Overview and Copilot Bootstrap to reflect any implementation-driven constraints or adjustments.\[file:1]\[file:6]\[file:23]
+
+\- Once Data Center meets Phase 3 criteria, use ESO Build Database Project Specification to design gradual expansion to a canonical DB and richer API.\[file:4]\[file:5]\[file:23]
+
+
+
+This document is a snapshot of that initial planning and alignment; newer docs now encode the refined decisions directly.\[file:1]\[file:2]\[file:3]\[file:4]\[file:6]\[file:7]
+
+
+
