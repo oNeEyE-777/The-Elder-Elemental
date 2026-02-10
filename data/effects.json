@@ -1,158 +1,103 @@
 {
-    "effects": [
-        {
-            "id": "buff.major_resolve",
-            "name": "Major Resolve",
-            "category": "buff",
-            "scope": "self",
-            "stat": "resist",
-            "type": "major",
-            "value": 5948,
-            "stacks_with": [],
-            "description": "Increases Physical and Spell Resistance by 5948."
-        },
-        {
-            "id": "debuff.major_breach",
-            "name": "Major Breach",
-            "category": "debuff",
-            "scope": "target",
-            "stat": "resist",
-            "type": "major",
-            "value": -5948,
-            "stacks_with": [],
-            "description": "Reduces target's Physical and Spell Resistance by 5948."
-        },
-        {
-            "id": "debuff.minor_breach",
-            "name": "Minor Breach",
-            "category": "debuff",
-            "scope": "target",
-            "stat": "resist",
-            "type": "minor",
-            "value": -2974,
-            "stacks_with": [],
-            "description": "Reduces target's Physical and Spell Resistance by 2974."
-        },
-        {
-            "id": "debuff.minor_vulnerability",
-            "name": "Minor Vulnerability",
-            "category": "debuff",
-            "scope": "target",
-            "stat": "damage_taken",
-            "type": "minor",
-            "value": 0.05,
-            "stacks_with": [],
-            "description": "Target takes 5% more damage."
-        },
-        {
-            "id": "debuff.major_vulnerability",
-            "name": "Major Vulnerability",
-            "category": "debuff",
-            "scope": "target",
-            "stat": "damage_taken",
-            "type": "major",
-            "value": 0.10,
-            "stacks_with": [],
-            "description": "Target takes 10% more damage."
-        },
-        {
-            "id": "buff.minor_resolve",
-            "name": "Minor Resolve",
-            "category": "buff",
-            "scope": "self",
-            "stat": "resist",
-            "type": "minor",
-            "value": 2974,
-            "stacks_with": [],
-            "description": "Increases Physical and Spell Resistance by 2974."
-        },
-        {
-            "id": "buff.minor_vitality",
-            "name": "Minor Vitality",
-            "category": "buff",
-            "scope": "self",
-            "stat": "healing_received",
-            "type": "minor",
-            "value": 0.08,
-            "stacks_with": [],
-            "description": "Increases healing received by 8%."
-        },
-        {
-            "id": "buff.major_vitality",
-            "name": "Major Vitality",
-            "category": "buff",
-            "scope": "self",
-            "stat": "healing_received",
-            "type": "major",
-            "value": 0.16,
-            "stacks_with": [],
-            "description": "Increases healing received by 16%."
-        },
-        {
-            "id": "buff.major_fortitude",
-            "name": "Major Fortitude",
-            "category": "buff",
-            "scope": "self",
-            "stat": "health_recovery",
-            "type": "major",
-            "value": 0.30,
-            "stacks_with": [],
-            "description": "Increases Health Recovery by 30%."
-        },
-        {
-            "id": "buff.major_endurance",
-            "name": "Major Endurance",
-            "category": "buff",
-            "scope": "self",
-            "stat": "stamina_recovery",
-            "type": "major",
-            "value": 0.30,
-            "stacks_with": [],
-            "description": "Increases Stamina Recovery by 30%."
-        },
-        {
-            "id": "buff.major_brutality",
-            "name": "Major Brutality",
-            "category": "buff",
-            "scope": "self",
-            "stat": "weapon_damage",
-            "type": "major",
-            "value": 0.20,
-            "stacks_with": [],
-            "description": "Increases Weapon Damage by 20%."
-        },
-        {
-            "id": "buff.major_sorcery",
-            "name": "Major Sorcery",
-            "category": "buff",
-            "scope": "self",
-            "stat": "spell_damage",
-            "type": "major",
-            "value": 0.20,
-            "stacks_with": [],
-            "description": "Increases Spell Damage by 20%."
-        },
-        {
-            "id": "buff.major_protection",
-            "name": "Major Protection",
-            "category": "buff",
-            "scope": "self",
-            "stat": "damage_taken",
-            "type": "major",
-            "value": -0.10,
-            "stacks_with": [],
-            "description": "Reduces damage taken by 10%."
-        },
-        {
-            "id": "buff.minor_expedition",
-            "name": "Minor Expedition",
-            "category": "buff",
-            "scope": "self",
-            "stat": "movement_speed",
-            "type": "minor",
-            "value": 0.15,
-            "stacks_with": [],
-            "description": "Increases movement speed by 15%."
-        }
-    ]
+  "effects": [
+    {
+      "id": "buff.major_resolve",
+      "name": "Major Resolve",
+      "category": "buff",
+      "scope": "self",
+      "stat": "resist",
+      "type": "major",
+      "base_value": 5948,
+      "stacks_with": [],
+      "description": "Increases Physical and Spell Resistance by 5948."
+    },
+    {
+      "id": "debuff.major_breach",
+      "name": "Major Breach",
+      "category": "debuff",
+      "scope": "enemy",
+      "stat": "resist",
+      "type": "major",
+      "base_value": -5948,
+      "stacks_with": [],
+      "description": "Reduces Physical and Spell Resistance by 5948."
+    },
+    {
+      "id": "debuff.minor_breach",
+      "name": "Minor Breach",
+      "category": "debuff",
+      "scope": "enemy",
+      "stat": "resist",
+      "type": "minor",
+      "base_value": -2974,
+      "stacks_with": [],
+      "description": "Reduces Physical and Spell Resistance by 2974."
+    },
+    {
+      "id": "buff.adept_rider_speed_in_combat",
+      "name": "Adept Rider Speed In Combat",
+      "category": "buff",
+      "scope": "self",
+      "stat": "movement_speed",
+      "type": "unique",
+      "base_value": 0.2,
+      "stacks_with": [],
+      "description": "Increases movement speed while in combat (placeholder value)."
+    },
+    {
+      "id": "buff.adept_rider_speed_out_of_combat",
+      "name": "Adept Rider Speed Out of Combat",
+      "category": "buff",
+      "scope": "self",
+      "stat": "movement_speed",
+      "type": "unique",
+      "base_value": 0.3,
+      "stacks_with": [],
+      "description": "Increases movement speed while out of combat (placeholder value)."
+    },
+    {
+      "id": "buff.major_gallop",
+      "name": "Major Gallop",
+      "category": "buff",
+      "scope": "self",
+      "stat": "mount_speed",
+      "type": "major",
+      "base_value": 0.3,
+      "stacks_with": [],
+      "description": "Increases mount speed (placeholder representation)."
+    },
+    {
+      "id": "buff.pariah_scaling_resist",
+      "name": "Pariah Scaling Resist",
+      "category": "buff",
+      "scope": "self",
+      "stat": "resist",
+      "type": "unique",
+      "base_value": 0.0,
+      "stacks_with": [],
+      "description": "Dynamic resistance scaling based on missing Health (placeholder, math handled elsewhere)."
+    },
+    {
+      "id": "buff.wild_hunt_speed",
+      "name": "Wild Hunt Speed",
+      "category": "buff",
+      "scope": "self",
+      "stat": "movement_speed",
+      "type": "unique",
+      "base_value": 0.15,
+      "stacks_with": [],
+      "description": "Movement speed bonus from Ring of the Wild Hunt (placeholder value)."
+    },
+    {
+      "id": "buff.damage_taken_direct_minor",
+      "name": "Minor Direct Damage Protection",
+      "category": "buff",
+      "scope": "self",
+      "stat": "damage_taken_direct",
+      "type": "minor",
+      "base_value": -0.05,
+      "stacks_with": [],
+      "description": "Reduces damage taken from direct damage attacks (placeholder for Ironclad)."
+    }
+  ]
 }
