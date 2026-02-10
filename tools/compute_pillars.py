@@ -6,7 +6,8 @@ Phase 3 implementation of compute_pillars(build, data) -> dict.
 
 - Loads data/skills.json, data/effects.json, data/sets.json, data/cp-stars.json.
 - Loads a build JSON (e.g. builds/permafrost-marshal.json).
-- Computes a flat list of effect instances from skills, sets, and CP.
+- Computes a flat list of effect instances from skills, sets, and CP
+  (mirroring tools/aggregate_effects.py).
 - Splits effects into two logical states:
 
   - inactive_state_effects: baseline, always-on effects
@@ -240,7 +241,6 @@ def is_inactive_state_effect(effect: Dict[str, Any]) -> bool:
       treated as baseline uptime for this build.
 
     This is intentionally heuristic and data-driven, not ESO-term-driven.
-    You can refine the logic over time via timing or additional flags.
     """
     source = effect.get("source", "")
     timing = (effect.get("timing") or "").lower()
@@ -347,9 +347,13 @@ def _get_magnitude(meta: Dict[str, Any]) -> float:
     """
     Unified magnitude lookup aligned with data/effects.json:
 
-    Prefer explicit "magnitude", then "value", then "base_value".
+    Prefer explicit "magnitude_value" if present, otherwise fall back
+    to "magnitude", "value", then "base_value".
     """
-    val = meta.get("magnitude", meta.get("value", meta.get("base_value", 0)))
+    if "magnitude_value" in meta:
+        val = meta["magnitude_value"]
+    else:
+        val = meta.get("magnitude", meta.get("value", meta.get("base_value", 0)))
     return float(val) if isinstance(val, (int, float)) else 0.0
 
 
@@ -371,7 +375,7 @@ def evaluate_resist_pillar(
             continue
 
         stat = eff_meta.get("stat")
-        if stat not in ("resist_shown", "resist", "armor"):
+        if stat not in ("resistance_flat", "resist", "armor"):
             continue
 
         magnitude = _get_magnitude(eff_meta)
@@ -463,12 +467,9 @@ def evaluate_speed_pillar(
 
         stat = meta.get("stat")
         if stat not in (
-            "movespeed",
-            "movement_speed",
-            "mounted_speed",
-            "mount_speed",
-            "combat_speed",
-            "speed",
+            "movement_speed_scalar",
+            "movement_speed_out_of_combat_scalar",
+            "mounted_speed_scalar",
         ):
             continue
 
@@ -515,9 +516,9 @@ def evaluate_hots_pillar(
             continue
 
         category = meta.get("category")
-        flags = meta.get("flags", {})
+        stat = meta.get("stat")
 
-        is_hot = category == "hot" or flags.get("hot") or flags.get("HoT")
+        is_hot = (category == "over_time") and (stat == "healing_over_time_scalar")
         if not is_hot:
             continue
 
@@ -558,9 +559,9 @@ def evaluate_shield_pillar(
             continue
 
         category = meta.get("category")
-        flags = meta.get("flags", {})
+        stat = meta.get("stat")
 
-        is_shield = category == "shield" or flags.get("shield")
+        is_shield = (category == "shield") and stat.startswith("shield_")
         if not is_shield:
             continue
 

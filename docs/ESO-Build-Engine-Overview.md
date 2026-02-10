@@ -1,80 +1,83 @@
-# Doc 1 - ESO Build Engine – Overview & Non‑Negotiables **docs/ESO-Build-Engine-Overview.md**
+# ESO Build Engine Overview & Non-Negotiables
 
-## Purpose
+The ESO Build Engine is a data-driven system for representing ESO builds in a way that is stable, inspectable, and automatable. It separates ESO-specific content (skills, sets, CP, effects) from build configuration and from any UI, and it enforces strict rules about where data and logic live.[file:18][file:19][file:20]
 
-Define what the ESO Build Engine is, and the non‑negotiable rules for how it is built and how AI is allowed to interact with it.​[file:1][file:6][file:24]
+At the core, this project starts with a single real build – **Permafrost Marshal** – but is designed so that the same data and logic structures can scale to a full ESO database without structural changes.[file:18][file:20]
 
-## High‑level description
+## Canonical data files (current)
 
-We are building a **data‑driven ESO build engine**, starting with a single build: **Permafrost Marshal** (Warden / Necromancer / Dragonknight, PvP, high‑speed tank).​[file:1][file:2]
+For the current v1 Data Center, the only canonical data JSON files are:
 
-The system has three layers:​[file:1][file:4][file:6]
+- `data/skills.json` – All skills used by builds, with metadata and effect references.[file:18]
+- `data/effects.json` – All effects (buffs, debuffs, shields, HoTs, etc.) with math fields and stacking rules.[file:18][file:19]
+- `data/sets.json` – All sets used by builds, with bonuses expressed as lists of effect IDs.[file:18]
+- `data/cp-stars.json` – All CP stars used by builds, with tree, slot type, and effect IDs.[file:18]
 
-* **Data layer**: JSON “database” files (skills, effects, sets, CP, builds).​[file:2][file:4]
-* **Logic layer**: validation + math over those JSONs (buff stacking, resist/speed, pillars).​[file:3][file:4]
-* **Presentation layer**: a real web UI:
-  + No flat text entry for core game entities.
-  + Users select skills/sets/CP/etc. from global data, and the UI auto‑populates tooltips and derived fields.​[file:1][file:4]
+These files are authoritative for ESO game data in this repo. Any additional data files (for example, future `mundus.json`, `food.json`, `enchants.json`) must be added explicitly to this list and documented in the v1 Data Model before being treated as canonical.[file:18][file:20]
 
-Markdown build grids (like Permafrost Marshal) are **generated views** of the data, not sources of truth.​[file:1][file:4][file:7]
+Build records **never** duplicate ESO math or tooltips; they reference these data files by ID only.[file:18][file:19]
 
-## Non‑negotiable process rules
+## Architecture layers
 
-* **Git repo is the single source of truth.**
-  + All ESO data lives in JSON under `data/`.
-  + All builds live in JSON under `builds/`.
-  + Markdown grids are views, derived from build JSON, never edited by hand.​[file:1][file:4][file:7]
+The ESO Build Engine is organized into three layers:[file:4][file:18][file:20]
 
-* **No copy/paste for data or code.**
-  + Changes are made via complete file contents or dedicated tools.
-  + No “paste this snippet into line 47”; only full‑file replace or new file creation.​[file:1][file:6][file:24]
+1. **Data layer (JSON only)**
+   - Canonical ESO-agnostic data lives under `data/`:
+     - Skills, effects, sets, CP stars, and future data sources like Mundus stones or food.
+   - Build definitions live under `builds/`:
+     - Each build is a single JSON file that references IDs from `data/` and contains only numeric / structural configuration (bars, gear, CP layout, attributes, pillar targets).
+   - No UI-specific or backend-specific fields are allowed in data JSON.
 
-* **AI interaction constraints.**
-  + AI may only operate via:
-    - Complete file contents to be saved at specific paths.
-    - Python tools that read/write repo files.
-  + AI cannot fetch from GitHub or external APIs for this project; Git/GitHub are only for your own sync/backup/CI.​[file:1][file:4][file:6][file:24]
+2. **Logic layer (Python tools under `tools/`)**
+   - Stateless Python scripts that:
+     - Validate data and builds (`validate_build.py`, `validate_build_test.py`).[file:19][file:20]
+     - Aggregate effects (`aggregate_effects.py`).
+     - Evaluate pillar requirements (`compute_pillars.py`).
+     - Export Markdown summaries (`export_build_md.py`, `export_build_test_md.py`).
+   - All ESO rules and math live here or in the data JSONs, never in ad-hoc scripts or the UI.
 
-* **Local environment controls all file I/O.**
-  + All reading/writing of JSON/MD is done on the local clone (VS Code + Python scripts).
-  + Backend and frontend read only from these JSON files, not from external services.​[file:1][file:4]
+3. **Presentation/UI layer (backend + frontend, future)**
+   - A Node/Express TypeScript backend that reads `data/` and `builds/` and exposes REST endpoints for data, validation, and computed outputs.[file:20]
+   - A React/Vite frontend that:
+     - Uses selector-only inputs for skills, sets, CP (no free text).
+     - Reads data and builds from the backend.
+     - Displays computed effects and pillars.
+   - No ESO game logic is duplicated in the UI; it uses the same JSON + Python tool outputs as the source of truth.
 
-## Data‑driven, ID‑based design
+## Non-negotiable rules
 
-* Skills, sets, CP stars, buffs, and other entities are all referenced by **IDs**, never by free text.​[file:1][file:2][file:3]
-* Tooltips, math, and relationships are stored once, in global data tables (for example `data/skills.json`, `data/effects.json`, `data/sets.json`, `data/cp-stars.json`).​[file:2][file:4]
-* Build records store only:
-  + IDs (skills, sets, CP, Mundus, food/drink, enchants).
-  + Numeric configuration (attributes, CP total, pillar targets, etc.).
-  + No duplicated tooltip or math text in build files.​[file:1][file:2][file:3]
+These rules apply to all work on this repo:[file:4][file:18][file:19][file:20]
 
-This ID‑based design ensures that any change to ESO rules happens in one place and flows through validators, math, backend, frontend, and exports consistently.​[file:1][file:2][file:3][file:4]
+- **Git is the single source of truth.**
+  - All data and logic must live in tracked files in this repository.
+  - No external databases or hidden configuration.
 
-## Front end is selector‑only
+- **Data/logic separation.**
+  - ESO game data lives only in JSON under `data/`.
+  - Builds live only in JSON under `builds/` and reference data IDs.
+  - All math and validation logic lives in Python under `tools/`.
+  - Backend and frontend consume JSON + Python outputs; they do not invent new rules.
 
-* All core game entities are chosen via selectors backed by global JSON data:
-  + Skills, sets, CP stars, Mundus, food/drink, enchants are selected from dropdowns/search.​[file:1][file:4]
-* When you select an ID, the UI:
-  + Looks up all details (tooltip, cost, duration, buffs, math) automatically from `data/*.json`.
-  + Never lets the user hand‑edit those details.​[file:1][file:4]
+- **Generated views are never edited by hand.**
+  - Markdown build grids (e.g., `builds/permafrost-marshal.md`, `builds/test-dummy.md`) are generated by tools and must not be hand-edited.[file:20]
 
-* Build JSON written by the backend:
-  + Contains only IDs and numeric configuration.
-  + Is validated by Python tools before being committed.​[file:3][file:4][file:7]
+- **Full-file edits only.**
+  - When changing a file, edits are made as complete file replacements (no partial patches), to simplify review and avoid drift.
 
-The frontend’s job is to **reflect** the data center and validators, not to invent or duplicate ESO rules.​[file:1][file:4]
+- **Validation-first workflow.**
+  - Any change to data or builds must be followed by running validators (e.g., `python tools/validate_build.py`) before commit.[file:19][file:20]
+  - The `test-dummy` build is used first to ensure pipeline correctness before touching Permafrost Marshal.
 
-## Centralized math and validation
+- **Logic-driven terminology.**
+  - Structured fields, enums, and function names must be logic-driven and ESO-agnostic:
+    - Use terms like `resistance_flat`, `damage_taken_scalar`, `movement_speed_scalar`, `state_active`.[file:19]
+    - Do **not** use ESO slang in structured data: no `Major Resolve`, `Major Breach`, `buffed`, `unbuffed` as enum values.
+  - ESO-specific terms are allowed only in:
+    - Human-facing `name` / `description` fields.
+    - Opaque IDs such as `skill.deep_fissure`, `effect.buff.major_resolve`, `set.mark_of_the_pariah`.[file:19]
 
-* Buff/debuff semantics (Major/Minor, values, stacking) live in `data/effects.json` as the **single source of truth** for effect math.​[file:2][file:3][file:4]
-* Global rules (bars, gear layout, CP limits, mythic limits, etc.) are defined in `docs/ESO-Build-Engine-Global-Rules.md` and implemented in Python validators under `tools/`.​[file:3][file:4][file:7]
-* Pillar checks (Resist, Health, Speed, HoTs, Shields, Core combo) are computed from:
-  + Build IDs + global data + effect math.
-  + Never from ad‑hoc calculations inside the UI or Markdown.​[file:1][file:3][file:4]
+## Build scope and scaling
 
-* **Logic‑driven terminology and functions.**
-  + All validation and math functions must use logic‑driven, system‑neutral terms, not ESO slang or tooltip phrasing.
-  + Data structures and function names must describe what they compute (for example `inactive` vs `active` state, `resist_shown`, `movement_speed_scalar`) rather than in‑game labels such as “buffed”, “unbuffed”, “Major Breach”, or “Major Resolve”.
-  + ESO‑specific names may appear only in human‑facing fields like `name` or `description`, not as primary keys, enum values, or function names, so that the database remains fully functional and logically stable even if ESO terminology changes.​[file:6][file:10]
+The initial scope is centered on one real build:[file:18][file:20]
 
-All tools and services must respect these rules: JSON + IDs are the truth, validators and math live in one place, and everything else is a generated view over that data.​[file:1][file:3][file:4][file:6][file:24]
+- `builds/permafrost-marshal.json` – Permafrost Marshal build, fully wired to skills, sets, effects,

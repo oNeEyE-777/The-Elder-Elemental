@@ -72,7 +72,7 @@ def collect_skill_effects(
 
     for bar_name in ("front", "back"):
         for slot in bars.get(bar_name, []):
-            # Data Model v1: "skillid" on slots.[file:15]
+            # Data Model v1: "skillid" on slots.[file:18]
             skill_id = slot.get("skillid") or slot.get("skill_id")
             if not skill_id:
                 continue
@@ -87,7 +87,7 @@ def collect_skill_effects(
                 results.append(
                     {
                         "effect_id": effect_id,
-                        # skill_id already encodes the prefix, e.g. "skill.deep_fissure".[file:15]
+                        # skill_id already encodes the prefix, e.g. "skill.deep_fissure".[file:18]
                         "source": skill_id,
                         "timing": eff.get("timing"),
                         "target": eff.get("target"),
@@ -104,7 +104,7 @@ def collect_skill_effects(
 def compute_set_piece_counts(build: Dict[str, Any]) -> Dict[str, int]:
     """
     build.gear is an array of items like:
-      { "slot": "head", "setid": "set.nibenay", ... }.[file:15]
+      { "slot": "head", "setid": "set.nibenay", ... }.[file:18]
     """
     gear_list = build.get("gear", [])
     counts: Dict[str, int] = {}
@@ -128,7 +128,7 @@ def collect_set_effects(
     sets_index: Dict[str, Dict[str, Any]],
 ) -> List[Dict[str, Any]]:
     """
-    Data Model v1: sets[].bonuses[].effects is a list of effect ID strings.[file:15]
+    Data Model v1: sets[].bonuses[].effects is a list of effect ID strings.[file:18]
     """
     results: List[Dict[str, Any]] = []
     piece_counts = compute_set_piece_counts(build)
@@ -163,7 +163,7 @@ def collect_set_effects(
                 results.append(
                     {
                         "effect_id": effect_id,
-                        # set_id already encodes prefix, e.g. "set.adept_rider".[file:15]
+                        # set_id already encodes prefix, e.g. "set.adept_rider".[file:18]
                         "source": set_id,
                         "timing": timing,
                         "target": target,
@@ -182,7 +182,7 @@ def collect_cp_effects(
     cp_index: Dict[str, Dict[str, Any]],
 ) -> List[Dict[str, Any]]:
     """
-    Data Model v1: build.cpslotted.{warfare,fitness,craft} holds CP IDs.[file:15]
+    Data Model v1: build.cpslotted.{warfare,fitness,craft} holds CP IDs.[file:18]
     """
     results: List[Dict[str, Any]] = []
     cp_slotted = build.get("cpslotted", build.get("cp_slotted", {}))
@@ -215,7 +215,7 @@ def collect_cp_effects(
                 results.append(
                     {
                         "effect_id": effect_id,
-                        # cp_id already encodes prefix, e.g. "cp.ironclad".[file:15]
+                        # cp_id already encodes prefix, e.g. "cp.ironclad".[file:18]
                         "source": cp_id,
                         "timing": timing,
                         "target": target,
