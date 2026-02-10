@@ -32,111 +32,111 @@
 
   "bars": {
     "front": [
-      { "slot": 1,   "skill_id": "skill.deep_fissure" },
-      { "slot": 2,   "skill_id": "skill.unnerving_boneyard" },
-      { "slot": 3,   "skill_id": "skill.hardened_armor" },
-      { "slot": 4,   "skill_id": "skill.green_dragon_blood" },
-      { "slot": 5,   "skill_id": "skill.blinding_flare_front" },
-      { "slot": "ULT", "skill_id": "skill.reviving_barrier" }
+      { "slot": 1,   "skillid": "skill.deep_fissure" },
+      { "slot": 2,   "skillid": "skill.unnerving_boneyard" },
+      { "slot": 3,   "skillid": "skill.hardened_armor" },
+      { "slot": 4,   "skillid": "skill.green_dragon_blood" },
+      { "slot": 5,   "skillid": "skill.blinding_flare_front" },
+      { "slot": "ULT", "skillid": "skill.reviving_barrier" }
     ],
     "back": [
-      { "slot": 1,   "skill_id": "skill.ulfsilds_contingency" },
-      { "slot": 2,   "skill_id": "skill.resolving_vigor" },
-      { "slot": 3,   "skill_id": "skill.bull_netch" },
-      { "slot": 4,   "skill_id": "skill.wield_soul" },
-      { "slot": 5,   "skill_id": "skill.soul_burst" },
-      { "slot": "ULT", "skill_id": "skill.glacial_colossus" }
+      { "slot": 1,   "skillid": "skill.ulfsilds_contingency" },
+      { "slot": 2,   "skillid": "skill.resolving_vigor" },
+      { "slot": 3,   "skillid": "skill.bull_netch" },
+      { "slot": 4,   "skillid": "skill.wield_soul" },
+      { "slot": 5,   "skillid": "skill.soul_burst" },
+      { "slot": "ULT", "skillid": "skill.glacial_colossus" }
     ]
   },
 
   "gear": [
     {
       "slot": "head",
-      "set_id": "set.nibenay",
+      "setid": "set.nibenay",
       "weight": "heavy",
       "trait": "reinforced",
       "enchant": "glyph.max_magicka"
     },
     {
       "slot": "shoulder",
-      "set_id": "set.adept_rider",
+      "setid": "set.adept_rider",
       "weight": "heavy",
       "trait": "impenetrable",
       "enchant": "glyph.max_magicka"
     },
     {
       "slot": "chest",
-      "set_id": "set.mark_of_the_pariah",
+      "setid": "set.mark_of_the_pariah",
       "weight": "heavy",
       "trait": "reinforced",
       "enchant": "glyph.max_magicka"
     },
     {
       "slot": "hands",
-      "set_id": "set.adept_rider",
+      "setid": "set.adept_rider",
       "weight": "medium",
       "trait": "impenetrable",
       "enchant": "glyph.max_magicka"
     },
     {
       "slot": "waist",
-      "set_id": "set.adept_rider",
+      "setid": "set.adept_rider",
       "weight": "light",
       "trait": "impenetrable",
       "enchant": "glyph.max_magicka"
     },
     {
       "slot": "legs",
-      "set_id": "set.adept_rider",
+      "setid": "set.adept_rider",
       "weight": "heavy",
       "trait": "impenetrable",
       "enchant": "glyph.max_magicka"
     },
     {
       "slot": "feet",
-      "set_id": "set.adept_rider",
+      "setid": "set.adept_rider",
       "weight": "heavy",
       "trait": "impenetrable",
       "enchant": "glyph.max_magicka"
     },
     {
       "slot": "neck",
-      "set_id": "set.mark_of_the_pariah",
+      "setid": "set.mark_of_the_pariah",
       "weight": null,
       "trait": "swift",
       "enchant": "glyph.magicka_recovery"
     },
     {
       "slot": "ring1",
-      "set_id": "set.mark_of_the_pariah",
+      "setid": "set.mark_of_the_pariah",
       "weight": null,
       "trait": "swift",
       "enchant": "glyph.magicka_recovery"
     },
     {
       "slot": "ring2",
-      "set_id": "set.ring_of_the_wild_hunt",
+      "setid": "set.ring_of_the_wild_hunt",
       "weight": null,
       "trait": "swift",
       "enchant": "glyph.magicka_recovery"
     },
     {
       "slot": "front_weapon",
-      "set_id": "set.mark_of_the_pariah",
+      "setid": "set.mark_of_the_pariah",
       "weight": null,
       "trait": "defending",
       "enchant": "glyph.absorb_magicka"
     },
     {
       "slot": "back_weapon",
-      "set_id": "set.mark_of_the_pariah",
+      "setid": "set.mark_of_the_pariah",
       "weight": null,
       "trait": "defending",
       "enchant": "glyph.absorb_magicka"
     }
   ],
 
-  "cp_slotted": {
+  "cpslotted": {
     "warfare": [
       "cp.ironclad",
       "cp.duelists_rebuff",

@@ -1,0 +1,58 @@
+[
+  {
+    "duration_seconds": 10,
+    "effect_id": "debuff.major_breach",
+    "source": "skill.deep_fissure",
+    "target": "enemy",
+    "timing": "onhit"
+  },
+  {
+    "duration_seconds": 10,
+    "effect_id": "debuff.minor_breach",
+    "source": "skill.deep_fissure",
+    "target": "enemy",
+    "timing": "onhit"
+  },
+  {
+    "duration_seconds": 20,
+    "effect_id": "buff.major_resolve",
+    "source": "skill.hardened_armor",
+    "target": "self",
+    "timing": "whileactive"
+  },
+  {
+    "duration_seconds": null,
+    "effect_id": "buff.adept_rider_speed_in_combat",
+    "source": "set.adept_rider",
+    "target": null,
+    "timing": null
+  },
+  {
+    "duration_seconds": null,
+    "effect_id": "buff.adept_rider_speed_out_of_combat",
+    "source": "set.adept_rider",
+    "target": null,
+    "timing": null
+  },
+  {
+    "duration_seconds": null,
+    "effect_id": "buff.major_gallop",
+    "source": "set.adept_rider",
+    "target": null,
+    "timing": null
+  },
+  {
+    "duration_seconds": null,
+    "effect_id": "buff.pariah_scaling_resist",
+    "source": "set.mark_of_the_pariah",
+    "target": null,
+    "timing": null
+  },
+  {
+    "duration_seconds": null,
+    "effect_id": "buff.wild_hunt_speed",
+    "source": "set.ring_of_the_wild_hunt",
+    "target": null,
+    "timing": null
+  }
+]
