@@ -1,67 +1,155 @@
 {
   "id": "build.test_dummy",
   "name": "Test Dummy Build",
-  "meta": {
-    "version": "0.1.0",
-    "author": "Local Dev",
-    "last_updated": "2026-02-08",
-    "notes": "Minimal test build to validate Phase 1 data center tools."
+
+  "class_core": "warden",
+  "subclasses": [],
+
+  "cp_total": 0,
+
+  "role_tags": ["test"],
+
+  "attributes": {
+    "health": 0,
+    "magicka": 0,
+    "stamina": 0
   },
-  "class": "Warden",
-  "role": "test",
-  "bars": {
-    "front": {
-      "weapon_type": "inferno_staff",
-      "slots": {
-        "1": {
-          "skill_id": "skill.deep_fissure"
-        },
-        "2": null,
-        "3": null,
-        "4": null,
-        "5": null,
-        "ult": null
-      }
-    },
-    "back": {
-      "weapon_type": "ice_staff",
-      "slots": {
-        "1": null,
-        "2": null,
-        "3": null,
-        "4": null,
-        "5": null,
-        "ult": null
-      }
+
+  "pillars": {
+    "resist": { "target_resist_shown": 0 },
+    "health": { "focus": "health_first" },
+    "speed": { "profile": "normal" },
+    "hots": { "min_active_hots": 0 },
+    "shield": { "min_active_shields": 0 },
+    "core_combo": {
+      "skills": []
     }
   },
-  "gear": {
-    "head": {
+
+  "bars": {
+    "front": [
+      { "slot": 1,   "skill_id": "skill.deep_fissure" },
+      { "slot": 2,   "skill_id": null },
+      { "slot": 3,   "skill_id": null },
+      { "slot": 4,   "skill_id": null },
+      { "slot": 5,   "skill_id": null },
+      { "slot": "ULT", "skill_id": null }
+    ],
+    "back": [
+      { "slot": 1,   "skill_id": null },
+      { "slot": 2,   "skill_id": null },
+      { "slot": 3,   "skill_id": null },
+      { "slot": 4,   "skill_id": null },
+      { "slot": 5,   "skill_id": null },
+      { "slot": "ULT", "skill_id": null }
+    ]
+  },
+
+  "gear": [
+    {
+      "slot": "head",
       "set_id": "set.adept_rider",
       "weight": "light",
-      "trait": "divines"
+      "trait": "divines",
+      "enchant": null
     },
-    "chest": null,
-    "shoulders": null,
-    "hands": null,
-    "waist": null,
-    "legs": null,
-    "feet": null,
-    "jewelry_1": null,
-    "jewelry_2": null,
-    "jewelry_3": null,
-    "front_bar_weapon": {
+    {
+      "slot": "shoulder",
+      "set_id": null,
+      "weight": null,
+      "trait": null,
+      "enchant": null
+    },
+    {
+      "slot": "chest",
+      "set_id": null,
+      "weight": null,
+      "trait": null,
+      "enchant": null
+    },
+    {
+      "slot": "hands",
+      "set_id": null,
+      "weight": null,
+      "trait": null,
+      "enchant": null
+    },
+    {
+      "slot": "waist",
+      "set_id": null,
+      "weight": null,
+      "trait": null,
+      "enchant": null
+    },
+    {
+      "slot": "legs",
+      "set_id": null,
+      "weight": null,
+      "trait": null,
+      "enchant": null
+    },
+    {
+      "slot": "feet",
+      "set_id": null,
+      "weight": null,
+      "trait": null,
+      "enchant": null
+    },
+    {
+      "slot": "neck",
+      "set_id": null,
+      "weight": null,
+      "trait": null,
+      "enchant": null
+    },
+    {
+      "slot": "ring1",
+      "set_id": null,
+      "weight": null,
+      "trait": null,
+      "enchant": null
+    },
+    {
+      "slot": "ring2",
+      "set_id": null,
+      "weight": null,
+      "trait": null,
+      "enchant": null
+    },
+    {
+      "slot": "front_weapon",
       "set_id": "set.adept_rider",
-      "type": "staff",
-      "trait": "precise"
+      "weight": null,
+      "trait": "precise",
+      "enchant": null
     },
-    "back_bar_weapon": null
-  },
-  "cp": {
+    {
+      "slot": "back_weapon",
+      "set_id": null,
+      "weight": null,
+      "trait": null,
+      "enchant": null
+    }
+  ],
+
+  "cp_slotted": {
     "warfare": [
-      "cp.ironclad"
+      "cp.ironclad",
+      null,
+      null,
+      null
     ],
-    "fitness": [],
-    "craft": []
+    "fitness": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "craft": [
+      null,
+      null,
+      null,
+      null
+    ]
   }
 }
