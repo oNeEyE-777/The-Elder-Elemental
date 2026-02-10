@@ -1,125 +1,86 @@
 {
-    "cp_stars": [
-        {
-            "id": "cp.ironclad",
-            "name": "Ironclad",
-            "tree": "warfare",
-            "slot_type": "slottable",
-            "tooltip_raw": "Reduces your damage taken by direct damage attacks by 3% per stage.",
-            "effects": [
-                "buff.damage_taken_direct_minus_percent"
-            ]
-        },
-        {
-            "id": "cp.duelists_rebuff",
-            "name": "Duelist's Rebuff",
-            "tree": "warfare",
-            "slot_type": "slottable",
-            "tooltip_raw": "Reduces your damage taken by single target attacks by 3% per stage.",
-            "effects": [
-                "buff.damage_taken_single_target_minus_percent"
-            ]
-        },
-        {
-            "id": "cp.bulwark",
-            "name": "Bulwark",
-            "tree": "warfare",
-            "slot_type": "slottable",
-            "tooltip_raw": "While you have a Shield or Frost Staff equipped, your Spell and Physical Resistance is increased by 1900.",
-            "effects": [
-                "buff.resist_while_shield_or_frost_staff"
-            ]
-        },
-        {
-            "id": "cp.resilience",
-            "name": "Resilience",
-            "tree": "warfare",
-            "slot_type": "slottable",
-            "tooltip_raw": "Grants 132 Critical Resistance per stage.",
-            "effects": [
-                "buff.crit_resist_per_stage"
-            ]
-        },
-        {
-            "id": "cp.celerity",
-            "name": "Celerity",
-            "tree": "fitness",
-            "slot_type": "slottable",
-            "tooltip_raw": "Increases your Movement Speed by 2% per stage.",
-            "effects": [
-                "buff.movement_speed_percent"
-            ]
-        },
-        {
-            "id": "cp.pains_refuge",
-            "name": "Pain's Refuge",
-            "tree": "fitness",
-            "slot_type": "slottable",
-            "tooltip_raw": "Reduces your damage taken by up to 20% based on the number of negative effects you have.",
-            "effects": [
-                "buff.damage_taken_negative_effects_scaled"
-            ]
-        },
-        {
-            "id": "cp.sustained_by_suffering",
-            "name": "Sustained by Suffering",
-            "tree": "fitness",
-            "slot_type": "slottable",
-            "tooltip_raw": "Increases your Health, Magicka, and Stamina Recovery by 30 per stage while under the effects of a negative effect.",
-            "effects": [
-                "buff.tri_recovery_while_neg_effect"
-            ]
-        },
-        {
-            "id": "cp.bastion",
-            "name": "Bastion",
-            "tree": "fitness",
-            "slot_type": "slottable",
-            "tooltip_raw": "Increases the effectiveness of your damage shields and damage against shielded enemies by 3% per stage.",
-            "effects": [
-                "buff.shield_strength_percent"
-            ]
-        },
-        {
-            "id": "cp.steeds_blessing",
-            "name": "Steed's Blessing",
-            "tree": "craft",
-            "slot_type": "slottable",
-            "tooltip_raw": "Increases your out of combat Movement Speed by 0.4% per stage.",
-            "effects": [
-                "buff.out_of_combat_speed_percent"
-            ]
-        },
-        {
-            "id": "cp.war_mount",
-            "name": "War Mount",
-            "tree": "craft",
-            "slot_type": "slottable",
-            "tooltip_raw": "Improves your mastery with mounts, removing all mount Stamina costs.",
-            "effects": [
-                "buff.mount_stamina_cost_removed"
-            ]
-        },
-        {
-            "id": "cp.gifted_rider",
-            "name": "Gifted Rider",
-            "tree": "craft",
-            "slot_type": "slottable",
-            "tooltip_raw": "Increases your mounted speed by 10%.",
-            "effects": [
-                "buff.mounted_speed_percent"
-            ]
-        },
-        {
-            "id": "cp.sustaining_shadows",
-            "name": "Sustaining Shadows",
-            "tree": "craft",
-            "slot_type": "slottable",
-            "tooltip_raw": "Reduces the cost of sneak, invisibility, and crouch by 8% and increases Movement Speed while sneaking by 10%.",
-            "effects": [
-                "buff.sneak_cost_reduction",
-                "buff.sneak_speed_percent"
-            ]
-        }
-    ]
+  "cp_stars": [
+    {
+      "id": "cp.ironclad",
+      "name": "Ironclad",
+      "tree": "warfare",
+      "slot_type": "slottable",
+      "tooltip_raw": "Reduces damage taken from direct damage attacks.",
+      "effects": [
+        "buff.damage_taken_direct_minor"
+      ]
+    },
+    {
+      "id": "cp.duelists_rebuff",
+      "name": "Duelist's Rebuff",
+      "tree": "warfare",
+      "slot_type": "slottable",
+      "tooltip_raw": "Reduces damage taken by single target attacks (placeholder).",
+      "effects": []
+    },
+    {
+      "id": "cp.bulwark",
+      "name": "Bulwark",
+      "tree": "warfare",
+      "slot_type": "slottable",
+      "tooltip_raw": "Increases armor when wearing a shield or ice staff (placeholder).",
+      "effects": []
+    },
+    {
+      "id": "cp.resilience",
+      "name": "Resilience",
+      "tree": "warfare",
+      "slot_type": "slottable",
+      "tooltip_raw": "Grants Critical Resistance after being critically hit (placeholder).",
+      "effects": []
+    },
+    {
+      "id": "cp.celerity",
+      "name": "Celerity",
+      "tree": "fitness",
+      "slot_type": "slottable",
+      "tooltip_raw": "Increases movement speed (placeholder).",
+      "effects": []
+    },
+    {
+      "id": "cp.pains_refuge",
+      "name": "Pain's Refuge",
+      "tree": "fitness",
+      "slot_type": "slottable",
+      "tooltip_raw": "Reduces damage taken based on number of negative effects (placeholder).",
+      "effects": []
+    },
+    {
+      "id": "cp.sustained_by_suffering",
+      "name": "Sustained by Suffering",
+      "tree": "fitness",
+      "slot_type": "slottable",
+      "tooltip_raw": "Increases Health, Magicka, and Stamina recovery while under a negative effect (placeholder).",
+      "effects": []
+    },
+    {
+      "id": "cp.gifted_rider",
+      "name": "Gifted Rider",
+      "tree": "fitness",
+      "slot_type": "slottable",
+      "tooltip_raw": "Increases mount speed and reduces mount stamina drain (placeholder).",
+      "effects": []
+    },
+    {
+      "id": "cp.steeds_blessing",
+      "name": "Steed's Blessing",
+      "tree": "craft",
+      "slot_type": "slottable",
+      "tooltip_raw": "Increases out-of-combat movement speed (placeholder).",
+      "effects": []
+    },
+    {
+      "id": "cp.war_mount",
+      "name": "War Mount",
+      "tree": "craft",
+      "slot_type": "slottable",
+      "tooltip_raw": "Improves mount sprinting capabilities (placeholder).",
+      "effects": []
+    }
+  ]
 }
