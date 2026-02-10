@@ -1,123 +1,147 @@
 {
-    "sets": [
+  "sets": [
+    {
+      "id": "set.adept_rider",
+      "name": "Adept Rider",
+      "type": "armor",
+      "source": "crafted",
+      "tags": [
+        "pvp",
+        "speed"
+      ],
+      "set_id": null,
+      "external_ids": {
+        "eso_sets_api": null
+      },
+      "bonuses": [
         {
-            "id": "set.adept_rider",
-            "name": "Adept Rider",
-            "type": "armor",
-            "source": "craftable",
-            "tags": [
-                "pvp",
-                "speed",
-                "defensive"
-            ],
-            "bonuses": [
-                {
-                    "pieces": 2,
-                    "tooltip_raw": "Adds 1487 Armor.",
-                    "effects": []
-                },
-                {
-                    "pieces": 3,
-                    "tooltip_raw": "Adds 1487 Armor.",
-                    "effects": []
-                },
-                {
-                    "pieces": 4,
-                    "tooltip_raw": "Adds 1206 Maximum Health.",
-                    "effects": []
-                },
-                {
-                    "pieces": 5,
-                    "tooltip_raw": "Gain Major Gallop and Major Expedition at all times, increasing your Movement Speed by 30% and Mounted Speed by 15%.",
-                    "effects": [
-                        "buff.major_expedition",
-                        "buff.major_gallop"
-                    ]
-                }
-            ]
+          "pieces": 2,
+          "tooltip_raw": "Minor bonus from Adept Rider (placeholder).",
+          "effects": []
         },
         {
-            "id": "set.mark_of_the_pariah",
-            "name": "Mark of the Pariah",
-            "type": "armor",
-            "source": "overland",
-            "tags": [
-                "pvp",
-                "defensive",
-                "health_scaling"
-            ],
-            "bonuses": [
-                {
-                    "pieces": 2,
-                    "tooltip_raw": "Adds 1206 Maximum Health.",
-                    "effects": []
-                },
-                {
-                    "pieces": 3,
-                    "tooltip_raw": "Adds 1487 Armor.",
-                    "effects": []
-                },
-                {
-                    "pieces": 4,
-                    "tooltip_raw": "Adds 1487 Armor.",
-                    "effects": []
-                },
-                {
-                    "pieces": 5,
-                    "tooltip_raw": "Increases your Physical and Spell Resistance by up to 10206 based on your missing Health.",
-                    "effects": [
-                        "buff.scaling_resist_missing_health"
-                    ]
-                }
-            ]
+          "pieces": 3,
+          "tooltip_raw": "Movement speed bonuses from Adept Rider (placeholder).",
+          "effects": [
+            "buff.adept_rider_speed_in_combat",
+            "buff.adept_rider_speed_out_of_combat",
+            "buff.major_gallop"
+          ]
         },
         {
-            "id": "set.nibenay_bay_battlereeve",
-            "name": "Nibenay Bay Battlereeve",
-            "type": "monster",
-            "source": "pvp",
-            "tags": [
-                "pvp",
-                "defensive",
-                "shield"
-            ],
-            "bonuses": [
-                {
-                    "pieces": 1,
-                    "tooltip_raw": "Adds 424 Critical Resistance.",
-                    "effects": [
-                        "buff.crit_resist_flat"
-                    ]
-                },
-                {
-                    "pieces": 2,
-                    "tooltip_raw": "When you are forcefully moved via a Pull, Knockback or Teleport ability, gain a damage shield and reduce your damage taken from players by 5% while the shield is inactive.",
-                    "effects": [
-                        "buff.damage_taken_players_minus_5",
-                        "shield.nibenay_battlereeve"
-                    ]
-                }
-            ]
+          "pieces": 4,
+          "tooltip_raw": "Additional Adept Rider utility bonus (placeholder).",
+          "effects": []
         },
         {
-            "id": "set.ring_of_the_wild_hunt",
-            "name": "Ring of the Wild Hunt",
-            "type": "mythic",
-            "source": "mythic",
-            "tags": [
-                "pvp",
-                "speed"
-            ],
-            "bonuses": [
-                {
-                    "pieces": 1,
-                    "tooltip_raw": "Increases your movement speed by 15% while in combat and by 45% while out of combat.",
-                    "effects": [
-                        "buff.combat_speed_15",
-                        "buff.out_of_combat_speed_45"
-                    ]
-                }
-            ]
+          "pieces": 5,
+          "tooltip_raw": "Full Adept Rider effect package (placeholder).",
+          "effects": []
         }
-    ]
+      ]
+    },
+    {
+      "id": "set.mark_of_the_pariah",
+      "name": "Mark of the Pariah",
+      "type": "armor",
+      "source": "overland",
+      "tags": [
+        "pvp",
+        "tank"
+      ],
+      "set_id": null,
+      "external_ids": {
+        "eso_sets_api": null
+      },
+      "bonuses": [
+        {
+          "pieces": 2,
+          "tooltip_raw": "Max Health bonus from Pariah (placeholder).",
+          "effects": []
+        },
+        {
+          "pieces": 3,
+          "tooltip_raw": "Additional defensive stats from Pariah (placeholder).",
+          "effects": []
+        },
+        {
+          "pieces": 4,
+          "tooltip_raw": "More defensive stats from Pariah (placeholder).",
+          "effects": []
+        },
+        {
+          "pieces": 5,
+          "tooltip_raw": "Dynamic resistance scaling based on missing Health (placeholder).",
+          "effects": [
+            "buff.pariah_scaling_resist"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "set.nibenay",
+      "name": "Nibenay",
+      "type": "armor",
+      "source": "overland",
+      "tags": [
+        "pvp",
+        "tank"
+      ],
+      "set_id": null,
+      "external_ids": {
+        "eso_sets_api": null
+      },
+      "bonuses": [
+        {
+          "pieces": 1,
+          "tooltip_raw": "One-piece bonus used on the head slot for Permafrost Marshal (placeholder).",
+          "effects": []
+        },
+        {
+          "pieces": 2,
+          "tooltip_raw": "Two-piece bonus from Nibenay (placeholder).",
+          "effects": []
+        },
+        {
+          "pieces": 3,
+          "tooltip_raw": "Three-piece bonus from Nibenay (placeholder).",
+          "effects": []
+        },
+        {
+          "pieces": 4,
+          "tooltip_raw": "Four-piece bonus from Nibenay (placeholder).",
+          "effects": []
+        },
+        {
+          "pieces": 5,
+          "tooltip_raw": "Full five-piece Nibenay bonus (placeholder).",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "set.ring_of_the_wild_hunt",
+      "name": "Ring of the Wild Hunt",
+      "type": "mythic",
+      "source": "mythic",
+      "tags": [
+        "pvp",
+        "speed",
+        "mythic"
+      ],
+      "set_id": null,
+      "external_ids": {
+        "eso_sets_api": null
+      },
+      "bonuses": [
+        {
+          "pieces": 1,
+          "tooltip_raw": "Mythic movement speed bonus from Ring of the Wild Hunt (placeholder).",
+          "effects": [
+            "buff.wild_hunt_speed"
+          ]
+        }
+      ]
+    }
+  ]
 }

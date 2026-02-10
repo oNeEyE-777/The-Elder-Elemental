@@ -1,256 +1,255 @@
 {
-    "skills": [
+  "skills": [
+    {
+      "id": "skill.deep_fissure",
+      "name": "Deep Fissure",
+      "class_id": "warden",
+      "skill_line_id": "warden_animal_companions",
+      "type": "active",
+      "resource": "magicka",
+      "cost": 2700,
+      "cast_time": "instant",
+      "target": "area",
+      "duration_seconds": 9,
+      "radius_meters": 20,
+      "ability_id": null,
+      "external_ids": {
+        "uesp": null
+      },
+      "tooltip_effect_text": "Unleash a fissure that opens after a short delay, applying Major and Minor Breach to enemies hit.",
+      "effects": [
         {
-            "id": "skill.deep_fissure",
-            "name": "Deep Fissure",
-            "line": "Warden: Animal Companions",
-            "type": "active",
-            "resource": "magicka",
-            "cost": null,
-            "cast_time": "instant",
-            "duration_seconds": 9,
-            "cooldown_seconds": null,
-            "tooltip_raw": "Summon shalks that erupt after a delay, dealing Magic damage and applying Major and Minor Breach to enemies hit.",
-            "effects": [
-                {
-                    "effect_id": "debuff.major_breach",
-                    "timing": "on_hit",
-                    "target": "enemy",
-                    "notes": "Applied to enemies hit by the fissure."
-                },
-                {
-                    "effect_id": "debuff.minor_breach",
-                    "timing": "on_hit",
-                    "target": "enemy",
-                    "notes": "Applied alongside Major Breach."
-                }
-            ]
+          "effect_id": "debuff.major_breach",
+          "timing": "onhit",
+          "duration_seconds": 10,
+          "target": "enemy",
+          "notes": "Applied to enemies hit by the fissure."
         },
         {
-            "id": "skill.unnerving_boneyard",
-            "name": "Unnerving Boneyard",
-            "line": "Necromancer: Grave Lord",
-            "type": "active",
-            "resource": "magicka",
-            "cost": null,
-            "cast_time": "instant",
-            "duration_seconds": 10,
-            "cooldown_seconds": null,
-            "tooltip_raw": "Create a graveyard that deals Frost damage over time and applies Major Breach and Minor Vulnerability to enemies in the area.",
-            "effects": [
-                {
-                    "effect_id": "debuff.major_breach",
-                    "timing": "on_hit",
-                    "target": "enemy",
-                    "notes": "Applied to enemies standing in the graveyard."
-                },
-                {
-                    "effect_id": "debuff.minor_vulnerability",
-                    "timing": "on_hit",
-                    "target": "enemy",
-                    "notes": "Increases damage taken from all sources."
-                }
-            ]
-        },
-        {
-            "id": "skill.hardened_armor",
-            "name": "Hardened Armor",
-            "line": "Dragonknight: Draconic Power",
-            "type": "active",
-            "resource": "magicka",
-            "cost": 2700,
-            "cast_time": "instant",
-            "duration_seconds": 20,
-            "cooldown_seconds": null,
-            "tooltip_raw": "Gain Major Resolve and a damage shield that scales with Max Health, returning damage to melee attackers.",
-            "effects": [
-                {
-                    "effect_id": "buff.major_resolve",
-                    "timing": "on_cast",
-                    "target": "self",
-                    "notes": "Boosts resistances for 20 seconds."
-                }
-            ]
-        },
-        {
-            "id": "skill.green_dragon_blood",
-            "name": "Green Dragon Blood",
-            "line": "Dragonknight: Draconic Power",
-            "type": "active",
-            "resource": "magicka",
-            "cost": null,
-            "cast_time": "instant",
-            "duration_seconds": 20,
-            "cooldown_seconds": null,
-            "tooltip_raw": "Heal yourself and gain Minor Vitality, Major Fortitude, and Major Endurance for 20 seconds.",
-            "effects": [
-                {
-                    "effect_id": "buff.minor_vitality",
-                    "timing": "on_cast",
-                    "target": "self"
-                },
-                {
-                    "effect_id": "buff.major_fortitude",
-                    "timing": "on_cast",
-                    "target": "self"
-                },
-                {
-                    "effect_id": "buff.major_endurance",
-                    "timing": "on_cast",
-                    "target": "self"
-                }
-            ]
-        },
-        {
-            "id": "skill.blinding_flare",
-            "name": "Blinding Flare",
-            "line": "Alliance War: Support",
-            "type": "active",
-            "resource": "magicka",
-            "cost": null,
-            "cast_time": "instant",
-            "duration_seconds": 5,
-            "cooldown_seconds": null,
-            "tooltip_raw": "While slotted, grants Major Protection to you and nearby allies.",
-            "effects": [
-                {
-                    "effect_id": "buff.major_protection",
-                    "timing": "slotted",
-                    "target": "self"
-                }
-            ]
-        },
-        {
-            "id": "skill.reviving_barrier",
-            "name": "Reviving Barrier",
-            "line": "Alliance War: Support",
-            "type": "ultimate",
-            "resource": "ultimate",
-            "cost": 250,
-            "cast_time": "instant",
-            "duration_seconds": 30,
-            "cooldown_seconds": null,
-            "tooltip_raw": "Place large damage-absorbing wards on yourself and nearby allies and heal them over time.",
-            "effects": []
-        },
-        {
-            "id": "skill.ulfsilds_contingency",
-            "name": "Ulfsild's Contingency",
-            "line": "Mages Guild: Scribing",
-            "type": "active",
-            "resource": "magicka",
-            "cost": null,
-            "cast_time": "instant",
-            "duration_seconds": 22,
-            "cooldown_seconds": null,
-            "tooltip_raw": "Scribed shield skill with damage reduction signature and Minor Expedition affix.",
-            "effects": [
-                {
-                    "effect_id": "buff.minor_expedition",
-                    "timing": "on_cast",
-                    "target": "self"
-                }
-            ]
-        },
-        {
-            "id": "skill.resolving_vigor",
-            "name": "Resolving Vigor",
-            "line": "Alliance War: Assault",
-            "type": "active",
-            "resource": "stamina",
-            "cost": null,
-            "cast_time": "instant",
-            "duration_seconds": 5,
-            "cooldown_seconds": null,
-            "tooltip_raw": "Heal yourself and nearby allies over time and gain Minor Resolve.",
-            "effects": [
-                {
-                    "effect_id": "buff.minor_resolve",
-                    "timing": "on_cast",
-                    "target": "self"
-                }
-            ]
-        },
-        {
-            "id": "skill.bull_netch",
-            "name": "Bull Netch / Blue Betty",
-            "line": "Warden: Animal Companions",
-            "type": "active",
-            "resource": "none",
-            "cost": 0,
-            "cast_time": "instant",
-            "duration_seconds": 25,
-            "cooldown_seconds": null,
-            "tooltip_raw": "Summon a netch that restores resources over time and grants Major Brutality and Major Sorcery.",
-            "effects": [
-                {
-                    "effect_id": "buff.major_brutality",
-                    "timing": "on_cast",
-                    "target": "self"
-                },
-                {
-                    "effect_id": "buff.major_sorcery",
-                    "timing": "on_cast",
-                    "target": "self"
-                }
-            ]
-        },
-        {
-            "id": "skill.wield_soul",
-            "name": "Wield Soul",
-            "line": "Soul Magic",
-            "type": "active",
-            "resource": "magicka",
-            "cost": null,
-            "cast_time": "instant",
-            "duration_seconds": 10,
-            "cooldown_seconds": null,
-            "tooltip_raw": "Soul Magic scribed skill focused on healing and magicka sustain, granting Major Vitality.",
-            "effects": [
-                {
-                    "effect_id": "buff.major_vitality",
-                    "timing": "on_cast",
-                    "target": "self"
-                }
-            ]
-        },
-        {
-            "id": "skill.blinding_flare_back",
-            "name": "Blinding Flare (Back Bar)",
-            "line": "Alliance War: Support",
-            "type": "active",
-            "resource": "magicka",
-            "cost": null,
-            "cast_time": "instant",
-            "duration_seconds": 5,
-            "cooldown_seconds": null,
-            "tooltip_raw": "Second bar copy of Blinding Flare; while slotted, grants Major Protection.",
-            "effects": [
-                {
-                    "effect_id": "buff.major_protection",
-                    "timing": "slotted",
-                    "target": "self"
-                }
-            ]
-        },
-        {
-            "id": "skill.glacial_colossus",
-            "name": "Glacial Colossus",
-            "line": "Necromancer: Grave Lord",
-            "type": "ultimate",
-            "resource": "ultimate",
-            "cost": null,
-            "cast_time": "instant",
-            "duration_seconds": 12,
-            "cooldown_seconds": null,
-            "tooltip_raw": "Summon a frost colossus that smashes enemies and applies Major Vulnerability.",
-            "effects": [
-                {
-                    "effect_id": "debuff.major_vulnerability",
-                    "timing": "on_hit",
-                    "target": "enemy"
-                }
-            ]
+          "effect_id": "debuff.minor_breach",
+          "timing": "onhit",
+          "duration_seconds": 10,
+          "target": "enemy",
+          "notes": "Applied alongside Major Breach."
         }
-    ]
+      ]
+    },
+    {
+      "id": "skill.unnerving_boneyard",
+      "name": "Unnerving Boneyard",
+      "class_id": "necromancer",
+      "skill_line_id": "necromancer_grave_lord",
+      "type": "active",
+      "resource": "magicka",
+      "cost": null,
+      "cast_time": "instant",
+      "target": "area",
+      "duration_seconds": 10,
+      "radius_meters": 6,
+      "ability_id": null,
+      "external_ids": {
+        "uesp": null
+      },
+      "tooltip_effect_text": "Create a boneyard that applies debuffs and can be synergized by allies.",
+      "effects": []
+    },
+    {
+      "id": "skill.hardened_armor",
+      "name": "Hardened Armor",
+      "class_id": "dragonknight",
+      "skill_line_id": "dragonknight_draconic_power",
+      "type": "active",
+      "resource": "magicka",
+      "cost": null,
+      "cast_time": "instant",
+      "target": "self",
+      "duration_seconds": 20,
+      "radius_meters": null,
+      "ability_id": null,
+      "external_ids": {
+        "uesp": null
+      },
+      "tooltip_effect_text": "Defensive armor buff providing Major Resolve and a small shield.",
+      "effects": [
+        {
+          "effect_id": "buff.major_resolve",
+          "timing": "whileactive",
+          "duration_seconds": 20,
+          "target": "self",
+          "notes": "Primary resistance buff."
+        }
+      ]
+    },
+    {
+      "id": "skill.green_dragon_blood",
+      "name": "Green Dragon Blood",
+      "class_id": "dragonknight",
+      "skill_line_id": "dragonknight_draconic_power",
+      "type": "active",
+      "resource": "magicka",
+      "cost": null,
+      "cast_time": "instant",
+      "target": "self",
+      "duration_seconds": null,
+      "radius_meters": null,
+      "ability_id": null,
+      "external_ids": {
+        "uesp": null
+      },
+      "tooltip_effect_text": "Burst heal and sustain skill for the tank core.",
+      "effects": []
+    },
+    {
+      "id": "skill.blinding_flare_front",
+      "name": "Blinding Flare (Front Bar)",
+      "class_id": "templar",
+      "skill_line_id": "support",
+      "type": "active",
+      "resource": "magicka",
+      "cost": null,
+      "cast_time": "instant",
+      "target": "self",
+      "duration_seconds": null,
+      "radius_meters": null,
+      "ability_id": null,
+      "external_ids": {
+        "uesp": null
+      },
+      "tooltip_effect_text": "Slot-only flare used on the front bar for mitigation and synergy setup.",
+      "effects": []
+    },
+    {
+      "id": "skill.reviving_barrier",
+      "name": "Reviving Barrier",
+      "class_id": "universal",
+      "skill_line_id": "alliance_war_support",
+      "type": "ultimate",
+      "resource": "ultimate",
+      "cost": null,
+      "cast_time": "instant",
+      "target": "group",
+      "duration_seconds": 30,
+      "radius_meters": 12,
+      "ability_id": null,
+      "external_ids": {
+        "uesp": null
+      },
+      "tooltip_effect_text": "Group shield ultimate used as the primary defensive ultimate on the front bar.",
+      "effects": []
+    },
+    {
+      "id": "skill.ulfsilds_contingency",
+      "name": "Ulfsild's Contingency",
+      "class_id": "universal",
+      "skill_line_id": "item_set_proc",
+      "type": "passive",
+      "resource": "none",
+      "cost": null,
+      "cast_time": "instant",
+      "target": "self",
+      "duration_seconds": null,
+      "radius_meters": null,
+      "ability_id": null,
+      "external_ids": {
+        "uesp": null
+      },
+      "tooltip_effect_text": "Placeholder record for an item-set-like contingency effect slotted on the back bar.",
+      "effects": []
+    },
+    {
+      "id": "skill.resolving_vigor",
+      "name": "Resolving Vigor",
+      "class_id": "universal",
+      "skill_line_id": "alliance_war_assault",
+      "type": "active",
+      "resource": "stamina",
+      "cost": null,
+      "cast_time": "instant",
+      "target": "self",
+      "duration_seconds": 5,
+      "radius_meters": null,
+      "ability_id": null,
+      "external_ids": {
+        "uesp": null
+      },
+      "tooltip_effect_text": "Stamina-based heal over time to satisfy HoT pillar requirements.",
+      "effects": []
+    },
+    {
+      "id": "skill.bull_netch",
+      "name": "Bull Netch",
+      "class_id": "warden",
+      "skill_line_id": "warden_animal_companions",
+      "type": "active",
+      "resource": "none",
+      "cost": null,
+      "cast_time": "instant",
+      "target": "self",
+      "duration_seconds": 25,
+      "radius_meters": null,
+      "ability_id": null,
+      "external_ids": {
+        "uesp": null
+      },
+      "tooltip_effect_text": "Resource sustain and cleansing companion.",
+      "effects": []
+    },
+    {
+      "id": "skill.wield_soul",
+      "name": "Wield Soul",
+      "class_id": "universal",
+      "skill_line_id": "soul_magic",
+      "type": "active",
+      "resource": "magicka",
+      "cost": null,
+      "cast_time": "instant",
+      "target": "enemy",
+      "duration_seconds": null,
+      "radius_meters": null,
+      "ability_id": null,
+      "external_ids": {
+        "uesp": null
+      },
+      "tooltip_effect_text": "Utility skill that channels the power of souls for control and sustain.",
+      "effects": []
+    },
+    {
+      "id": "skill.soul_burst",
+      "name": "Soul Burst",
+      "class_id": "universal",
+      "skill_line_id": "soul_magic",
+      "type": "active",
+      "resource": "magicka",
+      "cost": null,
+      "cast_time": "instant",
+      "target": "enemy",
+      "duration_seconds": null,
+      "radius_meters": null,
+      "ability_id": null,
+      "external_ids": {
+        "uesp": null
+      },
+      "tooltip_effect_text": "Utility burst used to interact with Soul Magic and crowd control setups.",
+      "effects": []
+    },
+    {
+      "id": "skill.glacial_colossus",
+      "name": "Glacial Colossus",
+      "class_id": "necromancer",
+      "skill_line_id": "necromancer_grave_lord",
+      "type": "ultimate",
+      "resource": "ultimate",
+      "cost": null,
+      "cast_time": "instant",
+      "target": "area",
+      "duration_seconds": null,
+      "radius_meters": 8,
+      "ability_id": null,
+      "external_ids": {
+        "uesp": null
+      },
+      "tooltip_effect_text": "Primary offensive ultimate used to trigger vulnerability and burst windows.",
+      "effects": []
+    }
+  ]
 }
