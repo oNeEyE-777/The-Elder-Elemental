@@ -1,15 +1,19 @@
 # Test Dummy Build
 
 - ID: `build.test_dummy`
-- Version: `0.1.0`
-- Author: `Local Dev`
-- Last updated: `2026-02-08`
+- Class core: `warden`
+
+## Attributes
+
+| Stat    | Value |
+|---------|-------|
+| Health  | 0 |
+| Magicka | 0 |
+| Stamina | 0 |
 
 ## Bars
 
 ### Front Bar
-
-- Weapon type: `inferno_staff`
 
 | Slot | Skill | Skill ID |
 |------|-------|----------|
@@ -18,11 +22,9 @@
 | 3 | *(empty)* | |
 | 4 | *(empty)* | |
 | 5 | *(empty)* | |
-| ult | *(empty)* | |
+| ULT | *(empty)* | |
 
 ### Back Bar
-
-- Weapon type: `ice_staff`
 
 | Slot | Skill | Skill ID |
 |------|-------|----------|
@@ -31,37 +33,50 @@
 | 3 | *(empty)* | |
 | 4 | *(empty)* | |
 | 5 | *(empty)* | |
-| ult | *(empty)* | |
+| ULT | *(empty)* | |
 
 ## Gear
 
 | Slot | Set | Set ID | Notes |
 |------|-----|--------|-------|
 | head | Adept Rider | `set.adept_rider` | weight: light, trait: divines |
-| chest | *(empty)* | | |
-| shoulders | *(empty)* | | |
-| hands | *(empty)* | | |
-| waist | *(empty)* | | |
-| legs | *(empty)* | | |
-| feet | *(empty)* | | |
-| jewelry_1 | *(empty)* | | |
-| jewelry_2 | *(empty)* | | |
-| jewelry_3 | *(empty)* | | |
-| front_bar_weapon | Adept Rider | `set.adept_rider` | type: staff, trait: precise |
-| back_bar_weapon | *(empty)* | | |
+| shoulder | *(none)* | `` |  |
+| chest | *(none)* | `` |  |
+| hands | *(none)* | `` |  |
+| waist | *(none)* | `` |  |
+| legs | *(none)* | `` |  |
+| feet | *(none)* | `` |  |
+| neck | *(none)* | `` |  |
+| ring1 | *(none)* | `` |  |
+| ring2 | *(none)* | `` |  |
+| front_weapon | Adept Rider | `set.adept_rider` | trait: precise |
+| back_weapon | *(none)* | `` |  |
 
 ## Champion Points
 
 ### Warfare Tree
 
-| Star | Star ID |
-|------|---------|
-| Ironclad | `cp.ironclad` |
+| Slot | Star | Star ID |
+|------|------|---------|
+| 1 | Ironclad | `cp.ironclad` |
+| 2 | *(empty)* | |
+| 3 | *(empty)* | |
+| 4 | *(empty)* | |
 
 ### Fitness Tree
 
-_No stars selected._
+| Slot | Star | Star ID |
+|------|------|---------|
+| 1 | *(empty)* | |
+| 2 | *(empty)* | |
+| 3 | *(empty)* | |
+| 4 | *(empty)* | |
 
 ### Craft Tree
 
-_No stars selected._
+| Slot | Star | Star ID |
+|------|------|---------|
+| 1 | *(empty)* | |
+| 2 | *(empty)* | |
+| 3 | *(empty)* | |
+| 4 | *(empty)* | |

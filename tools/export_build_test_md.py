@@ -2,14 +2,14 @@ import argparse
 import json
 import sys
 from pathlib import Path
-
+from typing import Dict, Any, List
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = REPO_ROOT / "data"
 BUILDS_DIR = REPO_ROOT / "builds"
 
 
-def load_json(path: Path):
+def load_json(path: Path) -> Any:
     try:
         with path.open("r", encoding="utf-8") as f:
             return json.load(f)
@@ -21,101 +21,157 @@ def load_json(path: Path):
         sys.exit(1)
 
 
-def index_by_id(items, id_key="id"):
-    return {item[id_key]: item for item in items if id_key in item}
+def index_by_id(items: List[dict], id_key: str = "id") -> Dict[str, dict]:
+    return {item[id_key]: item for item in items if isinstance(item, dict) and id_key in item}
 
 
-def render_build_markdown(build, skills_idx, sets_idx, cp_idx):
-    lines = []
+def render_build_markdown(
+    build: dict,
+    skills_idx: Dict[str, dict],
+    sets_idx: Dict[str, dict],
+    cp_idx: Dict[str, dict],
+) -> str:
+    lines: List[str] = []
 
+    # Header
     lines.append(f"# {build.get('name', 'Unnamed Build')}")
     lines.append("")
     lines.append(f"- ID: `{build.get('id', '')}`")
-    meta = build.get("meta", {})
-    if meta:
-        lines.append(f"- Version: `{meta.get('version', '')}`")
-        lines.append(f"- Author: `{meta.get('author', '')}`")
-        lines.append(f"- Last updated: `{meta.get('last_updated', '')}`")
+    lines.append(f"- Class core: `{build.get('class_core', '')}`")
+    subclasses = build.get("subclasses") or []
+    if subclasses:
+        lines.append(f"- Subclasses: {', '.join(f'`{s}`' for s in subclasses)}")
     lines.append("")
 
+    # Attributes
+    attrs = build.get("attributes", {})
+    lines.append("## Attributes")
+    lines.append("")
+    lines.append("| Stat    | Value |")
+    lines.append("|---------|-------|")
+    lines.append(f"| Health  | {attrs.get('health', 0)} |")
+    lines.append(f"| Magicka | {attrs.get('magicka', 0)} |")
+    lines.append(f"| Stamina | {attrs.get('stamina', 0)} |")
+    lines.append("")
+
+    # Bars
     lines.append("## Bars")
     lines.append("")
     bars = build.get("bars", {})
     for bar_name in ["front", "back"]:
-        bar = bars.get(bar_name)
-        if not bar:
+        bar_slots = bars.get(bar_name)
+        if not isinstance(bar_slots, list):
             continue
+
         lines.append(f"### {bar_name.title()} Bar")
-        lines.append("")
-        weapon_type = bar.get("weapon_type", "")
-        if weapon_type:
-            lines.append(f"- Weapon type: `{weapon_type}`")
         lines.append("")
         lines.append("| Slot | Skill | Skill ID |")
         lines.append("|------|-------|----------|")
-        slots = bar.get("slots", {})
-        for slot_key in ["1", "2", "3", "4", "5", "ult"]:
-            slot = slots.get(slot_key)
-            if not slot:
-                lines.append(f"| {slot_key} | *(empty)* | |")
+
+        # Sort slots in canonical order
+        def slot_sort_key(entry: dict):
+            s = entry.get("slot")
+            return (0, s) if isinstance(s, int) else (1, 6)
+
+        for entry in sorted(bar_slots, key=slot_sort_key):
+            slot = entry.get("slot")
+            skill_id = entry.get("skill_id")
+            if not skill_id:
+                lines.append(f"| {slot} | *(empty)* | |")
                 continue
-            skill_id = slot.get("skill_id", "")
             skill = skills_idx.get(skill_id)
             skill_name = skill.get("name") if skill else "(unknown)"
-            lines.append(f"| {slot_key} | {skill_name} | `{skill_id}` |")
+            lines.append(f"| {slot} | {skill_name} | `{skill_id}` |")
+
         lines.append("")
 
+    # Gear
     lines.append("## Gear")
     lines.append("")
-    gear = build.get("gear", {})
+    gear = build.get("gear", [])
     lines.append("| Slot | Set | Set ID | Notes |")
     lines.append("|------|-----|--------|-------|")
-    for slot_name, gear_item in gear.items():
-        if not gear_item:
+
+    # Canonical gear slot order
+    slot_order = [
+        "head",
+        "shoulder",
+        "chest",
+        "hands",
+        "waist",
+        "legs",
+        "feet",
+        "neck",
+        "ring1",
+        "ring2",
+        "front_weapon",
+        "back_weapon",
+    ]
+    gear_by_slot: Dict[str, dict] = {}
+    if isinstance(gear, list):
+        for item in gear:
+            if isinstance(item, dict) and "slot" in item:
+                gear_by_slot[item["slot"]] = item
+
+    for slot_name in slot_order:
+        item = gear_by_slot.get(slot_name)
+        if not item:
             lines.append(f"| {slot_name} | *(empty)* | | |")
             continue
-        set_id = gear_item.get("set_id", "")
-        set_obj = sets_idx.get(set_id)
-        set_name = set_obj.get("name") if set_obj else "(unknown)"
-        notes = []
-        weight = gear_item.get("weight")
+
+        set_id = item.get("set_id")
+        if set_id:
+            set_obj = sets_idx.get(set_id)
+            set_name = set_obj.get("name") if set_obj else "(unknown)"
+        else:
+            set_name = "*(none)*"
+
+        notes: List[str] = []
+        weight = item.get("weight")
         if weight:
             notes.append(f"weight: {weight}")
-        weapon_type = gear_item.get("type")
-        if weapon_type:
-            notes.append(f"type: {weapon_type}")
-        trait = gear_item.get("trait")
+        trait = item.get("trait")
         if trait:
             notes.append(f"trait: {trait}")
+        enchant = item.get("enchant")
+        if enchant:
+            notes.append(f"enchant: {enchant}")
         notes_str = ", ".join(notes)
-        lines.append(f"| {slot_name} | {set_name} | `{set_id}` | {notes_str} |")
+
+        lines.append(f"| {slot_name} | {set_name} | `{set_id or ''}` | {notes_str} |")
+
     lines.append("")
 
+    # Champion Points
     lines.append("## Champion Points")
     lines.append("")
-    cp = build.get("cp", {})
+    cp_slotted = build.get("cp_slotted", {})
     for tree_name in ["warfare", "fitness", "craft"]:
-        stars = cp.get(tree_name, [])
+        stars = cp_slotted.get(tree_name, [])
         lines.append(f"### {tree_name.title()} Tree")
         lines.append("")
         if not stars:
             lines.append("_No stars selected._")
             lines.append("")
             continue
-        lines.append("| Star | Star ID |")
-        lines.append("|------|---------|")
-        for star_id in stars:
+
+        lines.append("| Slot | Star | Star ID |")
+        lines.append("|------|------|---------|")
+        for idx, star_id in enumerate(stars):
+            if star_id is None:
+                lines.append(f"| {idx + 1} | *(empty)* | |")
+                continue
             star = cp_idx.get(star_id)
             star_name = star.get("name") if star else "(unknown)"
-            lines.append(f"| {star_name} | `{star_id}` |")
+            lines.append(f"| {idx + 1} | {star_name} | `{star_id}` |")
         lines.append("")
 
     return "\n".join(lines)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Export a test ESO build JSON to Markdown."
+        description="Export the test-dummy ESO build JSON to Markdown."
     )
     parser.add_argument(
         "build_path",

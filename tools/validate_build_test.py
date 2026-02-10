@@ -132,4 +132,103 @@ def validate_references(build: dict, skills_idx: dict, sets_idx: dict, cp_idx: d
     for bar_name, bar_slots in bars.items():
         if not isinstance(bar_slots, list):
             continue
-        for entry in bar_s
+        for entry in bar_slots:
+            if not isinstance(entry, dict):
+                continue
+            skill_id = entry.get("skill_id")
+            if skill_id is None:
+                # null is allowed; it's just an empty slot
+                continue
+            if not isinstance(skill_id, str):
+                errors.append(f"Bar '{bar_name}' slot {entry.get('slot')!r} has non-string skill_id: {skill_id!r}")
+                continue
+            if skill_id not in skills_idx:
+                errors.append(
+                    f"Bar '{bar_name}' slot {entry.get('slot')!r} references unknown skill_id: {skill_id}"
+                )
+
+    # Gear -> sets
+    gear = build.get("gear", [])
+    for item in gear:
+        if not isinstance(item, dict):
+            continue
+        slot_name = item.get("slot")
+        set_id = item.get("set_id")
+        if set_id is None:
+            # For test-dummy, null set_id is allowed for empty slots
+            continue
+        if not isinstance(set_id, str):
+            errors.append(f"Gear slot '{slot_name}' has non-string set_id: {set_id!r}")
+            continue
+        if set_id not in sets_idx:
+            errors.append(f"Gear slot '{slot_name}' references unknown set_id: {set_id}")
+
+    # CP -> cp_stars (slottable only)
+    cp_slotted = build.get("cp_slotted", {})
+    for tree_name, star_ids in cp_slotted.items():
+        if not isinstance(star_ids, list):
+            continue
+        seen_ids = set()
+        for idx, star_id in enumerate(star_ids):
+            if star_id is None:
+                continue
+            if not isinstance(star_id, str):
+                errors.append(f"CP tree '{tree_name}' index {idx} has non-string id: {star_id!r}")
+                continue
+            if star_id not in cp_idx:
+                errors.append(f"CP tree '{tree_name}' references unknown cp_star id: {star_id}")
+                continue
+            if star_id in seen_ids:
+                errors.append(f"CP tree '{tree_name}' has duplicate slotted cp_star id: {star_id}")
+            seen_ids.add(star_id)
+
+    return errors
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Validate the test-dummy ESO build JSON against Phase 1 data files."
+    )
+    parser.add_argument(
+        "build_path",
+        nargs="?",
+        default=str(BUILDS_DIR / "test-dummy.json"),
+        help="Path to build JSON (default: builds/test-dummy.json)",
+    )
+    args = parser.parse_args()
+
+    build_path = Path(args.build_path)
+
+    skills_data = load_json(DATA_DIR / "skills.json")
+    effects_data = load_json(DATA_DIR / "effects.json")
+    sets_data = load_json(DATA_DIR / "sets.json")
+    cp_data = load_json(DATA_DIR / "cp-stars.json")
+
+    skills_idx = index_by_id(skills_data.get("skills", []))
+    sets_idx = index_by_id(sets_data.get("sets", []))
+    cp_idx = index_by_id(cp_data.get("cp_stars", []))
+
+    build = load_json(build_path)
+
+    structure_errors = validate_build_structure(build)
+    reference_errors = validate_references(build, skills_idx, sets_idx, cp_idx)
+
+    all_errors = structure_errors + reference_errors
+
+    result = {
+        "build_id": build.get("id"),
+        "build_name": build.get("name"),
+        "status": "OK" if not all_errors else "ERROR",
+        "error_count": len(all_errors),
+        "errors": all_errors,
+    }
+
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+
+    if all_errors:
+        sys.exit(1)
+    sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()
