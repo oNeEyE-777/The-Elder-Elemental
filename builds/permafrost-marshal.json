@@ -1,13 +1,13 @@
 {
-  "id": "build.permafrost_marshal",
+  "id": "build.permafrostmarshal",
   "name": "Permafrost Marshal",
 
-  "class_core": "warden",
+  "classcore": "warden",
   "subclasses": ["necromancer", "dragonknight"],
 
-  "cp_total": 1804,
+  "cptotal": 1804,
 
-  "role_tags": ["pvp", "tank", "high_speed"],
+  "roletags": ["pvp", "tank", "highspeed"],
 
   "attributes": {
     "health": 64,
@@ -16,36 +16,36 @@
   },
 
   "pillars": {
-    "resist": { "target_resist_shown": 43000 },
-    "health": { "focus": "health_first" },
-    "speed": { "profile": "extreme_speed" },
-    "hots": { "min_active_hots": 2 },
-    "shield": { "min_active_shields": 2 },
-    "core_combo": {
+    "resist": { "targetresistshown": 43000 },
+    "health": { "focus": "healthfirst" },
+    "speed": { "profile": "extremespeed" },
+    "hots": { "minactivehots": 2 },
+    "shield": { "minactiveshields": 2 },
+    "corecombo": {
       "skills": [
-        "skill.deep_fissure",
-        "skill.unnerving_boneyard",
-        "skill.glacial_colossus"
+        "skill.deepfissure",
+        "skill.unnervingboneyard",
+        "skill.glacialcolossus"
       ]
     }
   },
 
   "bars": {
     "front": [
-      { "slot": 1,   "skillid": "skill.deep_fissure" },
-      { "slot": 2,   "skillid": "skill.unnerving_boneyard" },
-      { "slot": 3,   "skillid": "skill.hardened_armor" },
-      { "slot": 4,   "skillid": "skill.green_dragon_blood" },
-      { "slot": 5,   "skillid": "skill.blinding_flare_front" },
-      { "slot": "ULT", "skillid": "skill.reviving_barrier" }
+      { "slot": 1,   "skillid": "skill.deepfissure" },
+      { "slot": 2,   "skillid": "skill.unnervingboneyard" },
+      { "slot": 3,   "skillid": "skill.hardenedarmor" },
+      { "slot": 4,   "skillid": "skill.greendragonblood" },
+      { "slot": 5,   "skillid": "skill.blindingflarefront" },
+      { "slot": "ULT", "skillid": "skill.revivingbarrier" }
     ],
     "back": [
-      { "slot": 1,   "skillid": "skill.ulfsilds_contingency" },
-      { "slot": 2,   "skillid": "skill.resolving_vigor" },
-      { "slot": 3,   "skillid": "skill.bull_netch" },
-      { "slot": 4,   "skillid": "skill.wield_soul" },
-      { "slot": 5,   "skillid": "skill.soul_burst" },
-      { "slot": "ULT", "skillid": "skill.glacial_colossus" }
+      { "slot": 1,   "skillid": "skill.ulfsildscontingency" },
+      { "slot": 2,   "skillid": "skill.resolvingvigor" },
+      { "slot": 3,   "skillid": "skill.bullnetch" },
+      { "slot": 4,   "skillid": "skill.wieldsoul" },
+      { "slot": 5,   "skillid": "skill.soulburst" },
+      { "slot": "ULT", "skillid": "skill.glacialcolossus" }
     ]
   },
 
@@ -59,77 +59,77 @@
     },
     {
       "slot": "shoulder",
-      "setid": "set.adept_rider",
+      "setid": "set.adeptrider",
       "weight": "heavy",
       "trait": "impenetrable",
       "enchant": "glyph.max_magicka"
     },
     {
       "slot": "chest",
-      "setid": "set.mark_of_the_pariah",
+      "setid": "set.markofthepariah",
       "weight": "heavy",
       "trait": "reinforced",
       "enchant": "glyph.max_magicka"
     },
     {
       "slot": "hands",
-      "setid": "set.adept_rider",
+      "setid": "set.adeptrider",
       "weight": "medium",
       "trait": "impenetrable",
       "enchant": "glyph.max_magicka"
     },
     {
       "slot": "waist",
-      "setid": "set.adept_rider",
+      "setid": "set.adeptrider",
       "weight": "light",
       "trait": "impenetrable",
       "enchant": "glyph.max_magicka"
     },
     {
       "slot": "legs",
-      "setid": "set.adept_rider",
+      "setid": "set.adeptrider",
       "weight": "heavy",
       "trait": "impenetrable",
       "enchant": "glyph.max_magicka"
     },
     {
       "slot": "feet",
-      "setid": "set.adept_rider",
+      "setid": "set.adeptrider",
       "weight": "heavy",
       "trait": "impenetrable",
       "enchant": "glyph.max_magicka"
     },
     {
       "slot": "neck",
-      "setid": "set.mark_of_the_pariah",
+      "setid": "set.markofthepariah",
       "weight": null,
       "trait": "swift",
       "enchant": "glyph.magicka_recovery"
     },
     {
       "slot": "ring1",
-      "setid": "set.mark_of_the_pariah",
+      "setid": "set.markofthepariah",
       "weight": null,
       "trait": "swift",
       "enchant": "glyph.magicka_recovery"
     },
     {
       "slot": "ring2",
-      "setid": "set.ring_of_the_wild_hunt",
+      "setid": "set.ringofthewildhunt",
       "weight": null,
       "trait": "swift",
       "enchant": "glyph.magicka_recovery"
     },
     {
-      "slot": "front_weapon",
-      "setid": "set.mark_of_the_pariah",
+      "slot": "frontweapon",
+      "setid": "set.markofthepariah",
       "weight": null,
       "trait": "defending",
       "enchant": "glyph.absorb_magicka"
     },
     {
-      "slot": "back_weapon",
-      "setid": "set.mark_of_the_pariah",
+      "slot": "backweapon",
+      "setid": "set.markofthepariah",
       "weight": null,
       "trait": "defending",
       "enchant": "glyph.absorb_magicka"
@@ -139,19 +139,19 @@
   "cpslotted": {
     "warfare": [
       "cp.ironclad",
-      "cp.duelists_rebuff",
+      "cp.duelistsrebuff",
       "cp.bulwark",
       "cp.resilience"
     ],
     "fitness": [
       "cp.celerity",
-      "cp.pains_refuge",
-      "cp.sustained_by_suffering",
-      "cp.gifted_rider"
+      "cp.painsrefuge",
+      "cp.sustainedbysuffering",
+      "cp.giftedrider"
     ],
     "craft": [
-      "cp.steeds_blessing",
-      "cp.war_mount",
+      "cp.steedsblessing",
+      "cp.warmount",
       null,
       null
     ]

@@ -1,144 +1,124 @@
 {
   "sets": [
     {
-      "id": "set.adept_rider",
+      "id": "set.adeptrider",
       "name": "Adept Rider",
       "type": "armor",
       "source": "crafted",
-      "tags": [
-        "pvp",
-        "speed"
-      ],
-      "set_id": null,
-      "external_ids": {
-        "eso_sets_api": null
+      "tags": ["pvp", "speed"],
+      "setid": null,
+      "externalids": {
+        "esosetsapi": null
       },
       "bonuses": [
         {
           "pieces": 2,
-          "tooltip_raw": "Minor bonus from Adept Rider (placeholder).",
+          "tooltipraw": "Minor speed bonus placeholder.",
           "effects": []
         },
         {
           "pieces": 3,
-          "tooltip_raw": "Movement speed bonuses from Adept Rider (placeholder).",
-          "effects": [
-            "buff.adept_rider_speed_in_combat",
-            "buff.adept_rider_speed_out_of_combat",
-            "buff.major_gallop"
-          ]
+          "tooltipraw": "Additional speed bonus placeholder.",
+          "effects": []
         },
         {
           "pieces": 4,
-          "tooltip_raw": "Additional Adept Rider utility bonus (placeholder).",
+          "tooltipraw": "Extra stats placeholder.",
           "effects": []
         },
         {
           "pieces": 5,
-          "tooltip_raw": "Full Adept Rider effect package (placeholder).",
-          "effects": []
+          "tooltipraw": "Movement speed bonus from Adept Rider placeholder.",
+          "effects": [
+            "buff.adeptriderspeed"
+          ]
         }
       ]
     },
     {
-      "id": "set.mark_of_the_pariah",
+      "id": "set.markofthepariah",
       "name": "Mark of the Pariah",
       "type": "armor",
       "source": "overland",
-      "tags": [
-        "pvp",
-        "tank"
-      ],
-      "set_id": null,
-      "external_ids": {
-        "eso_sets_api": null
+      "tags": ["pvp", "tank"],
+      "setid": null,
+      "externalids": {
+        "esosetsapi": null
       },
       "bonuses": [
         {
           "pieces": 2,
-          "tooltip_raw": "Max Health bonus from Pariah (placeholder).",
+          "tooltipraw": "Max health bonus placeholder.",
           "effects": []
         },
         {
           "pieces": 3,
-          "tooltip_raw": "Additional defensive stats from Pariah (placeholder).",
+          "tooltipraw": "More max health placeholder.",
           "effects": []
         },
         {
           "pieces": 4,
-          "tooltip_raw": "More defensive stats from Pariah (placeholder).",
+          "tooltipraw": "Defensive bonus placeholder.",
           "effects": []
         },
         {
           "pieces": 5,
-          "tooltip_raw": "Dynamic resistance scaling based on missing Health (placeholder).",
+          "tooltipraw": "Scaling damage reduction at low health placeholder.",
           "effects": [
-            "buff.pariah_scaling_resist"
+            "buff.pariahmitigation"
           ]
         }
       ]
     },
     {
       "id": "set.nibenay",
-      "name": "Nibenay",
+      "name": "Nibenay Tank Set",
       "type": "armor",
       "source": "overland",
-      "tags": [
-        "pvp",
-        "tank"
-      ],
-      "set_id": null,
-      "external_ids": {
-        "eso_sets_api": null
+      "tags": ["tank"],
+      "setid": null,
+      "externalids": {
+        "esosetsapi": null
       },
       "bonuses": [
         {
-          "pieces": 1,
-          "tooltip_raw": "One-piece bonus used on the head slot for Permafrost Marshal (placeholder).",
-          "effects": []
-        },
-        {
           "pieces": 2,
-          "tooltip_raw": "Two-piece bonus from Nibenay (placeholder).",
+          "tooltipraw": "Defensive bonus placeholder.",
           "effects": []
         },
         {
           "pieces": 3,
-          "tooltip_raw": "Three-piece bonus from Nibenay (placeholder).",
+          "tooltipraw": "Additional defense placeholder.",
           "effects": []
         },
         {
           "pieces": 4,
-          "tooltip_raw": "Four-piece bonus from Nibenay (placeholder).",
+          "tooltipraw": "More defense placeholder.",
           "effects": []
         },
         {
           "pieces": 5,
-          "tooltip_raw": "Full five-piece Nibenay bonus (placeholder).",
+          "tooltipraw": "Extra mitigation or utility placeholder.",
           "effects": []
         }
       ]
     },
     {
-      "id": "set.ring_of_the_wild_hunt",
+      "id": "set.ringofthewildhunt",
       "name": "Ring of the Wild Hunt",
       "type": "mythic",
       "source": "mythic",
-      "tags": [
-        "pvp",
-        "speed",
-        "mythic"
-      ],
-      "set_id": null,
-      "external_ids": {
-        "eso_sets_api": null
+      "tags": ["pvp", "speed", "mythic"],
+      "setid": null,
+      "externalids": {
+        "esosetsapi": null
       },
       "bonuses": [
         {
           "pieces": 1,
-          "tooltip_raw": "Mythic movement speed bonus from Ring of the Wild Hunt (placeholder).",
+          "tooltipraw": "Mythic movement speed bonus from Ring of the Wild Hunt placeholder.",
           "effects": [
-            "buff.wild_hunt_speed"
+            "buff.wildhuntspeed"
           ]
         }
       ]

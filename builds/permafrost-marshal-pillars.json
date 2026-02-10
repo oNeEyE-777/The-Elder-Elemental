@@ -1,27 +1,27 @@
 {
-  "build_id": "build.permafrost_marshal",
+  "build_id": "build.permafrostmarshal",
   "pillars": {
     "core_combo": {
       "all_skills_slotted": true,
       "meets_target": true,
       "missing_skills": [],
       "required_skills": [
-        "skill.deep_fissure",
-        "skill.unnerving_boneyard",
-        "skill.glacial_colossus"
+        "skill.deepfissure",
+        "skill.unnervingboneyard",
+        "skill.glacialcolossus"
       ]
     },
     "health": {
       "active": {
         "attributes_health": 64,
-        "focus": "health_first",
+        "focus": "healthfirst",
         "meets_target": true,
         "sources": [],
         "total_health_bonus": 0
       },
       "inactive": {
         "attributes_health": 64,
-        "focus": "health_first",
+        "focus": "healthfirst",
         "meets_target": true,
         "sources": [],
         "total_health_bonus": 0
@@ -43,45 +43,45 @@
     },
     "resist": {
       "active": {
-        "computed_resist_shown": -2974,
+        "computed_resist_shown": 0,
         "meets_target": false,
         "sources": [
           {
-            "effect_id": "debuff.major_breach",
-            "magnitude": -5948.0,
-            "source": "skill.deep_fissure"
-          },
-          {
-            "effect_id": "debuff.minor_breach",
-            "magnitude": -2974.0,
-            "source": "skill.deep_fissure"
-          },
-          {
-            "effect_id": "buff.major_resolve",
-            "magnitude": 5948.0,
-            "source": "skill.hardened_armor"
-          },
-          {
-            "effect_id": "buff.pariah_scaling_resist",
+            "effect_id": "debuff.majorbreach",
             "magnitude": 0.0,
-            "source": "set.mark_of_the_pariah"
+            "source": "skill.deepfissure"
+          },
+          {
+            "effect_id": "debuff.minorbreach",
+            "magnitude": 0.0,
+            "source": "skill.deepfissure"
+          },
+          {
+            "effect_id": "buff.majorresolve",
+            "magnitude": 0.0,
+            "source": "skill.hardenedarmor"
+          },
+          {
+            "effect_id": "buff.pariahmitigation",
+            "magnitude": 0.0,
+            "source": "set.markofthepariah"
           }
         ],
         "target_resist_shown": 43000
       },
       "inactive": {
-        "computed_resist_shown": 5948,
+        "computed_resist_shown": 0,
         "meets_target": false,
         "sources": [
           {
-            "effect_id": "buff.major_resolve",
-            "magnitude": 5948.0,
-            "source": "skill.hardened_armor"
+            "effect_id": "buff.majorresolve",
+            "magnitude": 0.0,
+            "source": "skill.hardenedarmor"
           },
           {
-            "effect_id": "buff.pariah_scaling_resist",
+            "effect_id": "buff.pariahmitigation",
             "magnitude": 0.0,
-            "source": "set.mark_of_the_pariah"
+            "source": "set.markofthepariah"
           }
         ],
         "target_resist_shown": 43000
@@ -105,52 +105,76 @@
       "active": {
         "meets_target": true,
         "profiles_matched": [
-          "extreme_speed"
+          "extremespeed"
         ],
         "speed_effects": [
           {
-            "effect_id": "buff.adept_rider_speed_in_combat",
-            "magnitude": 0.2,
-            "source": "set.adept_rider",
-            "stat": "movement_speed_scalar"
+            "effect_id": "buff.adeptriderspeed",
+            "magnitude": 0.0,
+            "source": "set.adeptrider",
+            "stat": "movementspeedscalar"
           },
           {
-            "effect_id": "buff.adept_rider_speed_out_of_combat",
-            "magnitude": 0.3,
-            "source": "set.adept_rider",
-            "stat": "movement_speed_out_of_combat_scalar"
+            "effect_id": "buff.wildhuntspeed",
+            "magnitude": 0.0,
+            "source": "set.ringofthewildhunt",
+            "stat": "movementspeedscalar"
           },
           {
-            "effect_id": "buff.wild_hunt_speed",
-            "magnitude": 0.15,
-            "source": "set.ring_of_the_wild_hunt",
-            "stat": "movement_speed_scalar"
+            "effect_id": "buff.movementspeedminor",
+            "magnitude": 0.0,
+            "source": "cp.celerity",
+            "stat": "movementspeedscalar"
+          },
+          {
+            "effect_id": "buff.mountedspeedscalar",
+            "magnitude": 0.0,
+            "source": "cp.giftedrider",
+            "stat": "mountedspeedscalar"
+          },
+          {
+            "effect_id": "buff.movementspeedoutofcombat",
+            "magnitude": 0.0,
+            "source": "cp.steedsblessing",
+            "stat": "movementspeedoutofcombatscalar"
           }
         ]
       },
       "inactive": {
         "meets_target": true,
         "profiles_matched": [
-          "extreme_speed"
+          "extremespeed"
         ],
         "speed_effects": [
           {
-            "effect_id": "buff.adept_rider_speed_in_combat",
-            "magnitude": 0.2,
-            "source": "set.adept_rider",
-            "stat": "movement_speed_scalar"
+            "effect_id": "buff.adeptriderspeed",
+            "magnitude": 0.0,
+            "source": "set.adeptrider",
+            "stat": "movementspeedscalar"
           },
           {
-            "effect_id": "buff.adept_rider_speed_out_of_combat",
-            "magnitude": 0.3,
-            "source": "set.adept_rider",
-            "stat": "movement_speed_out_of_combat_scalar"
+            "effect_id": "buff.wildhuntspeed",
+            "magnitude": 0.0,
+            "source": "set.ringofthewildhunt",
+            "stat": "movementspeedscalar"
           },
           {
-            "effect_id": "buff.wild_hunt_speed",
-            "magnitude": 0.15,
-            "source": "set.ring_of_the_wild_hunt",
-            "stat": "movement_speed_scalar"
+            "effect_id": "buff.movementspeedminor",
+            "magnitude": 0.0,
+            "source": "cp.celerity",
+            "stat": "movementspeedscalar"
+          },
+          {
+            "effect_id": "buff.mountedspeedscalar",
+            "magnitude": 0.0,
+            "source": "cp.giftedrider",
+            "stat": "mountedspeedscalar"
+          },
+          {
+            "effect_id": "buff.movementspeedoutofcombat",
+            "magnitude": 0.0,
+            "source": "cp.steedsblessing",
+            "stat": "movementspeedoutofcombatscalar"
           }
         ]
       }

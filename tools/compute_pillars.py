@@ -2,38 +2,17 @@
 """
 tools/compute_pillars.py
 
-Phase 3 implementation of compute_pillars(build, data) -> dict.
+Compute pillar status for a build using v1 Data Model shapes.
 
 - Loads data/skills.json, data/effects.json, data/sets.json, data/cp-stars.json.
 - Loads a build JSON (e.g. builds/permafrost-marshal.json).
-- Computes a flat list of effect instances from skills, sets, and CP
-  (mirroring tools/aggregate_effects.py).
-- Splits effects into two logical states:
-
-  - inactive_state_effects: baseline, always-on effects
-    (all set.* and cp.* sources, plus selected skill effects by timing).
-  - active_state_effects: full effect set available during the core window
-    (all effects from aggregate_effects).
-
-- Uses data/effects.json metadata plus build.pillars config to compute
-  pillar statuses for both states: resist, health, speed, hots, shield, core_combo.
-
-Output shape:
-
-{
-  "build_id": "...",
-  "pillars": {
-    "resist": {
-      "inactive": { ... },
-      "active":   { ... }
-    },
-    "health": { "inactive": { ... }, "active": { ... } },
-    "speed":  { "inactive": { ... }, "active": { ... } },
-    "hots":   { "inactive": { ... }, "active": { ... } },
-    "shield": { "inactive": { ... }, "active": { ... } },
-    "core_combo": { ... }   # purely slot-based, no state split
-  }
-}
+- Aggregates active effects from skills, sets, and CP (mirrors tools/aggregate_effects.py).
+- Splits effects into:
+  - inactive: baseline, always-on (all set. and cp. sources, plus some skill effects by timing).
+  - active: full effect set available during the core window (all effects).
+- Uses data/effects.json metadata plus build.pillars config to compute:
+  - resist, health, speed, hots, shield (inactive/active)
+  - corecombo (slot-based, no state split).
 """
 
 import json
@@ -52,11 +31,21 @@ def load_json(path: str) -> Any:
 
 def load_all_data(repo_root: str) -> Dict[str, Any]:
     data_dir = os.path.join(repo_root, "data")
+    skills_data = load_json(os.path.join(data_dir, "skills.json"))
+    effects_data = load_json(os.path.join(data_dir, "effects.json"))
+    sets_data = load_json(os.path.join(data_dir, "sets.json"))
+    cpstars_data = load_json(os.path.join(data_dir, "cp-stars.json"))
+
+    # Unwrap v1 containers to lists where needed.
+    skills = skills_data.get("skills", skills_data) if isinstance(skills_data, dict) else skills_data
+    sets = sets_data.get("sets", sets_data) if isinstance(sets_data, dict) else sets_data
+    cpstars = cpstars_data.get("cpstars", cpstars_data) if isinstance(cpstars_data, dict) else cpstars_data
+
     return {
-        "skills": load_json(os.path.join(data_dir, "skills.json")),
-        "effects": load_json(os.path.join(data_dir, "effects.json")),
-        "sets": load_json(os.path.join(data_dir, "sets.json")),
-        "cp_stars": load_json(os.path.join(data_dir, "cp-stars.json")),
+        "skills": skills,
+        "effects": effects_data,
+        "sets": sets,
+        "cpstars": cpstars,
     }
 
 
@@ -69,13 +58,13 @@ def index_effects_by_id(effects_data: Dict[str, Any]) -> Dict[str, Dict[str, Any
     return {e["id"]: e for e in items if isinstance(e, dict) and "id" in e}
 
 
-# ---------- Local aggregate_effects implementation (mirrors tools/aggregate_effects.py) ----------
+# ---------- Local aggregate_effects implementation (v1-aligned) ----------
 
 
 def aggregate_effects(build: Dict[str, Any], data: Dict[str, Any]) -> List[Dict[str, Any]]:
-    skills_index = index_by_id(data["skills"].get("skills", []))
-    sets_index = index_by_id(data["sets"].get("sets", []))
-    cp_index = index_by_id(data["cp_stars"].get("cp-stars", []))
+    skills_index = index_by_id(data["skills"])
+    sets_index = index_by_id(data["sets"])
+    cp_index = index_by_id(data["cpstars"])
 
     effects: List[Dict[str, Any]] = []
     effects += collect_skill_effects(build, skills_index)
@@ -110,9 +99,7 @@ def collect_skill_effects(
                         "source": skill_id,
                         "timing": eff.get("timing"),
                         "target": eff.get("target"),
-                        "duration_seconds": eff.get(
-                            "durationseconds", eff.get("duration_seconds")
-                        ),
+                        "duration_seconds": eff.get("durationseconds", eff.get("duration_seconds")),
                     }
                 )
 
@@ -229,29 +216,24 @@ def collect_cp_effects(
     return results
 
 
-# ---------- Effect splitting: inactive vs active logical states ----------
+# ---------- Effect splitting: inactive vs active states ----------
 
 
 def is_inactive_state_effect(effect: Dict[str, Any]) -> bool:
     """
-    Logical definition of the inactive state (baseline):
+    Baseline definition:
 
-    - All set.* and cp.* sources are included.
-    - Skill-based effects are included if their timing suggests they can be
-      treated as baseline uptime for this build.
-
-    This is intentionally heuristic and data-driven, not ESO-term-driven.
+    - All set.* and cp.* sources -> inactive.
+    - Skill.* sources -> inactive if timing suggests baseline uptime.
     """
     source = effect.get("source", "")
     timing = (effect.get("timing") or "").lower()
 
-    # Sets and CP: treated as baseline always-on.
     if source.startswith("set."):
         return True
     if source.startswith("cp."):
         return True
 
-    # Skills: treat some timings as baseline (e.g., armor buffs kept up).
     if source.startswith("skill."):
         return timing in ("slotted", "whileactive")
 
@@ -266,10 +248,23 @@ def split_effects(active_effects: List[Dict[str, Any]]) -> Dict[str, List[Dict[s
         if is_inactive_state_effect(eff):
             inactive.append(eff)
 
-    return {
-        "inactive": inactive,
-        "active": active,
-    }
+    return {"inactive": inactive, "active": active}
+
+
+# ---------- Magnitude helper ----------
+
+
+def _get_magnitude(meta: Dict[str, Any]) -> float:
+    """
+    Magnitude lookup aligned with data/effects.json:
+
+    Prefer "magnitude_value" if present, else fall back to "magnitude".
+    """
+    if "magnitude_value" in meta:
+        val = meta["magnitude_value"]
+    else:
+        val = meta.get("magnitude", 0)
+    return float(val) if isinstance(val, (int, float)) else 0.0
 
 
 # ---------- Pillar computation core ----------
@@ -279,9 +274,9 @@ def compute_pillars(build: Dict[str, Any], data: Dict[str, Any]) -> Dict[str, An
     active_effects: List[Dict[str, Any]] = aggregate_effects(build, data)
     effects_index = index_effects_by_id(data["effects"])
 
-    effects_split = split_effects(active_effects)
-    inactive_effects = effects_split["inactive"]
-    active_state_effects = effects_split["active"]
+    split = split_effects(active_effects)
+    inactive_effects = split["inactive"]
+    active_state_effects = split["active"]
 
     pillars_cfg = build.get("pillars", {}) or {}
 
@@ -325,7 +320,7 @@ def compute_pillars(build: Dict[str, Any], data: Dict[str, Any]) -> Dict[str, An
             build, active_state_effects, effects_index, pillars_cfg.get("shield", {})
         ),
     }
-    core_combo_status = evaluate_core_combo_pillar(build, pillars_cfg.get("core_combo", {}))
+    core_combo_status = evaluate_core_combo_pillar(build, pillars_cfg.get("corecombo", {}))
 
     return {
         "build_id": build.get("id"),
@@ -340,23 +335,6 @@ def compute_pillars(build: Dict[str, Any], data: Dict[str, Any]) -> Dict[str, An
     }
 
 
-# ---------- Magnitude helper ----------
-
-
-def _get_magnitude(meta: Dict[str, Any]) -> float:
-    """
-    Unified magnitude lookup aligned with data/effects.json:
-
-    Prefer explicit "magnitude_value" if present, otherwise fall back
-    to "magnitude", "value", then "base_value".
-    """
-    if "magnitude_value" in meta:
-        val = meta["magnitude_value"]
-    else:
-        val = meta.get("magnitude", meta.get("value", meta.get("base_value", 0)))
-    return float(val) if isinstance(val, (int, float)) else 0.0
-
-
 # ---------- Resist pillar ----------
 
 
@@ -366,16 +344,18 @@ def evaluate_resist_pillar(
     effects_index: Dict[str, Dict[str, Any]],
     cfg: Dict[str, Any],
 ) -> Dict[str, Any]:
-    target = cfg.get("target_resist_shown")
+    target = cfg.get("targetresistshown")
 
-    total_bonus, contributing_sources = 0.0, []
+    total_bonus = 0.0
+    contributing_sources: List[Dict[str, Any]] = []
+
     for eff in active_effects:
         eff_meta = effects_index.get(eff["effect_id"])
         if not eff_meta:
             continue
 
         stat = eff_meta.get("stat")
-        if stat not in ("resistance_flat", "resist", "armor"):
+        if stat not in ("resistanceflat", "resist", "armor"):
             continue
 
         magnitude = _get_magnitude(eff_meta)
@@ -389,7 +369,6 @@ def evaluate_resist_pillar(
         )
 
     computed_resist = int(total_bonus)
-
     meets_target = None
     if isinstance(target, (int, float)):
         meets_target = computed_resist >= target
@@ -414,14 +393,16 @@ def evaluate_health_pillar(
     attrs = build.get("attributes", {}) or {}
     attr_health = attrs.get("health", 0)
 
-    total_bonus, contributing_sources = 0.0, []
+    total_bonus = 0.0
+    contributing_sources: List[Dict[str, Any]] = []
+
     for eff in active_effects:
         eff_meta = effects_index.get(eff["effect_id"])
         if not eff_meta:
             continue
 
         stat = eff_meta.get("stat")
-        if stat not in ("max_health", "health_max"):
+        if stat not in ("maxhealth", "healthmax"):
             continue
 
         magnitude = _get_magnitude(eff_meta)
@@ -436,7 +417,7 @@ def evaluate_health_pillar(
 
     focus = cfg.get("focus")
     meets_target = None
-    if focus == "health_first":
+    if focus == "healthfirst":
         meets_target = (attr_health == 64)
 
     return {
@@ -467,9 +448,9 @@ def evaluate_speed_pillar(
 
         stat = meta.get("stat")
         if stat not in (
-            "movement_speed_scalar",
-            "movement_speed_out_of_combat_scalar",
-            "mounted_speed_scalar",
+            "movementspeedscalar",
+            "movementspeedoutofcombatscalar",
+            "mountedspeedscalar",
         ):
             continue
 
@@ -484,7 +465,7 @@ def evaluate_speed_pillar(
         )
 
     meets_target = None
-    if profile == "extreme_speed":
+    if profile == "extremespeed":
         meets_target = len(speed_effects) > 0
 
     profiles_matched: List[str] = []
@@ -507,7 +488,7 @@ def evaluate_hots_pillar(
     effects_index: Dict[str, Dict[str, Any]],
     cfg: Dict[str, Any],
 ) -> Dict[str, Any]:
-    min_hots = cfg.get("min_active_hots")
+    min_hots = cfg.get("minactivehots")
 
     hot_effects: Dict[str, Dict[str, Any]] = {}
     for eff in active_effects:
@@ -518,7 +499,7 @@ def evaluate_hots_pillar(
         category = meta.get("category")
         stat = meta.get("stat")
 
-        is_hot = (category == "over_time") and (stat == "healing_over_time_scalar")
+        is_hot = (category == "overtime") and (stat == "healingovertimescalar")
         if not is_hot:
             continue
 
@@ -550,7 +531,7 @@ def evaluate_shield_pillar(
     effects_index: Dict[str, Dict[str, Any]],
     cfg: Dict[str, Any],
 ) -> Dict[str, Any]:
-    min_shields = cfg.get("min_active_shields")
+    min_shields = cfg.get("minactiveshields")
 
     shield_effects: Dict[str, Dict[str, Any]] = {}
     for eff in active_effects:
@@ -561,7 +542,7 @@ def evaluate_shield_pillar(
         category = meta.get("category")
         stat = meta.get("stat")
 
-        is_shield = (category == "shield") and stat.startswith("shield_")
+        is_shield = (category == "shield") and stat.startswith("shield")
         if not is_shield:
             continue
 

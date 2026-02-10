@@ -6,40 +6,40 @@
 
 | Slot | Skill | Tooltip |
 | --- | --- | --- |
-| 1 | Deep Fissure | Unleash a fissure that opens after a short delay, applying Major and Minor Breach to enemies hit. |
-| 2 | Unnerving Boneyard | Create a boneyard that applies debuffs and can be synergized by allies. |
-| 3 | Hardened Armor | Defensive armor buff providing Major Resolve and a small shield. |
-| 4 | Green Dragon Blood | Burst heal and sustain skill for the tank core. |
-| 5 | Blinding Flare (Front Bar) | Slot-only flare used on the front bar for mitigation and synergy setup. |
-| ULT | Reviving Barrier | Group shield ultimate used as the primary defensive ultimate on the front bar. |
+| 1 |  |  |
+| 2 |  |  |
+| 3 |  |  |
+| 4 |  |  |
+| 5 |  |  |
+| ULT |  |  |
 
 ### Back Bar
 
 | Slot | Skill | Tooltip |
 | --- | --- | --- |
-| 1 | Ulfsild's Contingency | Placeholder record for an item-set-like contingency effect slotted on the back bar. |
-| 2 | Resolving Vigor | Stamina-based heal over time to satisfy HoT pillar requirements. |
-| 3 | Bull Netch | Resource sustain and cleansing companion. |
-| 4 | Wield Soul | Utility skill that channels the power of souls for control and sustain. |
-| 5 | Soul Burst | Utility burst used to interact with Soul Magic and crowd control setups. |
-| ULT | Glacial Colossus | Primary offensive ultimate used to trigger vulnerability and burst windows. |
+| 1 |  |  |
+| 2 |  |  |
+| 3 |  |  |
+| 4 |  |  |
+| 5 |  |  |
+| ULT |  |  |
 
 ## Gear
 
 | Slot | Set | Weight | Trait | Enchant |
 | --- | --- | --- | --- | --- |
-| head | Nibenay | heavy | reinforced | glyph.max_magicka |
-| shoulder | Adept Rider | heavy | impenetrable | glyph.max_magicka |
-| chest | Mark of the Pariah | heavy | reinforced | glyph.max_magicka |
-| hands | Adept Rider | medium | impenetrable | glyph.max_magicka |
-| waist | Adept Rider | light | impenetrable | glyph.max_magicka |
-| legs | Adept Rider | heavy | impenetrable | glyph.max_magicka |
-| feet | Adept Rider | heavy | impenetrable | glyph.max_magicka |
-| neck | Mark of the Pariah |  | swift | glyph.magicka_recovery |
-| ring1 | Mark of the Pariah |  | swift | glyph.magicka_recovery |
-| ring2 | Ring of the Wild Hunt |  | swift | glyph.magicka_recovery |
-| front_weapon | Mark of the Pariah |  | defending | glyph.absorb_magicka |
-| back_weapon | Mark of the Pariah |  | defending | glyph.absorb_magicka |
+| head |  | heavy | reinforced | glyph.max_magicka |
+| shoulder |  | heavy | impenetrable | glyph.max_magicka |
+| chest |  | heavy | reinforced | glyph.max_magicka |
+| hands |  | medium | impenetrable | glyph.max_magicka |
+| waist |  | light | impenetrable | glyph.max_magicka |
+| legs |  | heavy | impenetrable | glyph.max_magicka |
+| feet |  | heavy | impenetrable | glyph.max_magicka |
+| neck |  |  | swift | glyph.magicka_recovery |
+| ring1 |  |  | swift | glyph.magicka_recovery |
+| ring2 |  |  | swift | glyph.magicka_recovery |
+| front_weapon |  |  |  |  |
+| back_weapon |  |  |  |  |
 
 ## Champion Points
 
@@ -47,25 +47,13 @@
 
 | Slot | Star | Tooltip |
 | --- | --- | --- |
-| 1 | Ironclad | Reduces damage taken from direct damage attacks. |
-| 2 | Duelist's Rebuff | Reduces damage taken by single target attacks (placeholder). |
-| 3 | Bulwark | Increases armor when wearing a shield or ice staff (placeholder). |
-| 4 | Resilience | Grants Critical Resistance after being critically hit (placeholder). |
 
 ### Fitness
 
 | Slot | Star | Tooltip |
 | --- | --- | --- |
-| 1 | Celerity | Increases movement speed (placeholder). |
-| 2 | Pain's Refuge | Reduces damage taken based on number of negative effects (placeholder). |
-| 3 | Sustained by Suffering | Increases Health, Magicka, and Stamina recovery while under a negative effect (placeholder). |
-| 4 | Gifted Rider | Increases mount speed and reduces mount stamina drain (placeholder). |
 
 ### Craft
 
 | Slot | Star | Tooltip |
 | --- | --- | --- |
-| 1 | Steed's Blessing | Increases out-of-combat movement speed (placeholder). |
-| 2 | War Mount | Improves mount sprinting capabilities (placeholder). |
-| 3 |  |  |
-| 4 |  |  |

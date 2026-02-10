@@ -1,254 +1,254 @@
 {
   "skills": [
     {
-      "id": "skill.deep_fissure",
+      "id": "skill.deepfissure",
       "name": "Deep Fissure",
-      "class_id": "warden",
-      "skill_line_id": "warden_animal_companions",
+      "classid": "warden",
+      "skilllineid": "wardenanimalcompanions",
       "type": "active",
       "resource": "magicka",
       "cost": 2700,
-      "cast_time": "instant",
+      "casttime": "instant",
       "target": "area",
-      "duration_seconds": 9,
-      "radius_meters": 20,
-      "ability_id": null,
-      "external_ids": {
+      "durationseconds": 9,
+      "radiusmeters": 20,
+      "abilityid": null,
+      "externalids": {
         "uesp": null
       },
-      "tooltip_effect_text": "Unleash a fissure that opens after a short delay, applying Major and Minor Breach to enemies hit.",
+      "tooltipeffecttext": "Unleash a fissure that opens after a short delay, applying Major and Minor Breach to enemies hit.",
       "effects": [
         {
-          "effect_id": "debuff.major_breach",
+          "effectid": "debuff.majorbreach",
           "timing": "onhit",
-          "duration_seconds": 10,
+          "durationseconds": 10,
           "target": "enemy",
           "notes": "Applied to enemies hit by the fissure."
         },
         {
-          "effect_id": "debuff.minor_breach",
+          "effectid": "debuff.minorbreach",
           "timing": "onhit",
-          "duration_seconds": 10,
+          "durationseconds": 10,
           "target": "enemy",
           "notes": "Applied alongside Major Breach."
         }
       ]
     },
     {
-      "id": "skill.unnerving_boneyard",
+      "id": "skill.unnervingboneyard",
       "name": "Unnerving Boneyard",
-      "class_id": "necromancer",
-      "skill_line_id": "necromancer_grave_lord",
+      "classid": "necromancer",
+      "skilllineid": "necromancergravelord",
       "type": "active",
       "resource": "magicka",
       "cost": null,
-      "cast_time": "instant",
+      "casttime": "instant",
       "target": "area",
-      "duration_seconds": 10,
-      "radius_meters": 6,
-      "ability_id": null,
-      "external_ids": {
+      "durationseconds": 10,
+      "radiusmeters": 6,
+      "abilityid": null,
+      "externalids": {
         "uesp": null
       },
-      "tooltip_effect_text": "Create a boneyard that applies debuffs and can be synergized by allies.",
+      "tooltipeffecttext": "Create a boneyard that applies debuffs and can be synergized by allies.",
       "effects": []
     },
     {
-      "id": "skill.hardened_armor",
+      "id": "skill.hardenedarmor",
       "name": "Hardened Armor",
-      "class_id": "dragonknight",
-      "skill_line_id": "dragonknight_draconic_power",
+      "classid": "dragonknight",
+      "skilllineid": "dragonknightdraconicpower",
       "type": "active",
       "resource": "magicka",
       "cost": null,
-      "cast_time": "instant",
+      "casttime": "instant",
       "target": "self",
-      "duration_seconds": 20,
-      "radius_meters": null,
-      "ability_id": null,
-      "external_ids": {
+      "durationseconds": 20,
+      "radiusmeters": null,
+      "abilityid": null,
+      "externalids": {
         "uesp": null
       },
-      "tooltip_effect_text": "Defensive armor buff providing Major Resolve and a small shield.",
+      "tooltipeffecttext": "Defensive armor buff providing Major Resolve and a small shield.",
       "effects": [
         {
-          "effect_id": "buff.major_resolve",
+          "effectid": "buff.majorresolve",
           "timing": "whileactive",
-          "duration_seconds": 20,
+          "durationseconds": 20,
           "target": "self",
           "notes": "Primary resistance buff."
         }
       ]
     },
     {
-      "id": "skill.green_dragon_blood",
+      "id": "skill.greendragonblood",
       "name": "Green Dragon Blood",
-      "class_id": "dragonknight",
-      "skill_line_id": "dragonknight_draconic_power",
+      "classid": "dragonknight",
+      "skilllineid": "dragonknightdraconicpower",
       "type": "active",
       "resource": "magicka",
       "cost": null,
-      "cast_time": "instant",
+      "casttime": "instant",
       "target": "self",
-      "duration_seconds": null,
-      "radius_meters": null,
-      "ability_id": null,
-      "external_ids": {
+      "durationseconds": null,
+      "radiusmeters": null,
+      "abilityid": null,
+      "externalids": {
         "uesp": null
       },
-      "tooltip_effect_text": "Burst heal and sustain skill for the tank core.",
+      "tooltipeffecttext": "Burst heal and sustain skill for the tank core.",
       "effects": []
     },
     {
-      "id": "skill.blinding_flare_front",
+      "id": "skill.blindingflarefront",
       "name": "Blinding Flare (Front Bar)",
-      "class_id": "templar",
-      "skill_line_id": "support",
+      "classid": "templar",
+      "skilllineid": "support",
       "type": "active",
       "resource": "magicka",
       "cost": null,
-      "cast_time": "instant",
+      "casttime": "instant",
       "target": "self",
-      "duration_seconds": null,
-      "radius_meters": null,
-      "ability_id": null,
-      "external_ids": {
+      "durationseconds": null,
+      "radiusmeters": null,
+      "abilityid": null,
+      "externalids": {
         "uesp": null
       },
-      "tooltip_effect_text": "Slot-only flare used on the front bar for mitigation and synergy setup.",
+      "tooltipeffecttext": "Slot-only flare used on the front bar for mitigation and synergy setup.",
       "effects": []
     },
     {
-      "id": "skill.reviving_barrier",
+      "id": "skill.revivingbarrier",
       "name": "Reviving Barrier",
-      "class_id": "universal",
-      "skill_line_id": "alliance_war_support",
+      "classid": "universal",
+      "skilllineid": "alliancewarsupport",
       "type": "ultimate",
       "resource": "ultimate",
       "cost": null,
-      "cast_time": "instant",
+      "casttime": "instant",
       "target": "group",
-      "duration_seconds": 30,
-      "radius_meters": 12,
-      "ability_id": null,
-      "external_ids": {
+      "durationseconds": 30,
+      "radiusmeters": 12,
+      "abilityid": null,
+      "externalids": {
         "uesp": null
       },
-      "tooltip_effect_text": "Group shield ultimate used as the primary defensive ultimate on the front bar.",
+      "tooltipeffecttext": "Group shield ultimate used as the primary defensive ultimate on the front bar.",
       "effects": []
     },
     {
-      "id": "skill.ulfsilds_contingency",
+      "id": "skill.ulfsildscontingency",
       "name": "Ulfsild's Contingency",
-      "class_id": "universal",
-      "skill_line_id": "item_set_proc",
+      "classid": "universal",
+      "skilllineid": "itemsetproc",
       "type": "passive",
       "resource": "none",
       "cost": null,
-      "cast_time": "instant",
+      "casttime": "instant",
       "target": "self",
-      "duration_seconds": null,
-      "radius_meters": null,
-      "ability_id": null,
-      "external_ids": {
+      "durationseconds": null,
+      "radiusmeters": null,
+      "abilityid": null,
+      "externalids": {
         "uesp": null
       },
-      "tooltip_effect_text": "Placeholder record for an item-set-like contingency effect slotted on the back bar.",
+      "tooltipeffecttext": "Placeholder record for an item-set-like contingency effect slotted on the back bar.",
       "effects": []
     },
     {
-      "id": "skill.resolving_vigor",
+      "id": "skill.resolvingvigor",
       "name": "Resolving Vigor",
-      "class_id": "universal",
-      "skill_line_id": "alliance_war_assault",
+      "classid": "universal",
+      "skilllineid": "alliancewarassault",
       "type": "active",
       "resource": "stamina",
       "cost": null,
-      "cast_time": "instant",
+      "casttime": "instant",
       "target": "self",
-      "duration_seconds": 5,
-      "radius_meters": null,
-      "ability_id": null,
-      "external_ids": {
+      "durationseconds": 5,
+      "radiusmeters": null,
+      "abilityid": null,
+      "externalids": {
         "uesp": null
       },
-      "tooltip_effect_text": "Stamina-based heal over time to satisfy HoT pillar requirements.",
+      "tooltipeffecttext": "Stamina-based heal over time to satisfy HoT pillar requirements.",
       "effects": []
     },
     {
-      "id": "skill.bull_netch",
+      "id": "skill.bullnetch",
       "name": "Bull Netch",
-      "class_id": "warden",
-      "skill_line_id": "warden_animal_companions",
+      "classid": "warden",
+      "skilllineid": "wardenanimalcompanions",
       "type": "active",
       "resource": "none",
       "cost": null,
-      "cast_time": "instant",
+      "casttime": "instant",
       "target": "self",
-      "duration_seconds": 25,
-      "radius_meters": null,
-      "ability_id": null,
-      "external_ids": {
+      "durationseconds": 25,
+      "radiusmeters": null,
+      "abilityid": null,
+      "externalids": {
         "uesp": null
       },
-      "tooltip_effect_text": "Resource sustain and cleansing companion.",
+      "tooltipeffecttext": "Resource sustain and cleansing companion.",
       "effects": []
     },
     {
-      "id": "skill.wield_soul",
+      "id": "skill.wieldsoul",
       "name": "Wield Soul",
-      "class_id": "universal",
-      "skill_line_id": "soul_magic",
+      "classid": "universal",
+      "skilllineid": "soulmagic",
       "type": "active",
       "resource": "magicka",
       "cost": null,
-      "cast_time": "instant",
+      "casttime": "instant",
       "target": "enemy",
-      "duration_seconds": null,
-      "radius_meters": null,
-      "ability_id": null,
-      "external_ids": {
+      "durationseconds": null,
+      "radiusmeters": null,
+      "abilityid": null,
+      "externalids": {
         "uesp": null
       },
-      "tooltip_effect_text": "Utility skill that channels the power of souls for control and sustain.",
+      "tooltipeffecttext": "Utility skill that channels the power of souls for control and sustain.",
       "effects": []
     },
     {
-      "id": "skill.soul_burst",
+      "id": "skill.soulburst",
       "name": "Soul Burst",
-      "class_id": "universal",
-      "skill_line_id": "soul_magic",
+      "classid": "universal",
+      "skilllineid": "soulmagic",
       "type": "active",
       "resource": "magicka",
       "cost": null,
-      "cast_time": "instant",
+      "casttime": "instant",
       "target": "enemy",
-      "duration_seconds": null,
-      "radius_meters": null,
-      "ability_id": null,
-      "external_ids": {
+      "durationseconds": null,
+      "radiusmeters": null,
+      "abilityid": null,
+      "externalids": {
         "uesp": null
       },
-      "tooltip_effect_text": "Utility burst used to interact with Soul Magic and crowd control setups.",
+      "tooltipeffecttext": "Utility burst used to interact with Soul Magic and crowd control setups.",
       "effects": []
     },
     {
-      "id": "skill.glacial_colossus",
+      "id": "skill.glacialcolossus",
       "name": "Glacial Colossus",
-      "class_id": "necromancer",
-      "skill_line_id": "necromancer_grave_lord",
+      "classid": "necromancer",
+      "skilllineid": "necromancergravelord",
       "type": "ultimate",
       "resource": "ultimate",
       "cost": null,
-      "cast_time": "instant",
+      "casttime": "instant",
       "target": "area",
-      "duration_seconds": null,
-      "radius_meters": 8,
-      "ability_id": null,
-      "external_ids": {
+      "durationseconds": null,
+      "radiusmeters": 8,
+      "abilityid": null,
+      "externalids": {
         "uesp": null
       },
-      "tooltip_effect_text": "Primary offensive ultimate used to trigger vulnerability and burst windows.",
+      "tooltipeffecttext": "Primary offensive ultimate used to trigger vulnerability and burst windows.",
       "effects": []
     }
   ]
