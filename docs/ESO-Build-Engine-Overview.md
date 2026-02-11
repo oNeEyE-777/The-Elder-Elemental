@@ -42,6 +42,7 @@ The ESO Build Engine is organized into three layers:[file:4][file:18][file:20]
      - Uses selector-only inputs for skills, sets, CP (no free text).
      - Reads data and builds from the backend.
      - Displays computed effects and pillars.
+   - For practical “how to run it locally” instructions (backend + frontend together, Permafrost Marshal wired end-to-end), see `docs/ESO-Build-Engine-Runbook.md`.
    - No ESO game logic is duplicated in the UI; it uses the same JSON + Python tool outputs as the source of truth.
 
 ## Non-negotiable rules
@@ -80,4 +81,4 @@ These rules apply to all work on this repo:[file:4][file:18][file:19][file:20]
 
 The initial scope is centered on one real build:[file:18][file:20]
 
-- `builds/permafrost-marshal.json` – Permafrost Marshal build, fully wired to skills, sets, effects,
+- `builds/permafrost-marshal.json` – Permafrost Marshal build, fully wired to skills, sets, effects, CP stars, and pillar definitions, used as the reference implementation for all tools and APIs.
