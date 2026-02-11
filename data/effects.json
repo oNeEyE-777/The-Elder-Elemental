@@ -127,6 +127,143 @@
         "buff.major_resolve"
       ],
       "description": "Approximate Mark of the Pariah bonus: treated as +7000 Physical and Spell Resistance at low health for pillar calculations. Replace with exact scaling when real ESO data is imported."
+    },
+
+    {
+      "id": "hot.green_dragon_blood",
+      "name": "Green Dragon Blood HoT",
+      "category": "modifier",
+      "scope": "self",
+      "stat": "hot",
+      "magnitude_kind": "multiplier_additive",
+      "magnitude_value": 1.0,
+      "stacking_rule": "unique_source",
+      "stacks_with": [],
+      "description": "Self heal over time and recovery bonuses approximated as a generic HoT for pillar tracking."
+    },
+    {
+      "id": "hot.barrier",
+      "name": "Barrier HoT",
+      "category": "modifier",
+      "scope": "group",
+      "stat": "hot",
+      "magnitude_kind": "multiplier_additive",
+      "magnitude_value": 1.0,
+      "stacking_rule": "unique_source",
+      "stacks_with": [],
+      "description": "Heals group members over time while Reviving Barrier persists, approximated as a generic HoT."
+    },
+    {
+      "id": "hot.resolving_vigor",
+      "name": "Resolving Vigor HoT",
+      "category": "modifier",
+      "scope": "self_area",
+      "stat": "hot",
+      "magnitude_kind": "multiplier_additive",
+      "magnitude_value": 1.0,
+      "stacking_rule": "unique_source",
+      "stacks_with": [],
+      "description": "Applies a strong heal over time to you and nearby allies, approximated as a generic HoT."
+    },
+
+    {
+      "id": "shield.barrier",
+      "name": "Reviving Barrier Shield",
+      "category": "modifier",
+      "scope": "group",
+      "stat": "shield",
+      "magnitude_kind": "multiplier_additive",
+      "magnitude_value": 1.0,
+      "stacking_rule": "unique_source",
+      "stacks_with": [],
+      "description": "Applies a large group damage shield, modeled as a generic shield effect for pillar tracking."
+    },
+    {
+      "id": "shield.hardened_armor",
+      "name": "Hardened Armor Shield",
+      "category": "modifier",
+      "scope": "self",
+      "stat": "shield",
+      "magnitude_kind": "multiplier_additive",
+      "magnitude_value": 1.0,
+      "stacking_rule": "unique_source",
+      "stacks_with": [],
+      "description": "Applies a small personal shield scaling with max health, approximated as a generic shield."
+    },
+    {
+      "id": "shield.soul_burst",
+      "name": "Soul Burst Shield",
+      "category": "modifier",
+      "scope": "self",
+      "stat": "shield",
+      "magnitude_kind": "multiplier_additive",
+      "magnitude_value": 0.5,
+      "stacking_rule": "unique_source",
+      "stacks_with": [],
+      "description": "Applies a short-duration personal shield, approximated at half strength for pillar tracking."
+    },
+
+    {
+      "id": "buff.ironclad_damage_taken",
+      "name": "Ironclad Damage Taken Reduction",
+      "category": "modifier",
+      "scope": "self",
+      "stat": "damage_taken_scalar",
+      "magnitude_kind": "multiplier_additive",
+      "magnitude_value": -0.06,
+      "stacking_rule": "unique_source",
+      "stacks_with": [],
+      "description": "Represents the Ironclad CP star's damage taken reduction for direct damage."
+    },
+    {
+      "id": "buff.bull_netch_resource",
+      "name": "Bull Netch Resource Buff",
+      "category": "modifier",
+      "scope": "self",
+      "stat": "resource_gain",
+      "magnitude_kind": "multiplier_additive",
+      "magnitude_value": 1.0,
+      "stacking_rule": "unique_source",
+      "stacks_with": [],
+      "description": "Provides ongoing resource return and cleanse, approximated as a generic resource gain effect."
+    },
+    {
+      "id": "buff.ulfsild_defense",
+      "name": "Ulfsild's Defensive Proc",
+      "category": "modifier",
+      "scope": "self",
+      "stat": "damage_taken_scalar",
+      "magnitude_kind": "multiplier_additive",
+      "magnitude_value": -0.10,
+      "stacking_rule": "unique_source",
+      "stacks_with": [],
+      "description": "Represents a conditional defensive proc from Ulfsild's Contingency, approximated as 10% damage taken reduction."
+    },
+    {
+      "id": "buff.wield_soul_minor_buff",
+      "name": "Wield Soul Minor Buff",
+      "category": "modifier",
+      "scope": "self",
+      "stat": "resistance_flat",
+      "magnitude_kind": "flat",
+      "magnitude_value": 1320,
+      "stacking_rule": "exclusive_tier",
+      "stacks_with": [
+        "buff.major_resolve"
+      ],
+      "description": "Placeholder minor defensive buff applied after using Wield Soul, approximated as +1320 resist."
+    },
+    {
+      "id": "buff.major_gallop",
+      "name": "Major Gallop",
+      "category": "modifier",
+      "scope": "self",
+      "stat": "mounted_speed_scalar",
+      "magnitude_kind": "multiplier_additive",
+      "magnitude_value": 0.30,
+      "stacking_rule": "exclusive_tier",
+      "stacks_with": [],
+      "description": "Increases mount speed for Major Gallop effects."
     }
   ]
 }

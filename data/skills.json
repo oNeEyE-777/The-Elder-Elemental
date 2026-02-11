@@ -97,7 +97,15 @@
         "uesp": null
       },
       "tooltip_effect_text": "Burst heal and sustain skill for the tank core.",
-      "effects": []
+      "effects": [
+        {
+          "effect_id": "hot.green_dragon_blood",
+          "timing": "on_cast",
+          "duration_seconds": 5,
+          "target": "self",
+          "notes": "Self heal over time and recovery bonuses."
+        }
+      ]
     },
     {
       "id": "skill.blinding_flare_front",
@@ -135,7 +143,22 @@
         "uesp": null
       },
       "tooltip_effect_text": "Group shield ultimate used as the primary defensive ultimate on the front bar.",
-      "effects": []
+      "effects": [
+        {
+          "effect_id": "shield.barrier",
+          "timing": "on_cast",
+          "duration_seconds": 30,
+          "target": "group",
+          "notes": "Applies a very large group damage shield."
+        },
+        {
+          "effect_id": "hot.barrier",
+          "timing": "on_cast",
+          "duration_seconds": 15,
+          "target": "group",
+          "notes": "Heals group members over time while barrier persists."
+        }
+      ]
     },
     {
       "id": "skill.ulfsilds_contingency",
@@ -173,7 +196,15 @@
         "uesp": null
       },
       "tooltip_effect_text": "Stamina-based heal over time to satisfy HoT pillar requirements.",
-      "effects": []
+      "effects": [
+        {
+          "effect_id": "hot.resolving_vigor",
+          "timing": "on_cast",
+          "duration_seconds": 5,
+          "target": "self_area",
+          "notes": "Applies a strong heal over time to you and nearby allies."
+        }
+      ]
     },
     {
       "id": "skill.bull_netch",

@@ -2,17 +2,21 @@
 """
 tools/compute_pillars.py
 
-Compute pillar status for a build using v1 Data Model shapes.
+Phase 3 implementation of compute_pillars(build, data) -> dict.
 
 - Loads data/skills.json, data/effects.json, data/sets.json, data/cp-stars.json.
 - Loads a build JSON (e.g. builds/permafrost-marshal.json).
-- Aggregates active effects from skills, sets, and CP (mirrors tools/aggregate_effects.py).
-- Splits effects into:
-  - inactive: baseline, always-on (all set.* and cp.* sources, plus some skill effects by timing).
-  - active: full effect set available during the core window (all effects).
-- Uses data/effects.json metadata plus build.pillars config to compute:
-  - resist, health, speed, hots, shield (inactive/active)
-  - core_combo (slot-based, no state split).
+- Computes a flat list of effect instances from skills, sets, and CP
+  (mirroring tools/aggregate_effects.py).
+- Splits effects into two logical states:
+
+  - inactive_state_effects: baseline, always-on effects
+    (all set.* and cp.* sources, plus selected skill effects by timing).
+  - active_state_effects: full effect set available during the core window
+    (all effects from aggregate_effects).
+
+- Uses data/effects.json metadata plus build.pillars config to compute
+  pillar statuses for both states: resist, health, speed, hots, shield, core_combo.
 """
 
 import json
@@ -31,32 +35,11 @@ def load_json(path: str) -> Any:
 
 def load_all_data(repo_root: str) -> Dict[str, Any]:
     data_dir = os.path.join(repo_root, "data")
-    skills_data = load_json(os.path.join(data_dir, "skills.json"))
-    effects_data = load_json(os.path.join(data_dir, "effects.json"))
-    sets_data = load_json(os.path.join(data_dir, "sets.json"))
-    cpstars_data = load_json(os.path.join(data_dir, "cp-stars.json"))
-
-    # Unwrap v1 containers to lists where needed.
-    if isinstance(skills_data, dict):
-        skills = skills_data.get("skills", [])
-    else:
-        skills = skills_data
-
-    if isinstance(sets_data, dict):
-        sets = sets_data.get("sets", [])
-    else:
-        sets = sets_data
-
-    if isinstance(cpstars_data, dict):
-        cp_stars = cpstars_data.get("cp_stars") or cpstars_data.get("cpstars") or []
-    else:
-        cp_stars = cpstars_data
-
     return {
-        "skills": skills,
-        "effects": effects_data,
-        "sets": sets,
-        "cp_stars": cp_stars,
+        "skills": load_json(os.path.join(data_dir, "skills.json")),
+        "effects": load_json(os.path.join(data_dir, "effects.json")),
+        "sets": load_json(os.path.join(data_dir, "sets.json")),
+        "cp_stars": load_json(os.path.join(data_dir, "cp-stars.json")),
     }
 
 
@@ -69,13 +52,13 @@ def index_effects_by_id(effects_data: Dict[str, Any]) -> Dict[str, Dict[str, Any
     return {e["id"]: e for e in items if isinstance(e, dict) and "id" in e}
 
 
-# ---------- Local aggregate_effects implementation (v1-aligned) ----------
+# ---------- Local aggregate_effects implementation (mirrors tools/aggregate_effects.py) ----------
 
 
 def aggregate_effects(build: Dict[str, Any], data: Dict[str, Any]) -> List[Dict[str, Any]]:
-    skills_index = index_by_id(data["skills"])
-    sets_index = index_by_id(data["sets"])
-    cp_index = index_by_id(data["cp_stars"])
+    skills_index = index_by_id(data["skills"].get("skills", []))
+    sets_index = index_by_id(data["sets"].get("sets", []))
+    cp_index = index_by_id(data["cp_stars"].get("cp-stars", []))
 
     effects: List[Dict[str, Any]] = []
     effects += collect_skill_effects(build, skills_index)
@@ -93,7 +76,7 @@ def collect_skill_effects(
 
     for bar_name in ("front", "back"):
         for slot in bars.get(bar_name, []):
-            skill_id = slot.get("skill_id")
+            skill_id = slot.get("skillid") or slot.get("skill_id")
             if not skill_id:
                 continue
             skill = skills_index.get(skill_id)
@@ -101,7 +84,7 @@ def collect_skill_effects(
                 continue
 
             for eff in skill.get("effects", []):
-                effect_id = eff.get("effect_id")
+                effect_id = eff.get("effectid") or eff.get("effect_id")
                 if not effect_id:
                     continue
                 results.append(
@@ -110,7 +93,7 @@ def collect_skill_effects(
                         "source": skill_id,
                         "timing": eff.get("timing"),
                         "target": eff.get("target"),
-                        "duration_seconds": eff.get("duration_seconds"),
+                        "duration_seconds": eff.get("durationseconds", eff.get("duration_seconds")),
                     }
                 )
 
@@ -127,7 +110,7 @@ def compute_set_piece_counts(build: Dict[str, Any]) -> Dict[str, int]:
     for item in gear_list:
         if not isinstance(item, dict):
             continue
-        set_id = item.get("set_id")
+        set_id = item.get("setid") or item.get("set_id")
         if not set_id:
             continue
         counts[set_id] = counts.get(set_id, 0) + 1
@@ -262,17 +245,79 @@ def split_effects(active_effects: List[Dict[str, Any]]) -> Dict[str, List[Dict[s
     return {"inactive": inactive, "active": active}
 
 
-# ---------- Magnitude helper ----------
+# ---------- Magnitude + metadata helpers ----------
 
 
 def _get_magnitude(meta: Dict[str, Any]) -> float:
     """
-    Magnitude lookup aligned with data/effects.json:
-
-    Uses magnitude_value (flat or scalar) directly.
+    v1 effects.json uses base_value for magnitude. [file:374]
     """
-    val = meta.get("magnitude_value", 0)
+    val = meta.get("base_value", 0)
     return float(val) if isinstance(val, (int, float)) else 0.0
+
+
+# Bare ID -> canonical effect.id mapping, to avoid JSON edits. [file:374][file:385]
+BARE_TO_EFFECT_ID: Dict[str, str] = {
+    # Resist / Breach / Resolve
+    "buff.major_resolve": "effect.buff.major_resolve",
+    "debuff.major_breach": "effect.debuff.major_breach",
+    "debuff.minor_breach": "effect.debuff.minor_breach",
+    "buff.pariah_scaling_resist": "effect.buff.pariah_scaling",
+    "buff.wield_soul_minor_buff": "effect.buff.wield_soul_minor_buff",
+    # Speed-related
+    "buff.celerity": "effect.buff.celerity_minor",
+    "buff.movement_speed_minor": "effect.buff.celerity_minor",
+    "buff.steeds_blessing": "effect.buff.steeds_blessing",
+    "buff.mounted_speed_scalar": "effect.buff.warmount",
+    "buff.adept_rider_speed": "effect.buff.adept_rider_speed_in_combat",
+    "buff.wild_hunt_speed": "effect.buff.wild_hunt_speed",
+    # HoTs
+    "hot.green_dragon_blood": "effect.hot.green_dragon_blood",
+    "hot.barrier": "effect.hot.barrier",
+    "hot.resolving_vigor": "effect.hot.resolving_vigor",
+    # Shields
+    "shield.barrier": "effect.shield.barrier",
+    "shield.hardened_armor": "effect.shield.hardened_armor",
+    "shield.soul_burst": "effect.shield.soul_burst",
+    # Damage taken / Ironclad / Ulfsild
+    "buff.damage_taken_direct_minor": "effect.buff.ironclad_damage_taken",
+    "buff.ulfsild_defense": "effect.buff.ulfsild_defense",
+}
+
+
+def _resolve_effect_meta(
+    eff: Dict[str, Any],
+    effects_index: Dict[str, Dict[str, Any]],
+) -> Dict[str, Any] | None:
+    """
+    Resolve effect metadata for:
+    - raw effect_id from aggregation (e.g. hot.green_dragon_blood),
+    - bare -> canonical mapping via BARE_TO_EFFECT_ID,
+    - already canonical IDs (effect.*). [file:374][file:385]
+    """
+    raw_id = eff.get("effect_id")
+    if not raw_id:
+        return None
+
+    # 1) Direct lookup (already canonical).
+    meta = effects_index.get(raw_id)
+    if meta:
+        return meta
+
+    # 2) Bare -> canonical mapping.
+    mapped = BARE_TO_EFFECT_ID.get(raw_id)
+    if mapped:
+        meta = effects_index.get(mapped)
+        if meta:
+            return meta
+
+    # 3) Fallback: add effect. prefix.
+    if not raw_id.startswith("effect."):
+        meta = effects_index.get(f"effect.{raw_id}")
+        if meta:
+            return meta
+
+    return None
 
 
 # ---------- Pillar computation core ----------
@@ -352,19 +397,18 @@ def evaluate_resist_pillar(
     effects_index: Dict[str, Dict[str, Any]],
     cfg: Dict[str, Any],
 ) -> Dict[str, Any]:
-    # v1 build uses target_resist_shown
     target = cfg.get("target_resist_shown") or cfg.get("targetresistshown")
 
     total_bonus = 0.0
     contributing_sources: List[Dict[str, Any]] = []
 
     for eff in active_effects:
-        eff_meta = effects_index.get(eff["effect_id"])
+        eff_meta = _resolve_effect_meta(eff, effects_index)
         if not eff_meta:
             continue
 
         stat = eff_meta.get("stat")
-        if stat != "resistance_flat":
+        if stat != "resist":
             continue
 
         magnitude = _get_magnitude(eff_meta)
@@ -406,7 +450,7 @@ def evaluate_health_pillar(
     contributing_sources: List[Dict[str, Any]] = []
 
     for eff in active_effects:
-        eff_meta = effects_index.get(eff["effect_id"])
+        eff_meta = _resolve_effect_meta(eff, effects_index)
         if not eff_meta:
             continue
 
@@ -451,15 +495,15 @@ def evaluate_speed_pillar(
 
     speed_effects: List[Dict[str, Any]] = []
     for eff in active_effects:
-        meta = effects_index.get(eff["effect_id"])
+        meta = _resolve_effect_meta(eff, effects_index)
         if not meta:
             continue
 
         stat = meta.get("stat")
         if stat not in (
-            "movement_speed_scalar",
-            "movement_speed_out_of_combat_scalar",
-            "mounted_speed_scalar",
+            "movement_speed",
+            "movement_speed_out_of_combat",
+            "mounted_speed",
         ):
             continue
 
@@ -501,15 +545,12 @@ def evaluate_hots_pillar(
 
     hot_effects: Dict[str, Dict[str, Any]] = {}
     for eff in active_effects:
-        meta = effects_index.get(eff["effect_id"])
+        meta = _resolve_effect_meta(eff, effects_index)
         if not meta:
             continue
 
-        category = meta.get("category")
         stat = meta.get("stat")
-
-        is_hot = (category == "overtime") and (stat == "healing_over_time_scalar")
-        if not is_hot:
+        if stat != "hot":
             continue
 
         if eff["effect_id"] not in hot_effects:
@@ -544,15 +585,12 @@ def evaluate_shield_pillar(
 
     shield_effects: Dict[str, Dict[str, Any]] = {}
     for eff in active_effects:
-        meta = effects_index.get(eff["effect_id"])
+        meta = _resolve_effect_meta(eff, effects_index)
         if not meta:
             continue
 
-        category = meta.get("category")
         stat = meta.get("stat")
-
-        is_shield = (category == "shield") and stat.startswith("shield_")
-        if not is_shield:
+        if stat != "shield":
             continue
 
         if eff["effect_id"] not in shield_effects:
@@ -587,7 +625,7 @@ def evaluate_core_combo_pillar(
     slotted_skill_ids = set()
     for bar_name in ("front", "back"):
         for slot in bars.get(bar_name, []):
-            skill_id = slot.get("skill_id")
+            skill_id = slot.get("skillid") or slot.get("skill_id")
             if skill_id:
                 slotted_skill_ids.add(skill_id)
 

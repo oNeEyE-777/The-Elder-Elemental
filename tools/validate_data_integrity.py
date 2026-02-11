@@ -89,7 +89,11 @@ def validate_skills(
     errors.extend(check_namespace_prefix(skill_ids, ["skill."], "skills"))
 
     for s_idx, skill in enumerate(skills):
+        if not isinstance(skill, dict):
+            continue
         for e_idx, eff in enumerate(skill.get("effects", [])):
+            if not isinstance(eff, dict):
+                continue
             effect_id = eff.get("effectid") or eff.get("effect_id")
             if not effect_id:
                 continue
@@ -131,7 +135,11 @@ def validate_sets(
     errors.extend(check_namespace_prefix(set_ids, ["set."], "sets"))
 
     for s_idx, set_rec in enumerate(sets):
+        if not isinstance(set_rec, dict):
+            continue
         for b_idx, bonus in enumerate(set_rec.get("bonuses", [])):
+            if not isinstance(bonus, dict):
+                continue
             for e_idx, eff in enumerate(bonus.get("effects", [])):
                 if isinstance(eff, str):
                     effect_id = eff
@@ -165,7 +173,14 @@ def validate_cpstars(
     errors.extend(check_namespace_prefix(cp_ids, ["cp."], "cpstars"))
 
     for c_idx, star in enumerate(cpstars):
-        for e_idx, eff in enumerate(star.get("effects", [])):
+        if not isinstance(star, dict):
+            # Non-object entries violate the Global Rules entity/ID representation
+            # and will not be treated as valid CP stars here.
+            continue
+        effects = star.get("effects", [])
+        if not isinstance(effects, list):
+            continue
+        for e_idx, eff in enumerate(effects):
             if isinstance(eff, str):
                 effect_id = eff
             elif isinstance(eff, dict):
@@ -197,7 +212,8 @@ def validate_data_integrity() -> Dict[str, Any]:
     skills = skills_data.get("skills", skills_data) if isinstance(skills_data, dict) else skills_data
     effects = effects_data.get("effects", effects_data) if isinstance(effects_data, dict) else effects_data
     sets = sets_data.get("sets", sets_data) if isinstance(sets_data, dict) else sets_data
-    cpstars = cpstars_data.get("cpstars", cpstars_data) if isinstance(cpstars_data, dict) else cpstars_data
+    # Use the canonical key cp_stars per v1 Data Model.
+    cpstars = cpstars_data.get("cp_stars", cpstars_data) if isinstance(cpstars_data, dict) else cpstars_data
 
     effect_ids_set = set(collect_ids(effects, "id"))
 

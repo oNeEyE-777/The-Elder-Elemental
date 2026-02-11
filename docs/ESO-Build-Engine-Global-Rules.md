@@ -22,6 +22,29 @@ All tools (Python, backend, frontend) are **consumers** of these rules; none of 
 
 ---
 
+## 0. Entity vs ID representation
+
+Across all canonical data files in `data/`:
+
+- Core entities are always represented as **objects** in arrays:
+  - `skills[]` objects from `data/skills.json`.
+  - `effects[]` objects from `data/effects.json`.
+  - `sets[]` objects from `data/sets.json`.
+  - `cp_stars[]` objects from `data/cp-stars.json`.
+- Cross-file references are always represented as **string IDs**, never embedded objects:
+  - `skills[].effects[].effect_id` must match some `effects[].id`.
+  - `sets[].bonuses[].effects[]` entries must match `effects[].id`.
+  - `cp_stars[].effects[]` entries must match `effects[].id`.
+
+Forbidden patterns:
+
+- Top-level arrays of bare ID strings in canonical data files (for example, `["cp.ironclad", "cp.duelists_rebuff"]` as CP stars).
+- Embedding full effect objects inside skills, sets, or CP stars instead of referencing them by ID.
+
+All Python tools, importers, and validators must assume this representation and treat any deviation as invalid data.
+
+---
+
 ## 1. Bars & skills
 
 - Exactly 2 bars: `front` and `back`. [file:356]

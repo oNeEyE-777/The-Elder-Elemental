@@ -1,25 +1,27 @@
 # ESO Build Engine Overview & Non-Negotiables
 
-The ESO Build Engine is a data-driven system for representing ESO builds in a way that is stable, inspectable, and automatable. It separates ESO-specific content (skills, sets, CP, effects) from build configuration and from any UI, and it enforces strict rules about where data and logic live.[file:18][file:19][file:20]
+The ESO Build Engine is a data-driven system for representing ESO builds in a way that is stable, inspectable, and automatable. It separates ESO-specific content (skills, sets, CP, effects) from build configuration and from any UI, and it enforces strict rules about where data and logic live.[file:379][file:375]
 
-At the core, this project starts with a single real build – **Permafrost Marshal** – but is designed so that the same data and logic structures can scale to a full ESO database without structural changes.[file:18][file:20]
+At the core, this project starts with a single real build – **Permafrost Marshal** – but is designed so that the same data and logic structures can scale to a full ESO database without structural changes.[file:379][file:383]
+
+The long-term goal is to provide a **theorycrafting engine**, not just a build editor: a system that lets players understand the numeric and structural behavior of their builds, explore “what if” changes in real time, and generate or evaluate many build variations automatically using a stable, patch-aligned ESO data snapshot.[file:438][file:379]
 
 ## Canonical data files (current)
 
 For the current v1 Data Center, the only canonical data JSON files are:
 
-- `data/skills.json` – All skills used by builds, with metadata and effect references.[file:18]
-- `data/effects.json` – All effects (buffs, debuffs, shields, HoTs, etc.) with math fields and stacking rules.[file:18][file:19]
-- `data/sets.json` – All sets used by builds, with bonuses expressed as lists of effect IDs.[file:18]
-- `data/cp-stars.json` – All CP stars used by builds, with tree, slot type, and effect IDs.[file:18]
+- `data/skills.json` – All skills used by builds, with metadata and effect references.[file:375]
+- `data/effects.json` – All effects (buffs, debuffs, shields, HoTs, etc.) with math fields and stacking rules.[file:375][file:382]
+- `data/sets.json` – All sets used by builds, with bonuses expressed as lists of effect IDs.[file:375]
+- `data/cp-stars.json` – All CP stars used by builds, with tree, slot type, and effect IDs.[file:375]
 
-These files are authoritative for ESO game data in this repo. Any additional data files (for example, future `mundus.json`, `food.json`, `enchants.json`) must be added explicitly to this list and documented in the v1 Data Model before being treated as canonical.[file:18][file:20]
+These files are authoritative for ESO game data in this repo. Any additional data files (for example, future `mundus.json`, `food.json`, `enchants.json`) must be added explicitly to this list and documented in the v1 Data Model before being treated as canonical.[file:375][file:379]
 
-Build records **never** duplicate ESO math or tooltips; they reference these data files by ID only.[file:18][file:19]
+Build records **never** duplicate ESO math or tooltips; they reference these data files by ID only.[file:375][file:378]
 
 ## Architecture layers
 
-The ESO Build Engine is organized into three layers:[file:4][file:18][file:20]
+The ESO Build Engine is organized into three layers:[file:380][file:375][file:379]
 
 1. **Data layer (JSON only)**
    - Canonical ESO-agnostic data lives under `data/`:
@@ -30,24 +32,24 @@ The ESO Build Engine is organized into three layers:[file:4][file:18][file:20]
 
 2. **Logic layer (Python tools under `tools/`)**
    - Stateless Python scripts that:
-     - Validate data and builds (`validate_build.py`, `validate_build_test.py`).[file:19][file:20]
-     - Aggregate effects (`aggregate_effects.py`).
-     - Evaluate pillar requirements (`compute_pillars.py`).
-     - Export Markdown summaries (`export_build_md.py`, `export_build_test_md.py`).
+     - Validate data and builds (`validate_build.py`, `validate_build_test.py`).[file:387][file:386]
+     - Aggregate effects (`aggregate_effects.py`).[file:376]
+     - Evaluate pillar requirements (`compute_pillars.py`).[file:377]
+     - Export Markdown summaries (`export_build_md.py`, `export_build_test_md.py`).[file:389][file:388]
    - All ESO rules and math live here or in the data JSONs, never in ad-hoc scripts or the UI.
 
 3. **Presentation/UI layer (backend + frontend, future)**
-   - A Node/Express TypeScript backend that reads `data/` and `builds/` and exposes REST endpoints for data, validation, and computed outputs.[file:20] All backend routes are served under the `/api` base path (for example, `/api/health`, `/api/data/summary`, `/api/data`, `/api/builds/permafrost-marshal`).[web:300]
+   - A Node/Express TypeScript backend that reads `data/` and `builds/` and exposes REST endpoints for data, validation, and computed outputs.[file:380] All backend routes are served under the `/api` base path (for example, `/api/health`, `/api/data/summary`, `/api/data`, `/api/builds/permafrost-marshal`).[web:300]
    - A React/Vite frontend that:
      - Uses selector-only inputs for skills, sets, CP (no free text).
      - Reads data and builds from the backend.
      - Displays computed effects and pillars.
-   - For practical “how to run it locally” instructions (backend + frontend together, Permafrost Marshal wired end-to-end), see `docs/ESO-Build-Engine-Runbook.md`.
+   - For practical “how to run it locally” instructions (backend + frontend together, Permafrost Marshal wired end-to-end), see `docs/ESO-Build-Engine-Runbook.md`.[file:380]
    - No ESO game logic is duplicated in the UI; it uses the same JSON + Python tool outputs as the source of truth.
 
 ## Non-negotiable rules
 
-These rules apply to all work on this repo:[file:4][file:18][file:19][file:20]
+These rules apply to all work on this repo:[file:379][file:378][file:375]
 
 - **Git is the single source of truth.**
   - All data and logic must live in tracked files in this repository.
@@ -60,37 +62,39 @@ These rules apply to all work on this repo:[file:4][file:18][file:19][file:20]
   - Backend and frontend consume JSON + Python outputs; they do not invent new rules.
 
 - **Generated views are never edited by hand.**
-  - Markdown build grids (e.g., `builds/permafrost-marshal.md`, `builds/test-dummy.md`) are generated by tools and must not be hand-edited.[file:20]
+  - Markdown build grids (e.g., `builds/permafrost-marshal.md`, `builds/test-dummy.md`) are generated by tools and must not be hand-edited.[file:389][file:388]
 
 - **Full-file edits only.**
-  - When changing a file, edits are made as complete file replacements (no partial patches), to simplify review and avoid drift.
+  - When changing a file, edits are made as complete file replacements (no partial patches), to simplify review and avoid drift.[file:379]
 
 - **Validation-first workflow.**
-  - Any change to data or builds must be followed by running validators (e.g., `python tools/validate_build.py`) before commit.[file:19][file:20]
+  - Any change to data or builds must be followed by running validators (e.g., `python tools/validate_build.py`) before commit.[file:387][file:378]
   - The `test-dummy` build is used first to ensure pipeline correctness before touching Permafrost Marshal.
 
 - **Logic-driven terminology.**
   - Structured fields, enums, and function names must be logic-driven and ESO-agnostic:
-    - Use terms like `resistance_flat`, `damage_taken_scalar`, `movement_speed_scalar`, `state_active`.[file:19]
+    - Use terms like `resistance_flat`, `damage_taken_scalar`, `movement_speed_scalar`, `state_active`.[file:375][file:378]
     - Do **not** use ESO slang in structured data: no `Major Resolve`, `Major Breach`, `buffed`, `unbuffed` as enum values.
   - ESO-specific terms are allowed only in:
     - Human-facing `name` / `description` fields.
-    - Opaque IDs such as `skill.deep_fissure`, `effect.buff.major_resolve`, `set.mark_of_the_pariah`.[file:19]
+    - Opaque IDs such as `skill.deep_fissure`, `buff.major_resolve`, `set.mark_of_the_pariah`.[file:375][file:382]
 
 ## Build scope and scaling
 
-The initial scope is centered on one real build:[file:18][file:20]
+The initial scope is centered on one real build:[file:383][file:379]
 
-- `builds/permafrost-marshal.json` – Permafrost Marshal build, fully wired to skills, sets, effects, CP stars, and pillar definitions, used as the reference implementation for all tools and APIs.
+- `builds/permafrost-marshal.json` – Permafrost Marshal build, fully wired to skills, sets, effects, CP stars, and pillar definitions, used as the reference implementation for all tools and APIs.[file:383][file:384]
+
+As external ESO data imports are added (via UESP-aligned snapshots), the same structures must scale to a full ESO database without schema changes, enabling large-scale theorycrafting and automated evaluation over many builds.[file:438][file:380]
 
 ## v1 normalization status (no compression, snake_case)
 
 As of the current v1 Data Center, all canonical JSON and core tools are normalized to non-compressed, snake_case IDs and field names:
 
-- `data/effects.json`, `data/skills.json`, `data/sets.json`, and `data/cp-stars.json` use lowercase `snake_case` for all structured fields and stat keys, and non-compressed effect IDs such as `buff.major_resolve`, `debuff.major_breach`, `movement_speed_scalar`, and `resistance_flat`.
-- `builds/permafrost-marshal.json` follows the v1 build schema with fields like `bars.front[*].skill_id`, `gear[*].set_id`, and `cp_slotted.{warfare,fitness,craft}`, and references only normalized IDs from `data/`.
+- `data/effects.json`, `data/skills.json`, `data/sets.json`, and `data/cp-stars.json` use lowercase `snake_case` for all structured fields and stat keys, and non-compressed effect IDs such as `buff.major_resolve`, `debuff.major_breach`, `movement_speed_scalar`, and `resistance_flat`.[file:375][file:382]
+- `builds/permafrost-marshal.json` follows the v1 build schema with fields like `bars.front[*].skill_id`, `gear[*].set_id`, and `cp_slotted.{warfare,fitness,craft}`, and references only normalized IDs from `data/`.[file:383][file:375]
 - Core Python tools are v1-aligned:
-  - `tools/validate_build.py` validates build structure and references against the normalized data.
-  - `tools/aggregate_effects.py` aggregates active effects using the same IDs and shapes.
-  - `tools/compute_pillars.py` consumes the aggregated effects plus `data/effects.json` to compute pillar status.
-- Any new data or tools must follow the same conventions: no compressed identifiers (`majorresolve`, `movementspeedscalar`, etc.) and no alternative field naming schemes. All schema changes must be reflected first in the v1 Data Model and Global Rules before being implemented in code.
+  - `tools/validate_build.py` validates build structure and references against the normalized data.[file:387]
+  - `tools/aggregate_effects.py` aggregates active effects using the same IDs and shapes.[file:376]
+  - `tools/compute_pillars.py` consumes the aggregated effects plus `data/effects.json` to compute pillar status.[file:377][file:382]
+- Any new data or tools must follow the same conventions: no compressed identifiers (`majorresolve`, `movementspeedscalar`, etc.) and no alternative field naming schemes. All schema changes must be reflected first in the v1 Data Model and Global Rules before being implemented in code.[file:375][file:378]
