@@ -37,7 +37,7 @@ The ESO Build Engine is organized into three layers:[file:4][file:18][file:20]
    - All ESO rules and math live here or in the data JSONs, never in ad-hoc scripts or the UI.
 
 3. **Presentation/UI layer (backend + frontend, future)**
-   - A Node/Express TypeScript backend that reads `data/` and `builds/` and exposes REST endpoints for data, validation, and computed outputs.[file:20]
+   - A Node/Express TypeScript backend that reads `data/` and `builds/` and exposes REST endpoints for data, validation, and computed outputs.[file:20] All backend routes are served under the `/api` base path (for example, `/api/health`, `/api/data/summary`, `/api/data`, `/api/builds/permafrost-marshal`).[web:300]
    - A React/Vite frontend that:
      - Uses selector-only inputs for skills, sets, CP (no free text).
      - Reads data and builds from the backend.
