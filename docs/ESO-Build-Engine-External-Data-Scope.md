@@ -49,8 +49,8 @@ UESP’s ESO Data sites and APIs (e.g., `esodata.uesp.net`, `esoapi.uesp.net`) p
 
 **Reference URLs**
 
-- ESO API versions index (UESP): https://esoapi.uesp.net/index.html [web:422]  
-- Versioned ESO data exports (UESP): https://esodata.uesp.net [web:432]
+- ESO API versions index (UESP): [https://esoapi.uesp.net/index.html](https://esoapi.uesp.net/index.html) [web:422]  
+- Versioned ESO data exports (UESP): [https://esodata.uesp.net](https://esodata.uesp.net) [web:432]
 
 
 ### 2.2 ESO Lua API / SavedVariables (indirect, via UESP; optional direct use for gaps)
@@ -278,6 +278,19 @@ Design and implement a Python-based import pipeline in `tools/` that can:
 
 This pipeline is run manually or via CI/CD only when we decide to **update our local database to a new ESO patch**. There are **no live, runtime calls** to UESP or ESO APIs; all data is static once imported.
 
+### Step 6 – Data safety and backup policy
+
+To protect existing canonical data and known-good snapshots during importer development and patch updates:
+
+- `/data/*.json` is treated as **read-only** by all import tools during development and testing. Import scripts must not overwrite `data/skills.json`, `data/effects.json`, `data/sets.json`, or `data/cp-stars.json` directly in experimental runs. [file:500]  
+- `data-backups/` is reserved for **manual, human-triggered snapshots** of known-good canonical JSON (for example, `effects.backup-2026-02-11.json`). Import tools must not write to `data-backups/` automatically.  
+- All automated or experimental import outputs must be written to a separate tree such as `raw-imports/` (for example, `raw-imports/skills.import-preview.json`, `raw-imports/effects.import-preview.json`, `raw-imports/sets.import-preview.json`, `raw-imports/cp-stars.import-preview.json`).  
+- Promotion from `raw-imports/*.json` into `data/*.json` is a **deliberate, manual step** carried out via full-file replacement under Git, after:
+  - Validation with `tools/validate_data_integrity.py` and build validators, and  
+  - Manual diff review against the previous canonical snapshot. [file:499][file:502]
+
+This policy guarantees that current v1 data (including Permafrost Marshal and any future builds) remains intact while external-alignment import pipelines are designed, tested, and iterated.
+
 ---
 
 ## 5. Acceptance criteria
@@ -434,4 +447,3 @@ The future `tools/import_effects_from_uesp.py` script must:
   - Includes `external_ids` for backlinking to UESP/ESO data.
 
 Subsequent tools (validators, aggregators, pillar evaluators, exporters) must treat `data/effects.json` as the **only source** of truth for effect math and names, and must never attempt to re-interpret raw UESP data directly.
-
