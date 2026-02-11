@@ -1,3 +1,20 @@
+#!/usr/bin/env python3
+"""
+tools/export_build_md.py
+
+Export an ESO build JSON to a Markdown grid.
+
+- Loads:
+  - data/skills.json
+  - data/sets.json
+  - data/cp-stars.json
+- Loads a build JSON (default: builds/permafrost-marshal.json).
+- Writes a Markdown file next to the build JSON (same stem, .md extension) with:
+  - Front/back bars with skill names and tooltip text.
+  - Gear table with set names, weights, traits, enchants.
+  - Champion Points layout with star names and tooltips.
+"""
+
 import argparse
 import json
 from pathlib import Path
@@ -22,9 +39,12 @@ def render_bar_md(
     bar_slots: List[dict],
     skills_idx: Dict[str, dict],
 ) -> str:
-    slots_by_pos: Dict[Any, dict] = {entry["slot"]: entry for entry in bar_slots if isinstance(entry, dict)}
+    # Normalize slot keys to string so we can match against "1".."5","ULT"
+    slots_by_pos: Dict[Any, dict] = {
+        str(entry["slot"]): entry for entry in bar_slots if isinstance(entry, dict) and "slot" in entry
+    }
 
-    ordered_slots = [1, 2, 3, 4, 5, "ULT"]
+    ordered_slots = ["1", "2", "3", "4", "5", "ULT"]
 
     lines: List[str] = []
     lines.append(f"### {bar_name.capitalize()} Bar")
@@ -140,9 +160,14 @@ def export_build_md(build_path: Path, out_path: Path) -> None:
     sets_data = load_json(DATA_DIR / "sets.json")
     cp_data = load_json(DATA_DIR / "cp-stars.json")
 
-    skills_idx = index_by_id(skills_data.get("skills", []))
-    sets_idx = index_by_id(sets_data.get("sets", []))
-    cp_idx = index_by_id(cp_data.get("cp_stars", []))
+    # v1 containers
+    skills_idx = index_by_id(skills_data.get("skills", skills_data))
+    sets_idx = index_by_id(sets_data.get("sets", sets_data))
+    if isinstance(cp_data, dict):
+        cp_list = cp_data.get("cp_stars") or cp_data.get("cpstars") or []
+    else:
+        cp_list = cp_data
+    cp_idx = index_by_id(cp_list)
 
     build = load_json(build_path)
 

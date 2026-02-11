@@ -82,3 +82,15 @@ These rules apply to all work on this repo:[file:4][file:18][file:19][file:20]
 The initial scope is centered on one real build:[file:18][file:20]
 
 - `builds/permafrost-marshal.json` – Permafrost Marshal build, fully wired to skills, sets, effects, CP stars, and pillar definitions, used as the reference implementation for all tools and APIs.
+
+## v1 normalization status (no compression, snake_case)
+
+As of the current v1 Data Center, all canonical JSON and core tools are normalized to non-compressed, snake_case IDs and field names:
+
+- `data/effects.json`, `data/skills.json`, `data/sets.json`, and `data/cp-stars.json` use lowercase `snake_case` for all structured fields and stat keys, and non-compressed effect IDs such as `buff.major_resolve`, `debuff.major_breach`, `movement_speed_scalar`, and `resistance_flat`.
+- `builds/permafrost-marshal.json` follows the v1 build schema with fields like `bars.front[*].skill_id`, `gear[*].set_id`, and `cp_slotted.{warfare,fitness,craft}`, and references only normalized IDs from `data/`.
+- Core Python tools are v1-aligned:
+  - `tools/validate_build.py` validates build structure and references against the normalized data.
+  - `tools/aggregate_effects.py` aggregates active effects using the same IDs and shapes.
+  - `tools/compute_pillars.py` consumes the aggregated effects plus `data/effects.json` to compute pillar status.
+- Any new data or tools must follow the same conventions: no compressed identifiers (`majorresolve`, `movementspeedscalar`, etc.) and no alternative field naming schemes. All schema changes must be reflected first in the v1 Data Model and Global Rules before being implemented in code.

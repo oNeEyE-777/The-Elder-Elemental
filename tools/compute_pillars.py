@@ -8,11 +8,11 @@ Compute pillar status for a build using v1 Data Model shapes.
 - Loads a build JSON (e.g. builds/permafrost-marshal.json).
 - Aggregates active effects from skills, sets, and CP (mirrors tools/aggregate_effects.py).
 - Splits effects into:
-  - inactive: baseline, always-on (all set. and cp. sources, plus some skill effects by timing).
+  - inactive: baseline, always-on (all set.* and cp.* sources, plus some skill effects by timing).
   - active: full effect set available during the core window (all effects).
 - Uses data/effects.json metadata plus build.pillars config to compute:
   - resist, health, speed, hots, shield (inactive/active)
-  - corecombo (slot-based, no state split).
+  - core_combo (slot-based, no state split).
 """
 
 import json
@@ -37,15 +37,26 @@ def load_all_data(repo_root: str) -> Dict[str, Any]:
     cpstars_data = load_json(os.path.join(data_dir, "cp-stars.json"))
 
     # Unwrap v1 containers to lists where needed.
-    skills = skills_data.get("skills", skills_data) if isinstance(skills_data, dict) else skills_data
-    sets = sets_data.get("sets", sets_data) if isinstance(sets_data, dict) else sets_data
-    cpstars = cpstars_data.get("cpstars", cpstars_data) if isinstance(cpstars_data, dict) else cpstars_data
+    if isinstance(skills_data, dict):
+        skills = skills_data.get("skills", [])
+    else:
+        skills = skills_data
+
+    if isinstance(sets_data, dict):
+        sets = sets_data.get("sets", [])
+    else:
+        sets = sets_data
+
+    if isinstance(cpstars_data, dict):
+        cp_stars = cpstars_data.get("cp_stars") or cpstars_data.get("cpstars") or []
+    else:
+        cp_stars = cpstars_data
 
     return {
         "skills": skills,
         "effects": effects_data,
         "sets": sets,
-        "cpstars": cpstars,
+        "cp_stars": cp_stars,
     }
 
 
@@ -64,7 +75,7 @@ def index_effects_by_id(effects_data: Dict[str, Any]) -> Dict[str, Dict[str, Any
 def aggregate_effects(build: Dict[str, Any], data: Dict[str, Any]) -> List[Dict[str, Any]]:
     skills_index = index_by_id(data["skills"])
     sets_index = index_by_id(data["sets"])
-    cp_index = index_by_id(data["cpstars"])
+    cp_index = index_by_id(data["cp_stars"])
 
     effects: List[Dict[str, Any]] = []
     effects += collect_skill_effects(build, skills_index)
@@ -82,7 +93,7 @@ def collect_skill_effects(
 
     for bar_name in ("front", "back"):
         for slot in bars.get(bar_name, []):
-            skill_id = slot.get("skillid") or slot.get("skill_id")
+            skill_id = slot.get("skill_id")
             if not skill_id:
                 continue
             skill = skills_index.get(skill_id)
@@ -90,7 +101,7 @@ def collect_skill_effects(
                 continue
 
             for eff in skill.get("effects", []):
-                effect_id = eff.get("effectid") or eff.get("effect_id")
+                effect_id = eff.get("effect_id")
                 if not effect_id:
                     continue
                 results.append(
@@ -99,7 +110,7 @@ def collect_skill_effects(
                         "source": skill_id,
                         "timing": eff.get("timing"),
                         "target": eff.get("target"),
-                        "duration_seconds": eff.get("durationseconds", eff.get("duration_seconds")),
+                        "duration_seconds": eff.get("duration_seconds"),
                     }
                 )
 
@@ -116,7 +127,7 @@ def compute_set_piece_counts(build: Dict[str, Any]) -> Dict[str, int]:
     for item in gear_list:
         if not isinstance(item, dict):
             continue
-        set_id = item.get("setid") or item.get("set_id")
+        set_id = item.get("set_id")
         if not set_id:
             continue
         counts[set_id] = counts.get(set_id, 0) + 1
@@ -145,12 +156,12 @@ def collect_set_effects(
                 if isinstance(eff, str):
                     effect_id = eff
                     timing = bonus.get("timing")
-                    duration = bonus.get("durationseconds", bonus.get("duration_seconds"))
+                    duration = bonus.get("duration_seconds")
                     target = bonus.get("target")
                 elif isinstance(eff, dict):
-                    effect_id = eff.get("effectid") or eff.get("effect_id")
+                    effect_id = eff.get("effect_id")
                     timing = eff.get("timing")
-                    duration = eff.get("durationseconds", eff.get("duration_seconds"))
+                    duration = eff.get("duration_seconds")
                     target = eff.get("target")
                 else:
                     continue
@@ -176,7 +187,7 @@ def collect_cp_effects(
     cp_index: Dict[str, Dict[str, Any]],
 ) -> List[Dict[str, Any]]:
     results: List[Dict[str, Any]] = []
-    cp_slotted = build.get("cpslotted", build.get("cp_slotted", {}))
+    cp_slotted = build.get("cp_slotted", {})
 
     for tree_name in ("warfare", "fitness", "craft"):
         for cp_id in cp_slotted.get(tree_name, []):
@@ -190,12 +201,12 @@ def collect_cp_effects(
                 if isinstance(eff, str):
                     effect_id = eff
                     timing = star.get("timing")
-                    duration = star.get("durationseconds", star.get("duration_seconds"))
+                    duration = star.get("duration_seconds")
                     target = star.get("target")
                 elif isinstance(eff, dict):
-                    effect_id = eff.get("effectid") or eff.get("effect_id")
+                    effect_id = eff.get("effect_id")
                     timing = eff.get("timing")
-                    duration = eff.get("durationseconds", eff.get("duration_seconds"))
+                    duration = eff.get("duration_seconds")
                     target = eff.get("target")
                 else:
                     continue
@@ -224,7 +235,7 @@ def is_inactive_state_effect(effect: Dict[str, Any]) -> bool:
     Baseline definition:
 
     - All set.* and cp.* sources -> inactive.
-    - Skill.* sources -> inactive if timing suggests baseline uptime.
+    - skill.* sources -> inactive if timing suggests baseline uptime.
     """
     source = effect.get("source", "")
     timing = (effect.get("timing") or "").lower()
@@ -235,7 +246,7 @@ def is_inactive_state_effect(effect: Dict[str, Any]) -> bool:
         return True
 
     if source.startswith("skill."):
-        return timing in ("slotted", "whileactive")
+        return timing in ("slotted", "while_active")
 
     return False
 
@@ -258,12 +269,9 @@ def _get_magnitude(meta: Dict[str, Any]) -> float:
     """
     Magnitude lookup aligned with data/effects.json:
 
-    Prefer "magnitude_value" if present, else fall back to "magnitude".
+    Uses magnitude_value (flat or scalar) directly.
     """
-    if "magnitude_value" in meta:
-        val = meta["magnitude_value"]
-    else:
-        val = meta.get("magnitude", 0)
+    val = meta.get("magnitude_value", 0)
     return float(val) if isinstance(val, (int, float)) else 0.0
 
 
@@ -320,7 +328,7 @@ def compute_pillars(build: Dict[str, Any], data: Dict[str, Any]) -> Dict[str, An
             build, active_state_effects, effects_index, pillars_cfg.get("shield", {})
         ),
     }
-    core_combo_status = evaluate_core_combo_pillar(build, pillars_cfg.get("corecombo", {}))
+    core_combo_status = evaluate_core_combo_pillar(build, pillars_cfg.get("core_combo", {}))
 
     return {
         "build_id": build.get("id"),
@@ -344,7 +352,8 @@ def evaluate_resist_pillar(
     effects_index: Dict[str, Dict[str, Any]],
     cfg: Dict[str, Any],
 ) -> Dict[str, Any]:
-    target = cfg.get("targetresistshown")
+    # v1 build uses target_resist_shown
+    target = cfg.get("target_resist_shown") or cfg.get("targetresistshown")
 
     total_bonus = 0.0
     contributing_sources: List[Dict[str, Any]] = []
@@ -355,7 +364,7 @@ def evaluate_resist_pillar(
             continue
 
         stat = eff_meta.get("stat")
-        if stat not in ("resistanceflat", "resist", "armor"):
+        if stat != "resistance_flat":
             continue
 
         magnitude = _get_magnitude(eff_meta)
@@ -402,7 +411,7 @@ def evaluate_health_pillar(
             continue
 
         stat = eff_meta.get("stat")
-        if stat not in ("maxhealth", "healthmax"):
+        if stat not in ("max_health", "health_max"):
             continue
 
         magnitude = _get_magnitude(eff_meta)
@@ -417,7 +426,7 @@ def evaluate_health_pillar(
 
     focus = cfg.get("focus")
     meets_target = None
-    if focus == "healthfirst":
+    if focus in ("health_first", "healthfirst"):
         meets_target = (attr_health == 64)
 
     return {
@@ -448,9 +457,9 @@ def evaluate_speed_pillar(
 
         stat = meta.get("stat")
         if stat not in (
-            "movementspeedscalar",
-            "movementspeedoutofcombatscalar",
-            "mountedspeedscalar",
+            "movement_speed_scalar",
+            "movement_speed_out_of_combat_scalar",
+            "mounted_speed_scalar",
         ):
             continue
 
@@ -465,7 +474,7 @@ def evaluate_speed_pillar(
         )
 
     meets_target = None
-    if profile == "extremespeed":
+    if profile in ("extreme_speed", "extremespeed"):
         meets_target = len(speed_effects) > 0
 
     profiles_matched: List[str] = []
@@ -488,7 +497,7 @@ def evaluate_hots_pillar(
     effects_index: Dict[str, Dict[str, Any]],
     cfg: Dict[str, Any],
 ) -> Dict[str, Any]:
-    min_hots = cfg.get("minactivehots")
+    min_hots = cfg.get("min_active_hots") or cfg.get("minactivehots")
 
     hot_effects: Dict[str, Dict[str, Any]] = {}
     for eff in active_effects:
@@ -499,7 +508,7 @@ def evaluate_hots_pillar(
         category = meta.get("category")
         stat = meta.get("stat")
 
-        is_hot = (category == "overtime") and (stat == "healingovertimescalar")
+        is_hot = (category == "overtime") and (stat == "healing_over_time_scalar")
         if not is_hot:
             continue
 
@@ -531,7 +540,7 @@ def evaluate_shield_pillar(
     effects_index: Dict[str, Dict[str, Any]],
     cfg: Dict[str, Any],
 ) -> Dict[str, Any]:
-    min_shields = cfg.get("minactiveshields")
+    min_shields = cfg.get("min_active_shields") or cfg.get("minactiveshields")
 
     shield_effects: Dict[str, Dict[str, Any]] = {}
     for eff in active_effects:
@@ -542,7 +551,7 @@ def evaluate_shield_pillar(
         category = meta.get("category")
         stat = meta.get("stat")
 
-        is_shield = (category == "shield") and stat.startswith("shield")
+        is_shield = (category == "shield") and stat.startswith("shield_")
         if not is_shield:
             continue
 
@@ -578,7 +587,7 @@ def evaluate_core_combo_pillar(
     slotted_skill_ids = set()
     for bar_name in ("front", "back"):
         for slot in bars.get(bar_name, []):
-            skill_id = slot.get("skillid") or slot.get("skill_id")
+            skill_id = slot.get("skill_id")
             if skill_id:
                 slotted_skill_ids.add(skill_id)
 

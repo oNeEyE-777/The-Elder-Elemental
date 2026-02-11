@@ -98,10 +98,12 @@ The exact math (what `stat` means and how its value applies) is defined in `data
 **Logic‑driven terminology and functions**
 
 - Effect fields, enums, and math helpers must use logic‑driven, system‑neutral terms, not ESO slang or tooltip text.
-- Names must describe what they represent (`movement_speed_scalar`, `resist_shown`, `state_active`) instead of in‑game labels like “buffed”, “unbuffed”, “Major Breach”, or “Major Resolve”.
-- ESO‑specific wording belongs only in human‑facing `name`/`description` fields in JSON, never as primary keys, enum values, or function names, so that effect math and stacking rules remain stable even if ESO terminology changes. [file:356]
+- Names must describe what they represent (`movement_speed_scalar`, `resistance_flat`, `state_active`) instead of in‑game labels like “buffed”, “unbuffed”, “Major Breach”, or “Major Resolve”.
+- ESO‑specific wording belongs only in human‑facing `name`/`description` fields in JSON, never as primary keys, enum values, or function names, so that effect math and stacking rules remain stable even if ESO terminology changes.
+- **No compression:** all effect IDs, field names, and stat keys must use lowercase `snake_case` with underscores between words (for example, `buff.major_resolve`, `debuff.major_breach`, `movement_speed_out_of_combat_scalar`), never compressed forms like `majorresolve` or `movementspeedscalar`.
 
 ---
+
 
 ## 5. Validation and helper functions (Python contracts)
 

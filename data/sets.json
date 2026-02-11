@@ -1,71 +1,77 @@
 {
   "sets": [
     {
-      "id": "set.adeptrider",
+      "id": "set.adept_rider",
       "name": "Adept Rider",
       "type": "armor",
       "source": "crafted",
-      "tags": ["pvp", "speed"],
-      "setid": null,
-      "externalids": {
-        "esosetsapi": null
+      "tags": [
+        "pvp",
+        "speed"
+      ],
+      "set_id": null,
+      "external_ids": {
+        "eso_sets_api": null
       },
       "bonuses": [
         {
           "pieces": 2,
-          "tooltipraw": "Minor speed bonus placeholder.",
+          "tooltip_raw": "Minor speed bonus (placeholder).",
           "effects": []
         },
         {
           "pieces": 3,
-          "tooltipraw": "Additional speed bonus placeholder.",
+          "tooltip_raw": "Additional speed bonus (placeholder).",
           "effects": []
         },
         {
           "pieces": 4,
-          "tooltipraw": "Extra stats placeholder.",
+          "tooltip_raw": "Extra stats (placeholder).",
           "effects": []
         },
         {
           "pieces": 5,
-          "tooltipraw": "Movement speed bonus from Adept Rider placeholder.",
+          "tooltip_raw": "Movement speed bonus from Adept Rider (placeholder).",
           "effects": [
-            "buff.adeptriderspeed"
+            "buff.adept_rider_speed"
           ]
         }
       ]
     },
     {
-      "id": "set.markofthepariah",
+      "id": "set.mark_of_the_pariah",
       "name": "Mark of the Pariah",
       "type": "armor",
       "source": "overland",
-      "tags": ["pvp", "tank"],
-      "setid": null,
-      "externalids": {
-        "esosetsapi": null
+      "tags": [
+        "pvp",
+        "tank"
+      ],
+      "set_id": null,
+      "external_ids": {
+        "eso_sets_api": null
       },
       "bonuses": [
         {
           "pieces": 2,
-          "tooltipraw": "Max health bonus placeholder.",
+          "tooltip_raw": "Max Health bonus (placeholder).",
           "effects": []
         },
         {
           "pieces": 3,
-          "tooltipraw": "More max health placeholder.",
+          "tooltip_raw": "More Max Health (placeholder).",
           "effects": []
         },
         {
           "pieces": 4,
-          "tooltipraw": "Defensive bonus placeholder.",
+          "tooltip_raw": "Defensive bonus (placeholder).",
           "effects": []
         },
         {
           "pieces": 5,
-          "tooltipraw": "Scaling damage reduction at low health placeholder.",
+          "tooltip_raw": "Approximate scaling resistance at low Health (placeholder).",
           "effects": [
-            "buff.pariahmitigation"
+            "buff.pariah_scaling_resist"
           ]
         }
       ]
@@ -75,50 +81,56 @@
       "name": "Nibenay Tank Set",
       "type": "armor",
       "source": "overland",
-      "tags": ["tank"],
-      "setid": null,
-      "externalids": {
-        "esosetsapi": null
+      "tags": [
+        "tank"
+      ],
+      "set_id": null,
+      "external_ids": {
+        "eso_sets_api": null
       },
       "bonuses": [
         {
           "pieces": 2,
-          "tooltipraw": "Defensive bonus placeholder.",
+          "tooltip_raw": "Defensive bonus (placeholder).",
           "effects": []
         },
         {
           "pieces": 3,
-          "tooltipraw": "Additional defense placeholder.",
+          "tooltip_raw": "Additional defense (placeholder).",
           "effects": []
         },
         {
           "pieces": 4,
-          "tooltipraw": "More defense placeholder.",
+          "tooltip_raw": "More defense (placeholder).",
           "effects": []
         },
         {
           "pieces": 5,
-          "tooltipraw": "Extra mitigation or utility placeholder.",
+          "tooltip_raw": "Extra mitigation or utility (placeholder).",
           "effects": []
         }
       ]
     },
     {
-      "id": "set.ringofthewildhunt",
+      "id": "set.ring_of_the_wild_hunt",
       "name": "Ring of the Wild Hunt",
       "type": "mythic",
       "source": "mythic",
-      "tags": ["pvp", "speed", "mythic"],
-      "setid": null,
-      "externalids": {
-        "esosetsapi": null
+      "tags": [
+        "pvp",
+        "speed",
+        "mythic"
+      ],
+      "set_id": null,
+      "external_ids": {
+        "eso_sets_api": null
       },
       "bonuses": [
         {
           "pieces": 1,
-          "tooltipraw": "Mythic movement speed bonus from Ring of the Wild Hunt placeholder.",
+          "tooltip_raw": "Mythic movement speed bonus from Ring of the Wild Hunt (placeholder).",
           "effects": [
-            "buff.wildhuntspeed"
+            "buff.wild_hunt_speed"
           ]
         }
       ]

@@ -1,91 +1,91 @@
 {
-  "cpstars": [
+  "cp_stars": [
     {
       "id": "cp.ironclad",
       "name": "Ironclad",
       "tree": "warfare",
-      "slottype": "slottable",
-      "tooltipraw": "Reduces damage taken from direct damage attacks.",
+      "slot_type": "slottable",
+      "tooltip_raw": "Reduces damage taken from direct damage attacks.",
       "effects": [
-        "buff.damagetakendirectminor"
+        "buff.damage_taken_direct_minor"
       ]
     },
     {
-      "id": "cp.duelistsrebuff",
+      "id": "cp.duelists_rebuff",
       "name": "Duelist's Rebuff",
       "tree": "warfare",
-      "slottype": "slottable",
-      "tooltipraw": "Reduces damage taken from single target attacks.",
+      "slot_type": "slottable",
+      "tooltip_raw": "Reduces damage taken from single target attacks.",
       "effects": []
     },
     {
       "id": "cp.bulwark",
       "name": "Bulwark",
       "tree": "warfare",
-      "slottype": "slottable",
-      "tooltipraw": "Increases armor when using a shield or frost staff.",
+      "slot_type": "slottable",
+      "tooltip_raw": "Increases armor when using a shield or frost staff.",
       "effects": []
     },
     {
       "id": "cp.resilience",
       "name": "Resilience",
       "tree": "warfare",
-      "slottype": "slottable",
-      "tooltipraw": "Grants critical resistance while under attack.",
+      "slot_type": "slottable",
+      "tooltip_raw": "Grants critical resistance while under attack.",
       "effects": []
     },
     {
       "id": "cp.celerity",
       "name": "Celerity",
       "tree": "fitness",
-      "slottype": "slottable",
-      "tooltipraw": "Increases movement speed.",
+      "slot_type": "slottable",
+      "tooltip_raw": "Increases movement speed.",
       "effects": [
-        "buff.movementspeedminor"
+        "buff.movement_speed_minor"
       ]
     },
     {
-      "id": "cp.painsrefuge",
+      "id": "cp.pains_refuge",
       "name": "Pain's Refuge",
       "tree": "fitness",
-      "slottype": "slottable",
-      "tooltipraw": "Reduces damage taken for each negative effect on you.",
+      "slot_type": "slottable",
+      "tooltip_raw": "Reduces damage taken for each negative effect on you.",
       "effects": []
     },
     {
-      "id": "cp.sustainedbysuffering",
+      "id": "cp.sustained_by_suffering",
       "name": "Sustained by Suffering",
       "tree": "fitness",
-      "slottype": "slottable",
-      "tooltipraw": "Increases recovery while under a negative effect.",
+      "slot_type": "slottable",
+      "tooltip_raw": "Increases recovery while under a negative effect.",
       "effects": []
     },
     {
-      "id": "cp.giftedrider",
+      "id": "cp.gifted_rider",
       "name": "Gifted Rider",
       "tree": "fitness",
-      "slottype": "slottable",
-      "tooltipraw": "Increases mounted speed.",
+      "slot_type": "slottable",
+      "tooltip_raw": "Increases mounted speed.",
       "effects": [
-        "buff.mountedspeedscalar"
+        "buff.mounted_speed_scalar"
       ]
     },
     {
-      "id": "cp.steedsblessing",
+      "id": "cp.steeds_blessing",
       "name": "Steed's Blessing",
       "tree": "craft",
-      "slottype": "slottable",
-      "tooltipraw": "Increases out-of-combat movement speed.",
+      "slot_type": "slottable",
+      "tooltip_raw": "Increases out-of-combat movement speed.",
       "effects": [
-        "buff.movementspeedoutofcombat"
+        "buff.movement_speed_out_of_combat"
       ]
     },
     {
-      "id": "cp.warmount",
+      "id": "cp.war_mount",
       "name": "War Mount",
       "tree": "craft",
-      "slottype": "slottable",
-      "tooltipraw": "Reduces time to mount and dismount speed penalties.",
+      "slot_type": "slottable",
+      "tooltip_raw": "Reduces time to mount and dismount speed penalties.",
       "effects": []
     }
   ]

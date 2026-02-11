@@ -1,132 +1,132 @@
 {
   "effects": [
     {
-      "id": "buff.majorresolve",
+      "id": "buff.major_resolve",
       "name": "Major Resolve",
       "category": "modifier",
       "scope": "self",
-      "stat": "resistanceflat",
-      "magnitudekind": "flat",
-      "magnitudevalue": 5948,
-      "stackingrule": "exclusivetier",
-      "stackswith": [],
+      "stat": "resistance_flat",
+      "magnitude_kind": "flat",
+      "magnitude_value": 5948,
+      "stacking_rule": "exclusive_tier",
+      "stacks_with": [],
       "description": "Increases Physical and Spell Resistance by 5948."
     },
     {
-      "id": "debuff.majorbreach",
+      "id": "debuff.major_breach",
       "name": "Major Breach",
       "category": "modifier",
       "scope": "target",
-      "stat": "resistanceflat",
-      "magnitudekind": "flat",
-      "magnitudevalue": -5948,
-      "stackingrule": "exclusivetier",
-      "stackswith": [],
+      "stat": "resistance_flat",
+      "magnitude_kind": "flat",
+      "magnitude_value": -5948,
+      "stacking_rule": "exclusive_tier",
+      "stacks_with": [],
       "description": "Reduces Physical and Spell Resistance by 5948."
     },
     {
-      "id": "debuff.minorbreach",
+      "id": "debuff.minor_breach",
       "name": "Minor Breach",
       "category": "modifier",
       "scope": "target",
-      "stat": "resistanceflat",
-      "magnitudekind": "flat",
-      "magnitudevalue": -2974,
-      "stackingrule": "exclusivetier",
-      "stackswith": [],
+      "stat": "resistance_flat",
+      "magnitude_kind": "flat",
+      "magnitude_value": -2974,
+      "stacking_rule": "exclusive_tier",
+      "stacks_with": [],
       "description": "Reduces Physical and Spell Resistance by 2974."
     },
     {
-      "id": "buff.damagetakendirectminor",
+      "id": "buff.damage_taken_direct_minor",
       "name": "Minor Direct Damage Mitigation",
       "category": "modifier",
       "scope": "self",
-      "stat": "damagetaken",
-      "magnitudekind": "multiplieradditive",
-      "magnitudevalue": -0.06,
-      "stackingrule": "uniquesource",
-      "stackswith": [],
-      "description": "Reduces damage taken from direct damage attacks."
+      "stat": "damage_taken_scalar",
+      "magnitude_kind": "multiplier_additive",
+      "magnitude_value": -0.06,
+      "stacking_rule": "unique_source",
+      "stacks_with": [],
+      "description": "Reduces damage taken from direct damage attacks by approximately 6%."
     },
     {
-      "id": "buff.movementspeedminor",
+      "id": "buff.movement_speed_minor",
       "name": "Minor Celerity",
       "category": "modifier",
       "scope": "self",
-      "stat": "movementspeedscalar",
-      "magnitudekind": "multiplieradditive",
-      "magnitudevalue": 0.10,
-      "stackingrule": "exclusivetier",
-      "stackswith": [],
+      "stat": "movement_speed_scalar",
+      "magnitude_kind": "multiplier_additive",
+      "magnitude_value": 0.10,
+      "stacking_rule": "exclusive_tier",
+      "stacks_with": [],
       "description": "Increases movement speed by 10%."
     },
     {
-      "id": "buff.movementspeedoutofcombat",
+      "id": "buff.movement_speed_out_of_combat",
       "name": "Out of Combat Movement Speed",
       "category": "modifier",
       "scope": "self",
-      "stat": "movementspeedoutofcombatscalar",
-      "magnitudekind": "multiplieradditive",
-      "magnitudevalue": 0.20,
-      "stackingrule": "uniquesource",
-      "stackswith": [],
-      "description": "Increases out-of-combat movement speed."
+      "stat": "movement_speed_out_of_combat_scalar",
+      "magnitude_kind": "multiplier_additive",
+      "magnitude_value": 0.20,
+      "stacking_rule": "unique_source",
+      "stacks_with": [],
+      "description": "Increases out-of-combat movement speed by 20%."
     },
     {
-      "id": "buff.mountedspeedscalar",
+      "id": "buff.mounted_speed_scalar",
       "name": "Mounted Speed Bonus",
       "category": "modifier",
       "scope": "self",
-      "stat": "mountedspeedscalar",
-      "magnitudekind": "multiplieradditive",
-      "magnitudevalue": 0.50,
-      "stackingrule": "uniquesource",
-      "stackswith": [],
-      "description": "Increases movement speed while mounted."
+      "stat": "mounted_speed_scalar",
+      "magnitude_kind": "multiplier_additive",
+      "magnitude_value": 0.50,
+      "stacking_rule": "unique_source",
+      "stacks_with": [],
+      "description": "Increases movement speed while mounted by approximately 50%."
     },
     {
-      "id": "buff.adeptriderspeed",
+      "id": "buff.adept_rider_speed",
       "name": "Adept Rider Speed",
       "category": "modifier",
       "scope": "self",
-      "stat": "movementspeedscalar",
-      "magnitudekind": "multiplieradditive",
-      "magnitudevalue": 0.20,
-      "stackingrule": "uniquesource",
-      "stackswith": [
-        "buff.movementspeedminor",
-        "buff.wildhuntspeed"
+      "stat": "movement_speed_scalar",
+      "magnitude_kind": "multiplier_additive",
+      "magnitude_value": 0.20,
+      "stacking_rule": "unique_source",
+      "stacks_with": [
+        "buff.movement_speed_minor",
+        "buff.wild_hunt_speed"
       ],
-      "description": "Movement speed bonus from Adept Rider."
+      "description": "Movement speed bonus from Adept Rider, approximated as +20% movement speed. Stacks with Minor Celerity and Wild Hunt speed according to stacking rules."
     },
     {
-      "id": "buff.wildhuntspeed",
+      "id": "buff.wild_hunt_speed",
       "name": "Ring of the Wild Hunt Speed",
       "category": "modifier",
       "scope": "self",
-      "stat": "movementspeedscalar",
-      "magnitudekind": "multiplieradditive",
-      "magnitudevalue": 0.15,
-      "stackingrule": "uniquesource",
-      "stackswith": [
-        "buff.adeptriderspeed",
-        "buff.movementspeedminor"
+      "stat": "movement_speed_scalar",
+      "magnitude_kind": "multiplier_additive",
+      "magnitude_value": 0.15,
+      "stacking_rule": "unique_source",
+      "stacks_with": [
+        "buff.adept_rider_speed",
+        "buff.movement_speed_minor"
       ],
-      "description": "Increases movement speed based on combat state."
+      "description": "Increases movement speed based on combat state, approximated as +15% movement speed for pillar calculations."
     },
     {
-      "id": "buff.pariahmitigation",
-      "name": "Pariah Missing Health Mitigation",
+      "id": "buff.pariah_scaling_resist",
+      "name": "Pariah Missing Health Mitigation (Approximate)",
       "category": "modifier",
       "scope": "self",
-      "stat": "resist",
-      "magnitudekind": "scalingfunction",
-      "magnitudevalue": 0,
-      "stackingrule": "uniquesource",
-      "stackswith": [
-        "buff.majorresolve"
+      "stat": "resistance_flat",
+      "magnitude_kind": "flat",
+      "magnitude_value": 7000,
+      "stacking_rule": "unique_source",
+      "stacks_with": [
+        "buff.major_resolve"
       ],
-      "description": "Increases resistances based on missing health (modeled as a scaling effect for pillar checks)."
+      "description": "Approximate Mark of the Pariah bonus: treated as +7000 Physical and Spell Resistance at low health for pillar calculations. Replace with exact scaling when real ESO data is imported."
     }
   ]
 }
