@@ -1,0 +1,167 @@
+You’re now in a much cleaner state; the remaining issues are about “going from Permafrost-only demo to full engine,” not about schema drift.
+
+Current alignment status
+Core data files (skills.json, effects.json, sets.json, cp-stars.json) all follow the v1 container shapes (skills, effects, sets, cp_stars) and use proper ID prefixes (skill., buff., debuff., shield., hot., set., cp.).
+
+validate_data_integrity.py unwraps containers using the canonical keys, enforces ID uniqueness and namespace prefixes, and checks that all skill/set/CP effect references exist in effects.json.
+​
+
+validate_build.py unwraps containers in the same way, validates build structure (bars, gear, CP layout) and references (skills, sets, CP stars) using the v1 field names (skill_id, set_id, cp_slotted).
+​
+
+aggregate_effects.py now uses a single, v1-aligned aggregation path: it unwraps containers consistently and only looks at canonical field names (skill_id, effect_id, set_id), then produces a flat list of effect instances with effect_id, source, timing, target, duration_seconds.
+​
+
+compute_pillars.py loads data via the same container shapes and uses effects.json stats like resistance_flat, movement_speed_scalar, movement_speed_out_of_combat_scalar, mounted_speed_scalar, hot, shield for its pillar math, matching your current effects.json.
+
+All three import stubs (import_skills_from_uesp.py, import_sets_from_uesp.py, import_cp_from_uesp.py) now:
+
+Require a --snapshot-path (stubbed today).
+
+Write preview JSON into raw-imports/*.import-preview.json.
+
+Never touch data/*.json.
+
+Embed a meta block marking outputs as preview-only.
+
+So the “schema drift and import safety” problems that were blocking you before are resolved in code and docs.
+
+Remaining conflicts / bottlenecks
+These are what still stand between you and a “final product” that can host a full ESO data set.
+
+Legacy alias tolerance inside compute_pillars.py
+
+compute_pillars.py still accepts multiple key variants:
+
+Bars: slot.get("skillid") or slot.get("skill_id").
+​
+
+Gear: item.get("setid") or item.get("set_id").
+​
+
+Skill effects: eff.get("effectid") or eff.get("effect_id") and eff.get("durationseconds", eff.get("duration_seconds")).
+​
+
+aggregate_effects.py, validate_build.py, and validate_data_integrity.py have already moved to canonical names only.
+
+Impact: The engine is tolerant of old builds only in the pillar path, but strict everywhere else, which is asymmetric and violates “no alternate ID schemes” in your control doc. For the final product, these aliases should be dropped so everything enforces the same schema.
+
+Importers are structurally correct but functionally inert
+
+All three importers return placeholder records with:
+
+Deterministic shapes, but:
+
+Fixed IDs (skill.example_placeholder, set.example_placeholder, cp.example_placeholder).
+
+Empty effects arrays.
+
+Mostly None or stubbo fields for external IDs.
+
+They don’t yet:
+
+Normalize external IDs into canonical skill.*, set.*, cp.*.
+
+Populate effects[] with canonical buff./debuff./shield./hot. IDs.
+
+Write meaningful external_ids.* for traceability.
+
+Impact: You can’t yet point these at real UESP/APIs and get usable data into raw-imports/ that would pass validate_data_integrity.py or drive pillars.
+
+Effects mapping is still hand-authored, not derived
+
+effects.json is currently a handcrafted, Permafrost-focused set of effects, with stats tuned for your pillars.
+​
+
+There is no importer or mapping spec that:
+
+Reads ESO/UESP “effect identifiers” and converts them into these canonical effect IDs.
+
+Ensures that every effect referenced in imported skills/sets/CP stars exists in effects.json.
+
+Impact: As soon as real imports begin populating effects[] on skills/sets/CP, you’ll either:
+
+Break validate_data_integrity.py (unknown effect IDs), or
+
+Have to manually maintain effects.json, which is not scalable.
+
+Container unwrapping is now mostly consistent, but not shared
+
+aggregate_effects.py, validate_build.py, and validate_data_integrity.py each have their own “unwrap containers” logic that all do the same thing: handle either bare arrays or { "skills": [...] } / { "sets": [...] } / { "cp_stars": [...] }.
+
+compute_pillars.py references data slightly differently (it expects data["skills"].get("skills", []), data["sets"].get("sets", []), and data["cp_stars"].get("cp-stars", []), which is likely a typo ("cp-stars" vs cp_stars).
+​
+
+Impact: You’re close, but there’s still risk of subtle bugs:
+
+If compute_pillars.py truly tries data["cp_stars"].get("cp-stars", []), it will ignore CP from a canonical container.
+
+Any future change to container conventions has to be manually replicated in four places.
+
+Pillar stat key alignment is now good, but frozen
+
+Pillars today assume a particular set of stat values in effects.json (e.g., movement_speed_scalar, movement_speed_out_of_combat_scalar, mounted_speed_scalar, hot, shield).
+
+The Alignment Control doc locks those names in. That’s correct for now, but:
+
+Any change in how ESO/UESP expresses movement speed/resist/HoTs will require synchronous updates to:
+
+effects.json,
+
+compute_pillars.py,
+
+The control doc.
+
+Impact: Not a bug, but a clear process bottleneck: changes must go through your “control” process, which is by design.
+
+What’s actually blocking “final product” now
+In terms of blocking items rather than cleanup:
+
+You can:
+
+Safely run the current engine on the Permafrost Marshal build.
+
+Add more hand-authored builds and data records, as long as they follow v1 schemas.
+
+You cannot yet:
+
+Import a full ESO database from UESP and have builds:
+
+Validate,
+
+Export to Markdown,
+
+Aggregate effects,
+
+Compute pillars,
+at scale without manual data patching.
+
+The concrete blockers are:
+
+compute_pillars.py still tolerates legacy aliases and has a suspicious cp-stars key for CP stars.
+​
+
+Importers don’t perform real transforms (ID normalization, effect mapping, external_ids).
+
+There is no importer for effects.json, nor a defined “external → effects” mapping path, so effects stay manual.
+
+Recommended next single step
+The most important next step for the project as a whole is to clean compute_pillars.py so it is 100% in lockstep with the rest of the v1 engine:
+
+Remove all legacy aliases (skillid, setid, effectid, durationseconds) and only accept:
+
+bars.*[*].skill_id
+
+skill.effects[*].effect_id
+
+gear[*].set_id
+
+duration_seconds
+
+Fix CP unwrapping to use the same canonical container as the other tools (no "cp-stars" key).
+
+Reuse the same container-unwrap pattern as aggregate_effects.py and validate_data_integrity.py.
+
+That gives you a truly single schema across validation, aggregation, and pillars, which is the bedrock you need before we tackle a real import mapping.
+
+If you’d like, next turn I can give you a complete tools/compute_pillars.py replacement (full file content) that makes those exact changes and nothing else, so it’s copy-paste ready.

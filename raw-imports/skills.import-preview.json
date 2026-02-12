@@ -1,0 +1,28 @@
+{
+  "meta": {
+    "source": "tools/import_skills_from_uesp.py",
+    "mode": "preview",
+    "note": "This file is a preview of normalized skills data. Promote to data/skills.json only after validation and review."
+  },
+  "skills": [
+    {
+      "id": "skill.example_placeholder",
+      "name": "Example Placeholder Skill",
+      "class_id": "universal",
+      "skill_line_id": "soul_magic",
+      "type": "active",
+      "resource": "magicka",
+      "cost": null,
+      "cast_time": "instant",
+      "target": "self",
+      "duration_seconds": null,
+      "radius_meters": null,
+      "ability_id": null,
+      "external_ids": {
+        "uesp": null
+      },
+      "tooltip_effect_text": "Placeholder skill created by tools/import_skills_from_uesp.py stub. Replace this record once real import logic is implemented.",
+      "effects": []
+    }
+  ]
+}

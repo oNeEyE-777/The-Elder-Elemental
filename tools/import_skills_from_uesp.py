@@ -1,19 +1,26 @@
 """
 tools/import_skills_from_uesp.py
 
-Stub importer for external ESO/UESP skill data into data/skills.json,
-aligned to docs/ESO-Build-Engine-Data-Model-v1.md Appendix A: Skills
-Import Mapping → data/skills.json.
+Stub importer for external ESO/UESP skill data into a preview
+skills JSON under raw-imports/, aligned to
+docs/ESO-Build-Engine-Data-Model-v1.md Appendix A:
+Skills Import Mapping → data/skills.json.
 
 This version does NOT parse real UESP exports yet. It:
 
 - Accepts a required --snapshot-path argument (for future use).
-- Writes a schema-correct data/skills.json file with an empty "skills" array.
-- Documents the expected external concepts and target fields.
+- Writes a schema-correct preview JSON file under raw-imports/
+  with either:
+  - an empty "skills" array, or
+  - a single placeholder skill record when
+    --include-placeholder-example is set.
+- Never writes to data/skills.json.
 
-Once external snapshots are available and the detailed mapping spec is
-finalized, the placeholder logic in build_skill_record() and the main()
-loop should be replaced with real transforms.
+Once external snapshots are available and the detailed mapping
+spec is finalized, the placeholder logic in build_skill_record()
+and the main() loop should be replaced with real transforms, and
+a separate promotion step should copy reviewed preview JSON into
+data/skills.json.
 """
 
 import argparse
@@ -25,13 +32,18 @@ from typing import Any, Dict, List
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = REPO_ROOT / "data"
 DOCS_DIR = REPO_ROOT / "docs"
+RAW_IMPORTS_DIR = REPO_ROOT / "raw-imports"
 
 
-def ensure_data_dir() -> None:
+def ensure_raw_imports_dir() -> None:
     """
-    Ensure the data/ directory exists.
+    Ensure the raw-imports/ directory exists.
+
+    Per External Data Scope, import tools must write only to
+    raw-imports/ during development and preview phases, never
+    directly to data/*.json.
     """
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    RAW_IMPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def build_empty_skills_container() -> Dict[str, Any]:
@@ -43,7 +55,15 @@ def build_empty_skills_container() -> Dict[str, Any]:
       - Appendix A: Skills Import Mapping → data/skills.json
     """
     return {
-        "skills": []
+        "meta": {
+            "source": "tools/import_skills_from_uesp.py",
+            "mode": "preview",
+            "note": (
+                "This file is a preview of normalized skills data. "
+                "Promote to data/skills.json only after validation and review."
+            ),
+        },
+        "skills": [],
     }
 
 
@@ -106,13 +126,13 @@ def build_skill_record(external_row: Dict[str, Any]) -> Dict[str, Any]:
         "radius_meters": None,
         "ability_id": None,
         "external_ids": {
-            "uesp": None
+            "uesp": None,
         },
         "tooltip_effect_text": (
             "Placeholder skill created by tools/import_skills_from_uesp.py stub. "
             "Replace this record once real import logic is implemented."
         ),
-        "effects": []
+        "effects": [],
     }
 
 
@@ -135,7 +155,7 @@ def load_external_snapshot(snapshot_path: Path) -> List[Dict[str, Any]]:
             json.dumps(
                 {
                     "status": "WARN",
-                    "message": f"Snapshot path not found (stub mode): {snapshot_path}"
+                    "message": f"Snapshot path not found (stub mode): {snapshot_path}",
                 }
             )
         )
@@ -145,28 +165,29 @@ def load_external_snapshot(snapshot_path: Path) -> List[Dict[str, Any]]:
     return []
 
 
-def write_skills_json(skills: List[Dict[str, Any]]) -> Path:
+def write_skills_preview(skills: List[Dict[str, Any]]) -> Path:
     """
-    Write data/skills.json using the canonical v1 container shape.
+    Write a preview skills JSON under raw-imports/ using the canonical v1
+    container shape, plus a small meta block.
 
-    This overwrites any existing data/skills.json file, in line with the
-    full-file replacement rule for canonical JSON. The caller is responsible
-    for running validators afterward.
+    This DOES NOT write to data/skills.json. Promotion into data/skills.json
+    must be a separate, manual step after validation.
     """
-    ensure_data_dir()
-    target_path = DATA_DIR / "skills.json"
-    container = {
-        "skills": skills
-    }
+    ensure_raw_imports_dir()
+    target_path = RAW_IMPORTS_DIR / "skills.import-preview.json"
+    container = build_empty_skills_container()
+    container["skills"] = skills
+
     with target_path.open("w", encoding="utf-8") as f:
         json.dump(container, f, indent=2, ensure_ascii=False)
+
     return target_path
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Import ESO/UESP skill data into data/skills.json "
+            "Import ESO/UESP skill data into a preview JSON under raw-imports/, "
             "according to the v1 Data Model and Skills Import Mapping."
         )
     )
@@ -203,12 +224,12 @@ def main() -> int:
     # for row in external_rows:
     #     skills.append(build_skill_record(row))
 
-    target_path = write_skills_json(skills)
+    target_path = write_skills_preview(skills)
     print(
         json.dumps(
             {
                 "status": "OK",
-                "message": "Stub import completed; skills.json written.",
+                "message": "Stub import completed; skills preview JSON written.",
                 "skills_count": len(skills),
                 "target_path": str(target_path),
                 "mode": "placeholder" if args.include_placeholder_example else "empty",

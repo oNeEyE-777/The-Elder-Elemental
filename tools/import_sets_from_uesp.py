@@ -1,21 +1,26 @@
 """
 tools/import_sets_from_uesp.py
 
-Stub importer for external ESO/UESP set data into data/sets.json,
-aligned to docs/ESO-Build-Engine-Data-Model-v1.md
-Appendix B: Sets Import Mapping → data/sets.json.
+Stub importer for external ESO/UESP set data into a preview
+sets JSON under raw-imports/, aligned to
+docs/ESO-Build-Engine-Data-Model-v1.md Appendix B:
+Sets Import Mapping → data/sets.json.
 
 This version does NOT parse real UESP exports yet. It:
 
 - Accepts a required --snapshot-path argument (for future use).
-- Writes a schema-correct data/sets.json file with either:
+- Writes a schema-correct preview JSON file under raw-imports/
+  with either:
   - an empty "sets" array, or
-  - a single placeholder set record when --include-placeholder-example is set.
-- Documents the expected external concepts and target fields.
+  - a single placeholder set record when
+    --include-placeholder-example is set.
+- Never writes to data/sets.json.
 
-Once external snapshots are available and detailed mapping is finalized,
-the placeholder logic in build_set_record() and the main() loop should
-be replaced with real transforms.
+Once external snapshots are available and the detailed mapping
+spec is finalized, the placeholder logic in build_set_record()
+and the main() loop should be replaced with real transforms, and
+a separate promotion step should copy reviewed preview JSON into
+data/sets.json.
 """
 
 import argparse
@@ -27,13 +32,18 @@ from typing import Any, Dict, List
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = REPO_ROOT / "data"
 DOCS_DIR = REPO_ROOT / "docs"
+RAW_IMPORTS_DIR = REPO_ROOT / "raw-imports"
 
 
-def ensure_data_dir() -> None:
+def ensure_raw_imports_dir() -> None:
     """
-    Ensure the data/ directory exists.
+    Ensure the raw-imports/ directory exists.
+
+    Per External Data Scope, import tools must write only to
+    raw-imports/ during development and preview phases, never
+    directly to data/*.json.
     """
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    RAW_IMPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def build_empty_sets_container() -> Dict[str, Any]:
@@ -45,7 +55,15 @@ def build_empty_sets_container() -> Dict[str, Any]:
       - Appendix B: Sets Import Mapping → data/sets.json
     """
     return {
-        "sets": []
+        "meta": {
+            "source": "tools/import_sets_from_uesp.py",
+            "mode": "preview",
+            "note": (
+                "This file is a preview of normalized set data. "
+                "Promote to data/sets.json only after validation and review."
+            ),
+        },
+        "sets": [],
     }
 
 
@@ -94,7 +112,7 @@ def build_set_record(external_row: Dict[str, Any]) -> Dict[str, Any]:
         "tags": ["example", "stub"],
         "set_id": None,
         "external_ids": {
-            "eso_sets_api": None
+            "eso_sets_api": None,
         },
         "bonuses": [
             {
@@ -104,9 +122,9 @@ def build_set_record(external_row: Dict[str, Any]) -> Dict[str, Any]:
                     "tools/import_sets_from_uesp.py stub. "
                     "Replace this record once real import logic is implemented."
                 ),
-                "effects": []
+                "effects": [],
             }
-        ]
+        ],
     }
 
 
@@ -127,7 +145,7 @@ def load_external_snapshot(snapshot_path: Path) -> List[Dict[str, Any]]:
             json.dumps(
                 {
                     "status": "WARN",
-                    "message": f"Snapshot path not found (stub mode): {snapshot_path}"
+                    "message": f"Snapshot path not found (stub mode): {snapshot_path}",
                 }
             )
         )
@@ -137,28 +155,29 @@ def load_external_snapshot(snapshot_path: Path) -> List[Dict[str, Any]]:
     return []
 
 
-def write_sets_json(sets: List[Dict[str, Any]]) -> Path:
+def write_sets_preview(sets: List[Dict[str, Any]]) -> Path:
     """
-    Write data/sets.json using the canonical v1 container shape.
+    Write a preview sets JSON under raw-imports/ using the canonical v1
+    container shape, plus a small meta block.
 
-    This overwrites any existing data/sets.json file, in line with the
-    full-file replacement rule for canonical JSON. The caller is responsible
-    for backing up data/ and running validators afterward.
+    This DOES NOT write to data/sets.json. Promotion into data/sets.json
+    must be a separate, manual step after validation.
     """
-    ensure_data_dir()
-    target_path = DATA_DIR / "sets.json"
-    container = {
-        "sets": sets
-    }
+    ensure_raw_imports_dir()
+    target_path = RAW_IMPORTS_DIR / "sets.import-preview.json"
+    container = build_empty_sets_container()
+    container["sets"] = sets
+
     with target_path.open("w", encoding="utf-8") as f:
         json.dump(container, f, indent=2, ensure_ascii=False)
+
     return target_path
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Import ESO/UESP set data into data/sets.json "
+            "Import ESO/UESP set data into a preview JSON under raw-imports/, "
             "according to the v1 Data Model and Sets Import Mapping."
         )
     )
@@ -195,12 +214,12 @@ def main() -> int:
     # for row in external_rows:
     #     sets.append(build_set_record(row))
 
-    target_path = write_sets_json(sets)
+    target_path = write_sets_preview(sets)
     print(
         json.dumps(
             {
                 "status": "OK",
-                "message": "Stub import completed; sets.json written.",
+                "message": "Stub import completed; sets preview JSON written.",
                 "sets_count": len(sets),
                 "target_path": str(target_path),
                 "mode": "placeholder" if args.include_placeholder_example else "empty",

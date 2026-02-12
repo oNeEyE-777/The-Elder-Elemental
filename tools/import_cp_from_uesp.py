@@ -1,22 +1,26 @@
 """
 tools/import_cp_from_uesp.py
 
-Stub importer for external ESO/UESP Champion Point star data into
-data/cp-stars.json, aligned to
+Stub importer for external ESO/UESP Champion Point star data into a
+preview CP stars JSON under raw-imports/, aligned to
 docs/ESO-Build-Engine-Data-Model-v1.md Appendix C:
 CP Stars Import Mapping → data/cp-stars.json.
 
 This version does NOT parse real UESP exports yet. It:
 
 - Accepts a required --snapshot-path argument (for future use).
-- Writes a schema-correct data/cp-stars.json file with either:
+- Writes a schema-correct preview JSON file under raw-imports/
+  with either:
   - an empty "cp_stars" array, or
-  - a single placeholder CP star record when --include-placeholder-example is set.
-- Documents the expected external concepts and target fields.
+  - a single placeholder CP star record when
+    --include-placeholder-example is set.
+- Never writes to data/cp-stars.json.
 
-Once external snapshots are available and detailed mapping is finalized,
-the placeholder logic in build_cp_star_record() and the main() loop
-should be replaced with real transforms.
+Once external snapshots are available and the detailed mapping
+spec is finalized, the placeholder logic in build_cp_star_record()
+and the main() loop should be replaced with real transforms, and
+a separate promotion step should copy reviewed preview JSON into
+data/cp-stars.json.
 """
 
 import argparse
@@ -28,13 +32,18 @@ from typing import Any, Dict, List
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = REPO_ROOT / "data"
 DOCS_DIR = REPO_ROOT / "docs"
+RAW_IMPORTS_DIR = REPO_ROOT / "raw-imports"
 
 
-def ensure_data_dir() -> None:
+def ensure_raw_imports_dir() -> None:
     """
-    Ensure the data/ directory exists.
+    Ensure the raw-imports/ directory exists.
+
+    Per External Data Scope, import tools must write only to
+    raw-imports/ during development and preview phases, never
+    directly to data/*.json.
     """
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    RAW_IMPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def build_empty_cp_container() -> Dict[str, Any]:
@@ -47,7 +56,15 @@ def build_empty_cp_container() -> Dict[str, Any]:
       - Appendix C: CP Stars Import Mapping → data/cp-stars.json
     """
     return {
-        "cp_stars": []
+        "meta": {
+            "source": "tools/import_cp_from_uesp.py",
+            "mode": "preview",
+            "note": (
+                "This file is a preview of normalized CP star data. "
+                "Promote to data/cp-stars.json only after validation and review."
+            ),
+        },
+        "cp_stars": [],
     }
 
 
@@ -113,7 +130,7 @@ def load_external_snapshot(snapshot_path: Path) -> List[Dict[str, Any]]:
             json.dumps(
                 {
                     "status": "WARN",
-                    "message": f"Snapshot path not found (stub mode): {snapshot_path}"
+                    "message": f"Snapshot path not found (stub mode): {snapshot_path}",
                 }
             )
         )
@@ -123,28 +140,29 @@ def load_external_snapshot(snapshot_path: Path) -> List[Dict[str, Any]]:
     return []
 
 
-def write_cp_stars_json(cp_stars: List[Dict[str, Any]]) -> Path:
+def write_cp_stars_preview(cp_stars: List[Dict[str, Any]]) -> Path:
     """
-    Write data/cp-stars.json using the canonical v1 container shape.
+    Write a preview cp-stars JSON under raw-imports/ using the canonical v1
+    container shape, plus a small meta block.
 
-    This overwrites any existing data/cp-stars.json file, in line with the
-    full-file replacement rule for canonical JSON. The caller is responsible
-    for backing up data/ and running validators afterward.
+    This DOES NOT write to data/cp-stars.json. Promotion into data/cp-stars.json
+    must be a separate, manual step after validation.
     """
-    ensure_data_dir()
-    target_path = DATA_DIR / "cp-stars.json"
-    container = {
-        "cp_stars": cp_stars
-    }
+    ensure_raw_imports_dir()
+    target_path = RAW_IMPORTS_DIR / "cp-stars.import-preview.json"
+    container = build_empty_cp_container()
+    container["cp_stars"] = cp_stars
+
     with target_path.open("w", encoding="utf-8") as f:
         json.dump(container, f, indent=2, ensure_ascii=False)
+
     return target_path
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Import ESO/UESP CP star data into data/cp-stars.json "
+            "Import ESO/UESP CP star data into a preview JSON under raw-imports/, "
             "according to the v1 Data Model and CP Stars Import Mapping."
         )
     )
@@ -181,12 +199,12 @@ def main() -> int:
     # for row in external_rows:
     #     cp_stars.append(build_cp_star_record(row))
 
-    target_path = write_cp_stars_json(cp_stars)
+    target_path = write_cp_stars_preview(cp_stars)
     print(
         json.dumps(
             {
                 "status": "OK",
-                "message": "Stub import completed; cp-stars.json written.",
+                "message": "Stub import completed; CP stars preview JSON written.",
                 "cp_stars_count": len(cp_stars),
                 "target_path": str(target_path),
                 "mode": "placeholder" if args.include_placeholder_example else "empty",

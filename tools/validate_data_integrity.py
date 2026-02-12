@@ -14,7 +14,7 @@ Data-wide integrity checks for the ESO Build Engine v1 Data Center.
   - ID uniqueness within each file.
   - ID namespace sanity (skill./buff./debuff./set./cp.).
   - Cross-file references:
-    - Skill.effects[*].effectid must exist in effects.id.
+    - Skill.effects[*].effect_id must exist in effects.id.
     - Set.bonuses[*].effects[*] (strings) must exist in effects.id.
     - CP star.effects[*] (strings) must exist in effects.id.
 
@@ -46,7 +46,11 @@ def load_json(path: Path) -> Any:
 
 
 def collect_ids(items: List[Dict[str, Any]], id_field: str = "id") -> List[str]:
-    return [item[id_field] for item in items if isinstance(item, dict) and id_field in item]
+    return [
+        item[id_field]
+        for item in items
+        if isinstance(item, dict) and id_field in item
+    ]
 
 
 def check_unique_ids(ids: List[str], field_prefix: str) -> List[Dict[str, Any]]:
@@ -65,14 +69,21 @@ def check_unique_ids(ids: List[str], field_prefix: str) -> List[Dict[str, Any]]:
     return errors
 
 
-def check_namespace_prefix(ids: List[str], allowed_prefixes: List[str], field_prefix: str) -> List[Dict[str, Any]]:
+def check_namespace_prefix(
+    ids: List[str],
+    allowed_prefixes: List[str],
+    field_prefix: str,
+) -> List[Dict[str, Any]]:
     errors: List[Dict[str, Any]] = []
     for idx, _id in enumerate(ids):
         if not any(_id.startswith(p) for p in allowed_prefixes):
             errors.append(
                 {
                     "field": f"{field_prefix}[{idx}].id",
-                    "message": f"ID '{_id}' does not start with any allowed prefix {allowed_prefixes}",
+                    "message": (
+                        f"ID '{_id}' does not start with any allowed "
+                        f"prefix {allowed_prefixes}"
+                    ),
                 }
             )
     return errors
@@ -82,6 +93,12 @@ def validate_skills(
     skills: List[Dict[str, Any]],
     effect_ids: Set[str],
 ) -> List[Dict[str, Any]]:
+    """
+    Validate skills:
+
+    - IDs are unique and start with 'skill.'.
+    - Each effects[*].effect_id, if present, must exist in effects.id.
+    """
     errors: List[Dict[str, Any]] = []
 
     skill_ids = collect_ids(skills, "id")
@@ -91,17 +108,24 @@ def validate_skills(
     for s_idx, skill in enumerate(skills):
         if not isinstance(skill, dict):
             continue
-        for e_idx, eff in enumerate(skill.get("effects", [])):
+        effects = skill.get("effects", [])
+        if not isinstance(effects, list):
+            continue
+        for e_idx, eff in enumerate(effects):
             if not isinstance(eff, dict):
                 continue
-            effect_id = eff.get("effectid") or eff.get("effect_id")
+            effect_id = eff.get("effect_id")
             if not effect_id:
+                # Missing effect_id is treated as a schema omission, not a reference error.
                 continue
             if effect_id not in effect_ids:
                 errors.append(
                     {
-                        "field": f"skills[{s_idx}].effects[{e_idx}].effectid",
-                        "message": f"Unknown effectid '{effect_id}' (not found in effects.json)",
+                        "field": f"skills[{s_idx}].effects[{e_idx}].effect_id",
+                        "message": (
+                            f"Unknown effect_id '{effect_id}' "
+                            "(not found in effects.json)"
+                        ),
                     }
                 )
 
@@ -109,6 +133,12 @@ def validate_skills(
 
 
 def validate_effects(effects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Validate effects:
+
+    - IDs are unique.
+    - IDs start with one of buff./debuff./shield./hot.
+    """
     errors: List[Dict[str, Any]] = []
 
     effect_ids = collect_ids(effects, "id")
@@ -128,6 +158,12 @@ def validate_sets(
     sets: List[Dict[str, Any]],
     effect_ids: Set[str],
 ) -> List[Dict[str, Any]]:
+    """
+    Validate sets:
+
+    - IDs are unique and start with 'set.'.
+    - bonuses[*].effects[*] must be strings that exist in effects.id.
+    """
     errors: List[Dict[str, Any]] = []
 
     set_ids = collect_ids(sets, "id")
@@ -140,22 +176,36 @@ def validate_sets(
         for b_idx, bonus in enumerate(set_rec.get("bonuses", [])):
             if not isinstance(bonus, dict):
                 continue
-            for e_idx, eff in enumerate(bonus.get("effects", [])):
-                if isinstance(eff, str):
-                    effect_id = eff
-                elif isinstance(eff, dict):
-                    effect_id = eff.get("effectid") or eff.get("effect_id")
-                else:
+            effects = bonus.get("effects", [])
+            if not isinstance(effects, list):
+                continue
+            for e_idx, eff in enumerate(effects):
+                # Canonical form: effects is a list of strings.
+                if not isinstance(eff, str):
+                    errors.append(
+                        {
+                            "field": (
+                                f"sets[{s_idx}].bonuses[{b_idx}].effects[{e_idx}]"
+                            ),
+                            "message": (
+                                "Set bonus effects must be string IDs matching "
+                                "effects.id; embedded objects are not allowed."
+                            ),
+                        }
+                    )
                     continue
 
-                if not effect_id:
-                    continue
-
+                effect_id = eff
                 if effect_id not in effect_ids:
                     errors.append(
                         {
-                            "field": f"sets[{s_idx}].bonuses[{b_idx}].effects[{e_idx}]",
-                            "message": f"Unknown effectid '{effect_id}' (not found in effects.json)",
+                            "field": (
+                                f"sets[{s_idx}].bonuses[{b_idx}].effects[{e_idx}]"
+                            ),
+                            "message": (
+                                f"Unknown effect_id '{effect_id}' "
+                                "(not found in effects.json)"
+                            ),
                         }
                     )
 
@@ -166,6 +216,12 @@ def validate_cpstars(
     cpstars: List[Dict[str, Any]],
     effect_ids: Set[str],
 ) -> List[Dict[str, Any]]:
+    """
+    Validate CP stars:
+
+    - IDs are unique and start with 'cp.'.
+    - effects[*] must be strings that exist in effects.id.
+    """
     errors: List[Dict[str, Any]] = []
 
     cp_ids = collect_ids(cpstars, "id")
@@ -174,28 +230,33 @@ def validate_cpstars(
 
     for c_idx, star in enumerate(cpstars):
         if not isinstance(star, dict):
-            # Non-object entries violate the Global Rules entity/ID representation
-            # and will not be treated as valid CP stars here.
+            # Non-object entries violate the Global Rules entity/ID representation.
             continue
         effects = star.get("effects", [])
         if not isinstance(effects, list):
             continue
         for e_idx, eff in enumerate(effects):
-            if isinstance(eff, str):
-                effect_id = eff
-            elif isinstance(eff, dict):
-                effect_id = eff.get("effectid") or eff.get("effect_id")
-            else:
+            if not isinstance(eff, str):
+                errors.append(
+                    {
+                        "field": f"cpstars[{c_idx}].effects[{e_idx}]",
+                        "message": (
+                            "CP star effects must be string IDs matching "
+                            "effects.id; embedded objects are not allowed."
+                        ),
+                    }
+                )
                 continue
 
-            if not effect_id:
-                continue
-
+            effect_id = eff
             if effect_id not in effect_ids:
                 errors.append(
                     {
                         "field": f"cpstars[{c_idx}].effects[{e_idx}]",
-                        "message": f"Unknown effectid '{effect_id}' (not found in effects.json)",
+                        "message": (
+                            f"Unknown effect_id '{effect_id}' "
+                            "(not found in effects.json)"
+                        ),
                     }
                 )
 
@@ -209,11 +270,27 @@ def validate_data_integrity() -> Dict[str, Any]:
     cpstars_data = load_json(DATA_DIR / "cp-stars.json")
 
     # Unwrap v1 containers.
-    skills = skills_data.get("skills", skills_data) if isinstance(skills_data, dict) else skills_data
-    effects = effects_data.get("effects", effects_data) if isinstance(effects_data, dict) else effects_data
-    sets = sets_data.get("sets", sets_data) if isinstance(sets_data, dict) else sets_data
+    skills = (
+        skills_data.get("skills", skills_data)
+        if isinstance(skills_data, dict)
+        else skills_data
+    )
+    effects = (
+        effects_data.get("effects", effects_data)
+        if isinstance(effects_data, dict)
+        else effects_data
+    )
+    sets = (
+        sets_data.get("sets", sets_data)
+        if isinstance(sets_data, dict)
+        else sets_data
+    )
     # Use the canonical key cp_stars per v1 Data Model.
-    cpstars = cpstars_data.get("cp_stars", cpstars_data) if isinstance(cpstars_data, dict) else cpstars_data
+    cpstars = (
+        cpstars_data.get("cp_stars", cpstars_data)
+        if isinstance(cpstars_data, dict)
+        else cpstars_data
+    )
 
     effect_ids_set = set(collect_ids(effects, "id"))
 

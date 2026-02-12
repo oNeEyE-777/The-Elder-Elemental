@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "source": "tools/import_sets_from_uesp.py",
+    "mode": "preview",
+    "note": "This file is a preview of normalized set data. Promote to data/sets.json only after validation and review."
+  },
+  "sets": [
+    {
+      "id": "set.example_placeholder",
+      "name": "Example Placeholder Set",
+      "type": "armor",
+      "source": "overland",
+      "tags": [
+        "example",
+        "stub"
+      ],
+      "set_id": null,
+      "external_ids": {
+        "eso_sets_api": null
+      },
+      "bonuses": [
+        {
+          "pieces": 5,
+          "tooltip_raw": "Placeholder set bonus created by tools/import_sets_from_uesp.py stub. Replace this record once real import logic is implemented.",
+          "effects": []
+        }
+      ]
+    }
+  ]
+}
