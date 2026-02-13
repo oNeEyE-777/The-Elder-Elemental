@@ -1,368 +1,332 @@
-# ESO Build Engine – Global Rules & Validation Checklist  
-**docs/ESO-Build-Engine-Global-Rules.md**
+File: docs/ESO-Build-Engine-Global-Rules.md
+Last-Updated: 2026-02-13 05:42:00Z
 
-## Purpose
+# ESO Build Engine Global Rules
 
-Define the **structural and stacking rules** that apply to any build JSON under `builds/`, and the contracts that validators and math tools under `tools/` must follow. [file:356]
+## 1. Purpose
 
-These rules are the normative source for:
+This document defines the **global rules** that apply across the ESO Build Engine:
 
-- Build structure (bars, gear, CP, attributes, pillars).
-- How builds reference canonical ESO data under `data/`.
-- Effect stacking behavior for buffs, debuffs, HoTs, and shields.
-- The shape of Python tool outputs that the backend and frontend may consume. [file:356]
+- Structural rules for builds (bars, gear, Champion Points).
+- Rules for effects and stacking (e.g. Major/Minor uniqueness).
+- Expectations for tools (validation, aggregation, export).
+- Project-wide constraints related to external data and ESO-Hub integration.
 
-The rules must support:
+It must remain consistent with:
 
-- **Many builds of all kinds**, not just Permafrost Marshal.
-- Permafrost Marshal as a **reference example**, not a special case.
-- **Large data imports** from ESO APIs and UESP into JSON, with low friction, as long as core fields remain valid. [file:356]
+- `ESO-Build-Engine-Overview.md`
+- `ESO-Build-Engine-Data-Model-v1.md`
+- `ESO-Build-Engine-External-Data-Scope.md`
+- `ESO-Build-Engine-External-Data-Runbook.md`
+- `ESO-Build-Engine-ESO-Hub-Integration.md`
+- `ESO-Build-Engine-Alignment-Control.md` [file:1024][file:1015][file:1022][file:1023][file:1021][file:1018]
 
-All tools (Python, backend, frontend) are **consumers** of these rules; none of them may introduce new game‑logic semantics that contradict `data/*.json` and the effect stacking rules defined here. [file:356]
 
----
+## 2. Build structure rules
 
-## 0. Entity vs ID representation
+### 2.1 Bars
 
-Across all canonical data files in `data/`:
+- Each build must define two bars:
 
-- Core entities are always represented as **objects** in arrays:
-  - `skills[]` objects from `data/skills.json`.
-  - `effects[]` objects from `data/effects.json`.
-  - `sets[]` objects from `data/sets.json`.
-  - `cp_stars[]` objects from `data/cp-stars.json`.
-- Cross-file references are always represented as **string IDs**, never embedded objects:
-  - `skills[].effects[].effect_id` must match some `effects[].id`.
-  - `sets[].bonuses[].effects[]` entries must match `effects[].id`.
-  - `cp_stars[].effects[]` entries must match `effects[].id`.
+  - `bars.front`
+  - `bars.back`
 
-Forbidden patterns:
+- Each bar is an array of slot objects, each with:
 
-- Top-level arrays of bare ID strings in canonical data files (for example, `["cp.ironclad", "cp.duelists_rebuff"]` as CP stars).
-- Embedding full effect objects inside skills, sets, or CP stars instead of referencing them by ID.
+  - `slot`: `"1"`, `"2"`, `"3"`, `"4"`, `"5"`, or `"ULT"`.
+  - `skillid`: either:
+    - A canonical skill ID (e.g. `skill.deepfissure`), or
+    - `null` for an intentionally empty slot.
 
-All Python tools, importers, and validators must assume this representation and treat any deviation as invalid data.
+Rules:
 
----
+- All bar slots must be valid slot labels; no duplicates on the same bar.
+- Any non-null `skillid` must exist in `data/skills.json`. [file:1015][file:1018]
+- Tools must treat missing or malformed `skillid` values as errors, except explicit `null`.
 
-## 1. Bars & skills
 
-- Exactly 2 bars: `front` and `back`. [file:356]
+### 2.2 Gear
 
-- Each bar has:
+- Each build must define a `gear` array with exactly these 12 slots, each appearing once:
 
-  - 5 normal slots: `1`, `2`, `3`, `4`, `5`
-  - 1 ultimate slot: `"ULT"` [file:356]
+  - `head`, `shoulder`, `chest`, `hands`, `waist`, `legs`, `feet`,
+  - `neck`, `ring1`, `ring2`,
+  - `frontweapon`, `backweapon`.
 
-**Constraints**
+- Each gear item has:
 
-- At most 1 skill per `(bar, slot)` pair.
-- A given `skill_id` may appear on both bars, but not more than once per bar.
-- All `skill_id` values must exist in `data/skills.json`.
-- Bars must be present as `build["bars"]["front"]` and `build["bars"]["back"]`, each an array of slot objects with `slot` and `skill_id` fields. [file:356]
+  - `slot`: one of the above.
+  - `setid`: a canonical set ID (e.g. `set.markofthepariah`), or `null` only for explicit test-dummy configurations.
+  - `weight`: `"light"`, `"medium"`, `"heavy"` for armor slots; `null` for jewelry and weapons.
+  - `trait`: string or `null`.
+  - `enchant`: string or `null`. [file:1015][file:1018]
 
----
+Rules:
 
-## 2. Gear layout & sets
+- No missing gear slots.
+- Any non-null `setid` must exist in `data/sets.json`.
+- Tools must error on unknown slots or unknown set IDs.
 
-**Required gear slots (12)**
 
-- `head`, `shoulder`, `chest`, `hands`, `waist`, `legs`, `feet`, `neck`, `ring1`, `ring2`, `front_weapon`, `back_weapon`. [file:356]
+### 2.3 Champion Points
 
-**Constraints**
+- Each build must define `cpslotted`:
 
-- Exactly 1 gear item per required slot.
-- At most **1 mythic set** equipped across all gear slots.
-- Armor slots (`head`, `shoulder`, `chest`, `hands`, `waist`, `legs`, `feet`) must have `weight` ∈ `{ "light", "medium", "heavy" }`.
-- All `set_id` values must exist in `data/sets.json`.
-- Gear records reference `sets.id` by `set_id` only; no inline ESO math or tooltip text in gear. [file:356]
+  - `cpslotted.warfare`
+  - `cpslotted.fitness`
+  - `cpslotted.craft`
 
-**Soft checks**
+- Each tree is an array of up to 4 entries:
 
-- Number of pieces per `set_id` should align with ESO set rules (for example, no 7 pieces of a 5‑piece set).
-- Soft checks produce warnings, not hard validation failures. [file:356]
+  - Each entry is either:
+    - A canonical CP ID (e.g. `cp.ironclad`), or
+    - `null` for an unused slot.
 
----
+Rules:
 
-## 3. CP layout
+- No duplicates within a single tree (e.g. no double `cp.ironclad` in `warfare`).
+- Any non-null CP ID must exist in `data/cp-stars.json`. [file:1015][file:1018]
+- Tools must validate both structure and references.
 
-- CP trees: exactly `warfare`, `fitness`, `craft`. [file:356]
 
-**Each tree**
+### 2.4 Pillars configuration
 
-- Up to 4 slotted stars.
-- No duplicated `cp_id` within a tree.
-- Only stars with `slot_type: "slottable"` may appear in `cp_slotted`.
-- All `cp_id` values must exist in `data/cp-stars.json`.
-- CP layout is stored as `build["cp_slotted"][tree] = [cp_id_or_null, ...]` with up to 4 entries per tree. [file:356]
+- Each build may define a `pillars` object to express target criteria for:
 
----
+  - `resist`
+  - `health`
+  - `speed`
+  - `hots`
+  - `shield`
+  - `corecombo` [file:1015][file:1018]
 
-## 4. Effect stacking rules (buffs/debuffs)
+- Typical fields:
 
-Effect semantics come from `data/effects.json`. The engine applies **Major/Minor uniqueness** per stat: [file:356]
+  - `resist.targetresistshown`
+  - `health.focus`
+  - `speed.profile`
+  - `hots.minactivehots`
+  - `shield.minactiveshields`
+  - `corecombo.skills` (array of `skill.*` IDs that must be present on bars)
 
-- For a given `stat`, at most:
+Rules:
 
-  - One effective `type: "major"` effect.
-  - One effective `type: "minor"` effect. [file:356]
+- Field names and shapes must match the v1 Data Model.
+- Any skill IDs listed in `corecombo.skills` must exist in `data/skills.json`.
+- Pillar evaluation tools (`compute_pillars.py`) are allowed to assume these shapes. [file:1015][file:1018][file:1019]
 
-**Exceptions**
 
-- An effect may list other effect IDs in `stacks_with` to allow stacking (for example, unique + Major, or multiple unique effects). [file:356]
+## 3. Effects and stacking rules
 
-**Goals**
+### 3.1 Effect identity
 
-- Avoid double‑counting the same Major/Minor buff on a stat.
-- Provide a canonical, normalized effect set for all math calculations (resist, damage taken, speed, etc.). [file:356]
+- All effects in `data/effects.json` must:
 
-The exact math (what `stat` means and how its value applies) is defined in `data/effects.json` and shared across skills, sets, and CP. [file:356]
+  - Have an `id` prefixed with:
+    - `buff.`
+    - `debuff.`
+    - `hot.`
+    - `shield.`
 
-**Logic‑driven terminology and functions**
+  - Have a `stat` field that:
+    - Indicates the quantitative pillar dimension (`resist`, `hot`, `shield`, speed-related stats, etc.).
+  - Have a `basevalue` numeric magnitude. [file:1015][file:1018]
 
-- Effect fields, enums, and math helpers must use logic‑driven, system‑neutral terms, not ESO slang or tooltip text.
-- Names must describe what they represent (`movement_speed_scalar`, `resistance_flat`, `state_active`) instead of in‑game labels like “buffed”, “unbuffed”, “Major Breach”, or “Major Resolve”.
-- ESO‑specific wording belongs only in human‑facing `name`/`description` fields in JSON, never as primary keys, enum values, or function names, so that effect math and stacking rules remain stable even if ESO terminology changes.
-- **No compression:** all effect IDs, field names, and stat keys must use lowercase `snake_case` with underscores between words (for example, `buff.major_resolve`, `debuff.major_breach`, `movement_speed_out_of_combat_scalar`), never compressed forms like `majorresolve` or `movementspeedscalar`.
+Effects are referenced by:
 
----
+- Skills: `skill.effects[].effectid`
+- Sets: `set.bonuses[].effects[*]`
+- CP stars: `cp.effects[]` [file:1015][file:1018]
 
 
-## 5. Validation and helper functions (Python contracts)
+### 3.2 Major/Minor and uniqueness
 
-These function contracts define the expected behavior of Python validators and helpers under `tools/`. Implementations may have more parameters and internal helpers, but must satisfy these interfaces conceptually. [file:356]
+- Major/Minor buff/debuff rules (e.g. `buff.majorresolve`, `debuff.minorbreach`) follow ESO’s in-game stacking rules:
 
-### 5.1 validate_build_structure(build, data) -> (valid: bool, violations: list[str])
+  - Only **one** instance of a given Major or Minor effect is considered active at a time per target, regardless of source.
+  - Multiple sources providing the same Major/Minor effect do not stack their magnitude; they only add redundancy.
 
-Checks:
+Tools must:
 
-- **Bars**
-  - Correct bar names (`"front"`, `"back"`).
-  - Correct slots (`1`–`5` plus `"ULT"`).
-  - No duplicate `slot` values per bar.
-  - All `skill_id` values exist in `data["skills"]` from `data/skills.json`. [file:356]
+- Treat multiple instances of the same Major/Minor effect as one effective instance for pillar purposes.
+- Aggregate them for diagnostics (e.g. showing that you have redundant sources), but not double-count their numeric contribution. [file:1016][file:1018]
 
-- **Gear**
-  - All required gear slots present.
-  - Exactly 1 item per slot.
-  - Mythic constraint (≤ 1 mythic set across all gear).
-  - Armor weights valid for armor slots.
-  - All `set_id` values exist in `data["sets"]` from `data/sets.json`. [file:356]
 
-- **CP**
-  - Exactly 3 trees: `warfare`, `fitness`, `craft`.
-  - ≤ 4 slotted stars per tree.
-  - No duplicates within a tree.
-  - All CP IDs exist in `data["cp_stars"]` from `data/cp-stars.json`.
-  - Only `slot_type: "slottable"` IDs appear in `cp_slotted`. [file:356]
+### 3.3 Pillar stat keys
 
-Returns:
+Pillar logic uses the `stat` field in `effects.json` to determine which effects contribute where. Canonical stat keys include: [file:1018][file:1019]
 
-- `valid = True` if no hard violations.
-- `violations = [...]` list with file/field/description for each problem. [file:356]
+- Resist pillar:
+  - `stat: "resist"`
 
----
+- Health pillar:
+  - `stat` in:
+    - `"maxhealth"`
+    - `"healthmax"`
 
-### 5.2 aggregate_effects(build, data) -> list[active_effect]
+- Speed pillar:
+  - `stat` in:
+    - `"movementspeed"`
+    - `"movementspeedoutofcombat"`
+    - `"mountedspeed"`
 
-Purpose:
+- HoTs pillar:
+  - `stat: "hot"`
 
-- Collect all **active effect instances** for a build from all sources, prior to stacking and pillar math. [file:356]
+- Shield pillar:
+  - `stat: "shield"`
 
-Sources:
+Rules:
 
-- **Skills** – based on:
-  - Which skills are slotted on bars.
-  - Their `effects[]` entries and `timing` (for example, `"slotted"`, `"while_active"`, `"on_cast"`, `"on_hit"`, `"proc"`). [file:356]
+- Any effect intended to influence a pillar must use one of the recognized stat keys, or the pillar logic and this document must be updated together.
+- Tools must not interpret ad-hoc or new stat keys without corresponding control-doc updates. [file:1018]
 
-- **Sets** – based on:
-  - Equipped pieces per `set_id`.
-  - `sets.bonuses[].effects[]` at the active piece counts. [file:356]
 
-- **CP stars** – based on:
-  - `cp_slotted` per tree.
-  - `cp_stars[].effects[]` from `data/cp-stars.json`. [file:356]
+## 4. Tool behavior and contracts
 
-Output:
+### 4.1 No live external access
 
-Each `active_effect` should include at least:
+Global rule:
 
-- `effect_id`
-- `source` (for example, `"skill.deep_fissure"`, `"set.adept_rider"`, `"cp.ironclad"`)
-- `timing` / trigger
-- `target`
-- `duration_seconds` (if applicable) [file:356]
+- No tool in `tools/`, and no code in `backend/` or `frontend/`, may perform live HTTP calls or use external APIs to fetch ESO game data. [file:1022][file:1023]
 
-This list is the input to stacking rules, pillar computations, and any derived stat displays. [file:356]
+All external data (ESO-Hub, UESP, etc.) must arrive via offline snapshots and be written into `raw-imports/` before any tool processes it. [file:1022][file:1021][file:1023]
 
----
 
-### 5.3 validate_effect_stack_rules(effects, data) -> (normalized_effects, violations)
+### 4.2 Validation tools
 
-Purpose:
+Key validation tools must:
 
-- Apply Major/Minor uniqueness rules and `stacks_with` exceptions to a list of active effects. [file:356]
+- Operate only on local JSON files.
+- Enforce schema and ID rules as defined in `ESO-Build-Engine-Data-Model-v1.md` and `ESO-Build-Engine-Alignment-Control.md`. [file:1015][file:1018]
 
-Behavior:
+Examples:
 
-- Group effects by `stat` (from `data/effects.json`).
-- For each group, enforce:
-  - At most one effective `type: "major"` and one `type: "minor"` effect, unless `stacks_with` explicitly allows combinations. [file:356]
-- Produce:
-  - `normalized_effects`: the canonical effect list for math after removing duplicates/overlaps.
-  - `violations`: descriptions where stacking rules were violated (for example, multiple Major effects on the same stat without `stacks_with`). [file:356]
+- `tools/validate_data_integrity.py`:
+  - Checks `data/skills.json`, `data/effects.json`, `data/sets.json`, `data/cp-stars.json` for:
+    - Unique IDs.
+    - Correct namespace prefixes.
+    - Valid `effectid` references. [file:1018]
 
----
+- `tools/validate_build.py`:
+  - Checks each build for:
+    - Required top-level keys.
+    - Valid bar structure.
+    - Valid gear slots and set references.
+    - Valid CP slotted references. [file:1016][file:1018]
 
-### 5.4 create_empty_build_template() -> build_json
 
-Purpose:
+### 4.3 Aggregation and pillars
 
-- Return a skeleton build JSON object obeying all structural rules, used as a starting point for new builds. [file:356]
+- `tools/aggregate_effects.py` must:
 
-Template must include:
+  - Read builds from `builds/` and data from `data/`.
+  - Produce a list of effect instances with:
+    - `effectid` (canonical `effects.id`).
+    - `source` (`skill.*`, `set.*`, or `cp.*`).
+    - `timing`, `target`, `durationseconds`. [file:1016][file:1018]
 
-- **Bars structure**
-  - `bars.front` and `bars.back` with slots `1`–`5` and `"ULT"` (initially `null` or placeholder `skill_id`s).
+- `tools/compute_pillars.py` must:
 
-- **Gear slots**
-  - All 12 required gear slots present (initially empty items or `null`).
+  - Use aggregated effects and pillar configuration to:
+    - Determine active vs inactive effects.
+    - Compute pillar metrics and statuses (met/not met).
+  - Resolve effect metadata strictly via `effects.json` and the `stat` field—no ad-hoc logic. [file:1019][file:1018]
 
-- **CP trees**
-  - `cp_slotted.warfare`, `.fitness`, `.craft` as arrays of up to 4 `null` values.
+Rules:
 
-- **Attributes and pillars**
-  - Reasonable defaults (attributes set to 0; pillar configs empty or defaulted according to Data Model v1). [file:356]
+- Any changes to aggregation or pillar math must remain consistent with this document and with `effects.json` stat definitions.
+- Tools must not dynamically invent or reinterpret effect IDs or stat keys. [file:1018]
 
-This function guarantees that any new build starts in a structurally valid shape before IDs are filled in. [file:356]
 
----
+### 4.4 External import tools
 
-## 6. High-level tool contracts (concrete implementations)
+External import tools (ESO-Hub and optional UESP) must:
 
-The following concrete functions in `tools/` implement the contracts above for real builds and files.
+- Live under `tools/`.
+- Accept snapshot paths under `raw-imports/` as input.
+- Produce `*.import-preview.json` files under `raw-imports/` in canonical v1 shapes.
+- Never write directly to `data/*.json`. [file:1022][file:1023]
 
-### 6.1 validate_build(build_path) -> result_json
+For ESO-Hub (primary path):
 
-Implemented by `tools/validate_build.py`.
+- `tools/import_skills_from_esohub.py`
+- `tools/import_sets_from_esohub.py`
+- `tools/import_cp_from_esohub.py` [file:1021][file:1023]
 
-Responsibilities:
+These must align with:
 
-- Load canonical data:
-  - `data/skills.json`
-  - `data/effects.json`
-  - `data/sets.json`
-  - `data/cp-stars.json`
-- Unwrap v1 containers (`skills`, `effects`, `sets`, `cpstars`/`cp_stars`) to lists.
-- Load a build JSON from `build_path`.
+- Snapshot schemas in `ESO-Build-Engine-ESO-Hub-Integration.md`.
+- Import flows in `ESO-Build-Engine-External-Data-Runbook.md`. [file:1021][file:1023]
 
-Structural checks:
 
-- **Bars**
-  - `build["bars"]["front"]` and `build["bars"]["back"]` exist and are lists.
-  - Each slot object has `slot` and `skillid` fields.
-  - No duplicate `(bar, slot)` pairs.
-  - Allowed slots: `"1"`, `"2"`, `"3"`, `"4"`, `"5"`, `"ULT"`.
+### 4.5 Markdown export
 
-- **Gear**
-  - `build["gear"]` exists and is a list.
-  - Exactly one item per required `slot`.
-  - Mythic constraint (≤ 1 mythic set across all gear).
-  - Armor weights valid for armor slots.
+- `tools/export_build_md.py` must:
 
-- **CP**
-  - `build["cpslotted"]` exists with keys `warfare`, `fitness`, `craft`.
-  - Each tree list length ≤ 4.
-  - No duplicate CP IDs within a tree.
+  - Read canonical `data/*.json` and builds.
+  - Render Markdown views of builds (bars, gear, CP, and optionally pillar summaries). [file:1016][file:1018]
 
-Reference checks:
+Rules:
 
-- All non‑null `skillid` values exist in `skills[*].id`.
-- All non‑null `setid` values exist in `sets[*].id`.
-- All non‑null CP IDs in `cpslotted` exist in `cpstars[*].id`.
+- Markdown exports are **views only**:
+  - They must not be hand-edited.
+  - They must not be treated as inputs for other tools.
 
-Output shape (conceptual `result_json`):
+Any change to Markdown layout must not affect data semantics.
 
-- `build_id`: build identifier (for example, `"build.permafrost_marshal"`).
-- `build_name`: human-readable name (for example, `"Permafrost Marshal"`).
-- `build_path`: path to the build JSON (for example, `"builds/permafrost-marshal.json"`).
-- `status`: `"OK"` or `"ERROR"`.
-- `error_count`: integer count of hard errors.
-- `errors`: list of objects `{ "field": "...", "message": "..." }`.
 
-### 6.2 aggregate_effects(build, data) -> list[active_effect]
+## 5. External data alignment
 
-Implemented by `tools/aggregate_effects.py` and mirrored in `tools/compute_pillars.py`.
+### 5.1 ESO-Hub as external baseline
 
-Purpose:
+Global rule:
 
-- Collect all **active effect instances** for a build from all sources, prior to stacking and pillar math.
+- ESO-Hub is the primary external baseline for:
+  - Skill, set, and CP tooltips and naming.
+  - The user-visible text used in the UI hover tooltips. [file:1022][file:1021][file:1024]
 
-Sources:
+Tools and JSON must:
 
-- **Skills**
-  - Which skills are slotted on `bars.front` and `bars.back`.
-  - Their `effects[]` entries and `timing` (for example, `"slotted"`, `"whileactive"`, `"onhit"`).
+- Ensure that tooltip fields (`tooltipeffecttext`, `bonuses[].tooltipraw`, CP tooltip fields) originate from ESO-Hub snapshots, unless explicitly corrected.
+- Not reword or renumber tooltips silently; any correction must be documented. [file:1021][file:1023]
 
-- **Sets**
-  - Equipped pieces per `setid`.
-  - `sets.bonuses[*].effects[*]` at the active piece counts.
 
-- **CP stars**
-  - `cpslotted` per tree.
-  - `cpstars[*].effects[*]` from `data/cp-stars.json`.
+### 5.2 Secondary sources and corrections
 
-Output:
+Secondary external sources (UESP, raw dumps, addons):
 
-Each `active_effect` includes at least:
+- Can be used to:
+  - Validate ESO-Hub data.
+  - Provide additional metadata (e.g. internal IDs, flags). [file:1022]
 
-- `effect_id` – one of `effects[*].id` (for example, `buff.major_resolve`, `debuff.major_breach`).
-- `source` – ID of the source (for example, `"skill.deep_fissure"`, `"set.adept_rider"`, `"cp.ironclad"`).
-- `timing` – trigger classification (`"slotted"`, `"whileactive"`, `"onhit"`, etc.).
-- `target` – logical target type (`"self"`, `"enemy"`, `"group"`, etc.).
-- `duration_seconds` – numeric duration or `null`.
+- Must **not** silently override ESO-Hub-derived text fields.
+- Any corrections to canonical JSON based on secondary sources must be:
+  - Reproducible from snapshot inputs.
+  - Documented in either:
+    - A corrections section in a control doc, or
+    - A dedicated corrections file.
 
-This list is the input to stacking rules, pillar computations, and any derived stat displays.
+Tools must not implicitly trust secondary sources over ESO-Hub without this documentation.
 
-### 6.3 validate_effect_stack_rules(effects, data) -> normalized_effects, violations
 
-Implemented by `tools/aggregate_effects.py` or a dedicated `tools/validate_effect_stack.py`.
+## 6. Change management
 
-Purpose:
+Any change that affects:
 
-- Apply Major/Minor uniqueness rules and `stackswith` exceptions to a list of active effects.
+- Build structure rules.
+- Effect IDs or stat keys.
+- Tool contracts (inputs/outputs/behaviors).
+- External data flow assumptions (e.g. ESO-Hub vs other sources).
 
-Behavior:
+must be accompanied by:
 
-- Group effects by `stat` from `data/effects.json`.
-- For each group, enforce:
-  - At most one effective type `"major"` and one type `"minor"` effect, unless `stackswith` explicitly allows combinations.
-- Produce:
-  - `normalized_effects` – the canonical effect list for math after removing duplicates and overlapping effects.
-  - `violations` – human-readable descriptions where stacking rules were violated (for example, multiple Major effects on the same stat without `stackswith`).
+- An update to this document (Global Rules).
+- Updates to the relevant control docs:
+  - `ESO-Build-Engine-Data-Model-v1.md`
+  - `ESO-Build-Engine-Alignment-Control.md`
+  - `ESO-Build-Engine-External-Data-Scope.md`
+  - `ESO-Build-Engine-External-Data-Runbook.md`
+  - `ESO-Build-Engine-ESO-Hub-Integration.md` [file:1015][file:1018][file:1022][file:1023][file:1021]
 
-This keeps downstream math consumers working from a single, de-duplicated set of effects per stat.
-
-### 6.4 create_empty_build_template() -> build_json
-
-Implemented by `tools/create_empty_build_template.py`.
-
-Purpose:
-
-- Return a skeleton build JSON object obeying all structural rules, used as a starting point for new builds.
-
-Template must include:
-
-- **Bars structure**
-  - `bars.front` and `bars.back` with slots `"1"`–`"5"` and `"ULT"` (initially `null` or placeholder `skillid`s).
-
-- **Gear slots**
-  - All 12 required gear slots present (`head`, `shoulder`, `chest`, `hands`, `waist`, `legs`, `feet`, `neck`, `ring1`, `ring2`, `frontweapon`, `backweapon`), initially empty items or `null`.
-
-- **CP trees**
-  - `cpslotted.warfare`, `.fitness`, `.craft` as arrays of up to 4 `null` values.
-
-- **Attributes and pillars**
-  - Reasonable defaults (attributes set to 0; pillar configs empty or defaulted according to Data Model v1).
-
-This function guarantees that any new build starts in a structurally valid shape before IDs are filled in.
+No code or JSON change is allowed to introduce new behavior that contradicts these rules without corresponding updates to the documentation and alignment validation.
