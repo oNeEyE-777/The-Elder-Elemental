@@ -6,12 +6,30 @@
   },
   "cp_stars": [
     {
-      "id": "cp.example_placeholder",
-      "name": "Example Placeholder CP Star",
-      "tree": "warfare",
+      "id": "cp.celerity",
+      "name": "Celerity",
+      "tree": "fitness",
       "slot_type": "slottable",
-      "tooltip_raw": "Placeholder CP star created by tools/import_cp_from_uesp.py stub. Replace this record once real import logic is implemented.",
-      "effects": []
+      "tooltip_raw": "Increases your Movement Speed by 10%.",
+      "effects": [],
+      "external_ids": {
+        "uesp_cp": {
+          "cpId": 1
+        }
+      }
+    },
+    {
+      "id": "cp.steed_s_blessing",
+      "name": "Steed's Blessing",
+      "tree": "craft",
+      "slot_type": "slottable",
+      "tooltip_raw": "Increases your Movement Speed while out of combat.",
+      "effects": [],
+      "external_ids": {
+        "uesp_cp": {
+          "cpId": 2
+        }
+      }
     }
   ]
 }

@@ -1,0 +1,37 @@
+{
+  "sets": [
+    {
+      "setId": 1,
+      "setName": "Mark of the Pariah",
+      "setType": "armor",
+      "setSource": "overland",
+      "setTags": ["pvp", "tank"],
+      "bonusRows": [
+        {
+          "piecesRequired": 2,
+          "bonusTooltipRaw": "Adds 1206 Maximum Health.",
+          "bonusEffectIdentifiers": []
+        },
+        {
+          "piecesRequired": 5,
+          "bonusTooltipRaw": "Increases your Physical and Spell Resistance based on missing Health.",
+          "bonusEffectIdentifiers": []
+        }
+      ]
+    },
+    {
+      "setId": 2,
+      "setName": "Adept Rider",
+      "setType": "armor",
+      "setSource": "overland",
+      "setTags": ["pvp", "speed"],
+      "bonusRows": [
+        {
+          "piecesRequired": 3,
+          "bonusTooltipRaw": "Increases your Movement Speed while mounted.",
+          "bonusEffectIdentifiers": []
+        }
+      ]
+    }
+  ]
+}

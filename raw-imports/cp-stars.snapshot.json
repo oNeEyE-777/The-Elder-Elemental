@@ -1,0 +1,22 @@
+{
+  "cp_stars": [
+    {
+      "cpId": 1,
+      "cpName": "Celerity",
+      "cpTree": "fitness",
+      "slotType": "slottable",
+      "cpTooltipRaw": "Increases your Movement Speed by 10%.",
+      "cpTags": ["speed"],
+      "cpEffectIdentifiers": []
+    },
+    {
+      "cpId": 2,
+      "cpName": "Steed's Blessing",
+      "cpTree": "craft",
+      "slotType": "slottable",
+      "cpTooltipRaw": "Increases your Movement Speed while out of combat.",
+      "cpTags": ["speed"],
+      "cpEffectIdentifiers": []
+    }
+  ]
+}

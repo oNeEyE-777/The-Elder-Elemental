@@ -6,22 +6,47 @@
   },
   "skills": [
     {
-      "id": "skill.example_placeholder",
-      "name": "Example Placeholder Skill",
-      "class_id": "universal",
-      "skill_line_id": "soul_magic",
+      "id": "skill.deep_fissure",
+      "name": "Deep Fissure",
+      "class_id": "warden",
+      "skill_line_id": "animal_companions",
       "type": "active",
       "resource": "magicka",
-      "cost": null,
+      "cost": 2700,
       "cast_time": "instant",
-      "target": "self",
-      "duration_seconds": null,
-      "radius_meters": null,
-      "ability_id": null,
+      "target": "enemy_area",
+      "duration_seconds": 6.0,
+      "radius_meters": 6.0,
+      "ability_id": 61345,
       "external_ids": {
-        "uesp": null
+        "uesp": {
+          "abilityId": 61345,
+          "sourceTag": "mock_uesp"
+        }
       },
-      "tooltip_effect_text": "Placeholder skill created by tools/import_skills_from_uesp.py stub. Replace this record once real import logic is implemented.",
+      "tooltip_effect_text": "Staggering fissure that breaches enemy resistances.",
+      "effects": []
+    },
+    {
+      "id": "skill.resolving_vigor",
+      "name": "Resolving Vigor",
+      "class_id": "universal",
+      "skill_line_id": "assault",
+      "type": "active",
+      "resource": "stamina",
+      "cost": 2984,
+      "cast_time": "instant",
+      "target": "self_area",
+      "duration_seconds": 5.0,
+      "radius_meters": 15.0,
+      "ability_id": 31837,
+      "external_ids": {
+        "uesp": {
+          "abilityId": 31837,
+          "sourceTag": "mock_uesp"
+        }
+      },
+      "tooltip_effect_text": "Heal yourself and allies over time.",
       "effects": []
     }
   ]

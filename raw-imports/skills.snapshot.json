@@ -1,0 +1,36 @@
+{
+  "skills": [
+    {
+      "abilityId": 61345,
+      "internalName": "Deep Fissure",
+      "classTag": "warden",
+      "skillLineTag": "animal_companions",
+      "mechanicType": "magicka",
+      "baseCost": 2700,
+      "castTimeType": "instant",
+      "targetType": "enemy_area",
+      "baseDurationSeconds": 6.0,
+      "radiusMeters": 6.0,
+      "isUltimate": false,
+      "isPassive": false,
+      "rawTooltipText": "Staggering fissure that breaches enemy resistances.",
+      "sourceTag": "mock_uesp"
+    },
+    {
+      "abilityId": 31837,
+      "internalName": "Resolving Vigor",
+      "classTag": "universal",
+      "skillLineTag": "assault",
+      "mechanicType": "stamina",
+      "baseCost": 2984,
+      "castTimeType": "instant",
+      "targetType": "self_area",
+      "baseDurationSeconds": 5.0,
+      "radiusMeters": 15.0,
+      "isUltimate": false,
+      "isPassive": false,
+      "rawTooltipText": "Heal yourself and allies over time.",
+      "sourceTag": "mock_uesp"
+    }
+  ]
+}

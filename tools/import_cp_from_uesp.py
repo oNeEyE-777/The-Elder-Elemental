@@ -1,30 +1,51 @@
+#!/usr/bin/env python3
 """
 tools/import_cp_from_uesp.py
 
-Stub importer for external ESO/UESP Champion Point star data into a
-preview CP stars JSON under raw-imports/, aligned to
+Phase 1 "real" importer for external ESO/UESP-like Champion Point star data
+into a preview CP stars JSON under raw-imports/, aligned to
 docs/ESO-Build-Engine-Data-Model-v1.md Appendix C:
 CP Stars Import Mapping → data/cp-stars.json.
 
-This version does NOT parse real UESP exports yet. It:
+This version still targets PREVIEW USE ONLY. It:
 
-- Accepts a required --snapshot-path argument (for future use).
-- Writes a schema-correct preview JSON file under raw-imports/
-  with either:
-  - an empty "cp_stars" array, or
-  - a single placeholder CP star record when
-    --include-placeholder-example is set.
+- Accepts a required --snapshot-path argument.
+- Expects a simple JSON snapshot at that path with shape:
+
+    {
+      "cp_stars": [
+        {
+          "cpId": 1,
+          "cpName": "Celerity",
+          "cpTree": "fitness",
+          "slotType": "slottable",
+          "cpTooltipRaw": "Increases your Movement Speed by 10%.",
+          "cpTags": ["speed"],
+          "cpEffectIdentifiers": []
+        },
+        ...
+      ]
+    }
+
+- Normalizes each external row into a canonical v1 CP star object with:
+  - id = "cp." + normalized snake_case cpName (or cpId-based fallback)
+  - name, tree (warfare/fitness/craft), slot_type, tooltip_raw
+  - effects = [] (effect IDs will be added later)
+  - optional external_ids.uesp_cp
+
+- Writes schema-correct preview JSON to:
+    raw-imports/cp-stars.import-preview.json
+
 - Never writes to data/cp-stars.json.
 
-Once external snapshots are available and the detailed mapping
-spec is finalized, the placeholder logic in build_cp_star_record()
-and the main() loop should be replaced with real transforms, and
-a separate promotion step should copy reviewed preview JSON into
-data/cp-stars.json.
+This is intentionally conservative and does NOT attempt to derive effects[]
+from tooltips yet. It gives you a realistic preview file that
+validate_data_integrity.py can later validate once promoted into data/cp-stars.json.
 """
 
 import argparse
 import json
+import re
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -33,6 +54,9 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = REPO_ROOT / "data"
 DOCS_DIR = REPO_ROOT / "docs"
 RAW_IMPORTS_DIR = REPO_ROOT / "raw-imports"
+
+
+# ---------- Filesystem helpers ----------
 
 
 def ensure_raw_imports_dir() -> None:
@@ -44,6 +68,9 @@ def ensure_raw_imports_dir() -> None:
     directly to data/*.json.
     """
     RAW_IMPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
+
+# ---------- Container builder ----------
 
 
 def build_empty_cp_container() -> Dict[str, Any]:
@@ -68,14 +95,76 @@ def build_empty_cp_container() -> Dict[str, Any]:
     }
 
 
+# ---------- Normalization helpers ----------
+
+
+_SNAKE_RE = re.compile(r"[^a-z0-9]+")
+
+
+def to_snake_case(value: str) -> str:
+    """
+    Convert a human-ish or CamelCase name into lowercase snake_case.
+
+    Examples:
+      "Steed's Blessing" -> "steed_s_blessing"
+      "GiftedRider" -> "gifted_rider"
+    """
+    value = value.strip().lower()
+    value = _SNAKE_RE.sub("_", value)
+    value = re.sub(r"_+", "_", value).strip("_")
+    return value or "unnamed"
+
+
+def normalize_cp_id(cp_name: str, cp_id: Any) -> str:
+    """
+    Build a canonical cp.* ID.
+
+    Prefer cpName when available; fall back to cpId-based IDs for determinism.
+    """
+    if isinstance(cp_name, str) and cp_name.strip():
+        base = to_snake_case(cp_name)
+        return f"cp.{base}"
+
+    if isinstance(cp_id, (int, float)) and cp_id:
+        return f"cp.id_{int(cp_id)}"
+
+    return "cp.unnamed_placeholder"
+
+
+def normalize_tree(cp_tree: Any) -> str:
+    """
+    Normalize cpTree into warfare/fitness/craft (or 'unknown').
+    """
+    if not isinstance(cp_tree, str):
+        return "unknown"
+
+    t = cp_tree.strip().lower()
+    if t in ("warfare", "fitness", "craft"):
+        return t
+    return "unknown"
+
+
+def normalize_slot_type(slot_type: Any) -> str:
+    """
+    Normalize slotType into a small enum.
+    """
+    if not isinstance(slot_type, str):
+        return "unknown"
+
+    st = slot_type.strip().lower()
+    if st in ("slottable", "passive"):
+        return st
+    return "unknown"
+
+
+# ---------- Core transform ----------
+
+
 def build_cp_star_record(external_row: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Placeholder transform from a single external CP star row to the canonical
-    CP star object defined in the v1 Data Model.
+    Transform a single external CP star row into the canonical v1 CP star object.
 
-    This is a stub; it documents the target fields but does not use the input.
-
-    Expected external concepts (per Appendix C, summarized):
+    Expected external fields (simple JSON snapshot contract):
       - cpId
       - cpName
       - cpTree
@@ -83,61 +172,92 @@ def build_cp_star_record(external_row: Dict[str, Any]) -> Dict[str, Any]:
       - cpTooltipRaw
       - cpTags (optional)
       - cpEffectIdentifiers (optional)
-
-    Target fields (per v1 Data Model + Appendix C):
-      - id (internal cp.* ID)
-      - name
-      - tree
-      - slot_type
-      - tooltip_raw
-      - effects[]
-      - optional external_ids.*
     """
-    # NOTE: This function intentionally returns a fixed, minimal example
-    # shape as a reference. Real logic will:
-    # - Generate deterministic CP IDs from cpId/cpName.
-    # - Normalize cpTree into the warfare/fitness/craft enum.
-    # - Map slotType into slot_type (e.g., "slottable").
-    # - Populate effects[] with real effect IDs from data/effects.json.
+    cp_id_external = external_row.get("cpId")
+    cp_name = external_row.get("cpName") or ""
+    cp_tree_raw = external_row.get("cpTree")
+    slot_type_raw = external_row.get("slotType")
+    tooltip_raw = external_row.get("cpTooltipRaw") or ""
+    cp_tags = external_row.get("cpTags", [])
+
+    cid = normalize_cp_id(cp_name, cp_id_external)
+    tree = normalize_tree(cp_tree_raw)
+    slot_type = normalize_slot_type(slot_type_raw)
+
     return {
-        "id": "cp.example_placeholder",
-        "name": "Example Placeholder CP Star",
-        "tree": "warfare",
-        "slot_type": "slottable",
-        "tooltip_raw": (
-            "Placeholder CP star created by tools/import_cp_from_uesp.py stub. "
-            "Replace this record once real import logic is implemented."
-        ),
+        "id": cid,
+        "name": cp_name or (f"CP {cp_id_external}" if cp_id_external is not None else "Unnamed CP Star"),
+        "tree": tree,
+        "slot_type": slot_type,
+        "tooltip_raw": tooltip_raw,
+        # Effects mapping will be introduced in a later phase; for now we keep
+        # an empty list so validate_data_integrity.py can still enforce shape.
         "effects": [],
-        # external_ids can be added later (uesp_cp_id, etc.) when needed.
+        "external_ids": {
+            "uesp_cp": {
+                "cpId": cp_id_external,
+            }
+        },
     }
+
+
+# ---------- Snapshot loading ----------
 
 
 def load_external_snapshot(snapshot_path: Path) -> List[Dict[str, Any]]:
     """
-    Placeholder loader for an external UESP/ESO CP snapshot.
+    Load an external ESO/UESP-like CP snapshot from a simple JSON file.
 
-    For now, this function only verifies that the path exists (if provided) and
-    returns an empty list. In a future iteration, this will:
-
-      - Read one or more CSV/TSV/JSON files from snapshot_path.
-      - Map raw columns onto the conceptual external fields described in
-        Appendix C (cpId, cpName, cpTree, etc.).
-      - Return a list of normalized external row dicts for build_cp_star_record().
+    Expected shape:
+      { "cp_stars": [ { ...external cp fields... }, ... ] }
     """
     if not snapshot_path.exists():
         print(
             json.dumps(
                 {
-                    "status": "WARN",
-                    "message": f"Snapshot path not found (stub mode): {snapshot_path}",
+                    "status": "ERROR",
+                    "message": f"Snapshot path not found: {snapshot_path}",
                 }
             )
         )
         return []
 
-    # Future implementation: parse snapshot_path contents.
-    return []
+    try:
+        with snapshot_path.open("r", encoding="utf-8") as f:
+            payload = json.load(f)
+    except Exception as exc:  # noqa: BLE001
+        print(
+            json.dumps(
+                {
+                    "status": "ERROR",
+                    "message": f"Failed to read snapshot JSON: {snapshot_path}",
+                    "error": str(exc),
+                }
+            )
+        )
+        return []
+
+    cp_payload = payload.get("cp_stars", [])
+    if not isinstance(cp_payload, list):
+        print(
+            json.dumps(
+                {
+                    "status": "ERROR",
+                    "message": "Snapshot JSON 'cp_stars' field is not a list.",
+                }
+            )
+        )
+        return []
+
+    normalized_rows: List[Dict[str, Any]] = []
+    for row in cp_payload:
+        if isinstance(row, dict):
+            normalized_rows.append(row)
+
+    return normalized_rows
+
+
+# ---------- Preview writer ----------
 
 
 def write_cp_stars_preview(cp_stars: List[Dict[str, Any]]) -> Path:
@@ -159,10 +279,13 @@ def write_cp_stars_preview(cp_stars: List[Dict[str, Any]]) -> Path:
     return target_path
 
 
+# ---------- CLI ----------
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Import ESO/UESP CP star data into a preview JSON under raw-imports/, "
+            "Import ESO/UESP-like CP star data into a preview JSON under raw-imports/, "
             "according to the v1 Data Model and CP Stars Import Mapping."
         )
     )
@@ -172,16 +295,16 @@ def main() -> int:
         required=True,
         help=(
             "Path to a frozen external snapshot for CP stars "
-            "(e.g., raw-data/eso-api-XXXX/cp/). "
-            "In this stub version, it is only checked for existence."
+            "(JSON file with a top-level 'cp_stars' array)."
         ),
     )
     parser.add_argument(
-        "--include-placeholder-example",
-        action="store_true",
+        "--limit",
+        type=int,
+        default=None,
         help=(
-            "If set, writes a single example placeholder CP star record to help "
-            "verify schema wiring. Without this flag, writes an empty cp_stars list."
+            "Optional limit on number of CP stars to import (for quick previews). "
+            "If omitted, imports all CP stars in the snapshot."
         ),
     )
 
@@ -191,23 +314,20 @@ def main() -> int:
     external_rows: List[Dict[str, Any]] = load_external_snapshot(snapshot_path)
 
     cp_stars: List[Dict[str, Any]] = []
-    if args.include_placeholder_example:
-        # Add one placeholder CP star to confirm shape and wiring.
-        cp_stars.append(build_cp_star_record({}))
-
-    # Future implementation:
-    # for row in external_rows:
-    #     cp_stars.append(build_cp_star_record(row))
+    for idx, row in enumerate(external_rows):
+        if args.limit is not None and idx >= args.limit:
+            break
+        cp_stars.append(build_cp_star_record(row))
 
     target_path = write_cp_stars_preview(cp_stars)
     print(
         json.dumps(
             {
                 "status": "OK",
-                "message": "Stub import completed; CP stars preview JSON written.",
+                "message": "CP stars import preview generated.",
                 "cp_stars_count": len(cp_stars),
                 "target_path": str(target_path),
-                "mode": "placeholder" if args.include_placeholder_example else "empty",
+                "mode": "preview",
             },
             indent=2,
         )
