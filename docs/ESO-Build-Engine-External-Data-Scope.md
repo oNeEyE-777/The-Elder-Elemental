@@ -1,449 +1,317 @@
-# ESO Build Engine – External Data Alignment Scope
+File: docs/ESO-Build-Engine-External-Data-Scope.md
+Last-Updated: 2026-02-13 05:24:00Z
 
-## 1. Objective
+# ESO Build Engine External Data Scope
 
-Define and lock the authoritative external data sources (ESO client, Lua API, UESP, community APIs) and their formats that will feed the Build Engine’s `/data/*.json` layer, then align internal JSON schemas and IDs to those sources so a future “mass data dump” is mechanical instead of bespoke. [web:422][web:432]
+## 1. Purpose
 
-Goals:
+This document defines how the ESO Build Engine v1 Data Center aligns to **external ESO data sources**, with a focus on:
 
-- One **canonical source of record** for skills, effects, sets, CP stars, etc.  
-- `/data/*.json` structures that are **lossless projections** of that source at the level of tooltips and math-driving stats.  
-- Python tools that assume **direct foreign-key matches** between build references and that data (no mapping layers or “guessing”).  
+- Which upstream sources are considered authoritative.
+- How their concepts and IDs map into v1 JSON schemas.
+- What part of the external ingestion pipeline lives **inside** this repository vs. **outside** it.
 
-This scope explicitly supersedes any ad-hoc ID or field naming that cannot be traced back to the chosen ESO data sources.
+It complements:
 
-The guiding operational rule is:
+- `ESO-Build-Engine-Overview.md`
+- `ESO-Build-Engine-Data-Model-v1.md`
+- `ESO-Build-Engine-Global-Rules.md`
+- `ESO-Build-Engine-Data-Center-Scope.md`
+- `ESO-Build-Engine-Data-Center-Tool-Checklist.md`
+- `ESO-Build-Engine-External-Data-Runbook.md`
+- `ESO-Build-Engine-Alignment-Control.md`
+- `ESO-Build-Engine-ESO-Hub-Integration.md` [file:1014][file:1015][file:1016][file:1010][file:1020][file:1018][file:1021]
 
-> External ESO data is ingested **offline** as versioned snapshots after each official patch, with no live call-outs at runtime, and only after upstream data (UESP) has been updated and stabilized for that patch. [web:422][web:432]
+This document does **not** redefine internal JSON schemas or tool behaviors; those remain controlled by the v1 Data Model and Alignment Control docs. Instead, this file explains how ESO-Hub and other external sources are used to populate those schemas.
 
----
 
-## 2. External data sources
+## 2. External sources – roles and priorities
 
-### 2.1 UESP Global Data (primary canonical source)
+### 2.1 ESO-Hub as primary upstream
 
-**Description**
+For v1, **ESO-Hub** is the primary external data source for:
 
-UESP’s ESO Data sites and APIs (e.g., `esodata.uesp.net`, `esoapi.uesp.net`) provide versioned global exports built from ESO client files and Lua logs via UESP’s tooling (`EsoExtractData`, `uesp-esolog`, `uespLog` addon). [web:422][web:432][web:430][web:426]
+- Skills:
+  - Names.
+  - Class and skill line groupings.
+  - Tooltip header fields (cost, target, duration, range, radius).
+  - Tooltip body text, including baseline numeric values and morph “new effect” descriptions. [file:1021][web:775]
+- Sets:
+  - Set names and categories (overland, dungeon, trial, crafted, class, mythic, etc.).
+  - Drop source/location metadata.
+  - Full 2–5 piece bonus tooltips at an empty level 50 baseline. [file:1021][web:921]
+- Champion Points:
+  - Star names and trees (Warfare, Fitness, Craft).
+  - Slottable vs passive status.
+  - Tooltip text and per-rank descriptions where available. [file:1021][web:972]
 
-**Why this is canonical for the Build Engine**
+ESO-Hub’s visible pages and internal tooltip engine are assumed to reflect the in-game tooltips for the current patch at that baseline. When we speak about “external truth” for skills, sets, and CP, we mean “ESO-Hub’s version of those tooltips and names” unless explicitly noted otherwise. [file:1021]
 
-- Includes **full tooltip text** (raw and processed) for skills, sets, CP stars, and buffs/effects. [web:432][web:423]  
-- Exposes **math-driving stats**: ability IDs, set IDs, magnitudes, scaling coefficients, and category flags that determine how ESO applies each effect. [web:432][web:430]  
-- Tracks **ESO API versions** per patch (e.g., `v101047`), enabling patch-aligned snapshots. [web:432]  
 
-**Evaluation tasks**
+### 2.2 Secondary sources (UESP, raw data, addons)
 
-- Identify the latest ESO API version we plan to track (e.g., `v101047+`) as the current target. [web:432]  
-- For that version, inspect the relevant UESP exports:
+Other sources remain **valuable but secondary**:
 
-  - Skill tables: names, `abilityId`, costs, cooldowns, durations, raw tooltips, flagged effects. [web:432][web:423]  
-  - Set item tables: `setId`, set name, bonus descriptions, bonus conditions. [web:423][web:432]  
-  - Buff/debuff/effect representations: Major/Minor names, internal IDs, magnitudes, and type flags. [web:429][web:432]  
-  - CP star tables (if available): star IDs, names, tooltips, numerical effects. [web:432]
+- UESP:
+  - Provides detailed ESO data dumps (Lua, CSV, JSON) with raw IDs and structured fields.
+  - Useful for:
+    - Cross-checking ESO-Hub values.
+    - Filling in non-tooltip fields (e.g. internal ability IDs, flags) when ESO-Hub doesn’t expose them clearly.
+  - No longer the required or primary upstream for tooltips or naming.
 
-- Decide which UESP artifacts to consume:
+- Raw ESO client exports and addons:
+  - ESO client Lua or `EsoExtractData` exports.
+  - Logging addons that capture tooltips and IDs.
+  - Useful for:
+    - Deep verification of edge cases.
+    - Researching discrepancies between ESO-Hub and the game.
+  - Not required for the v1 Data Center import path.
 
-  - **Preferred:** UESP’s raw DB exports (CSV/TSV/SQL-like) and transform locally into `/data/*.json`. [web:430][web:426]  
-  - Optionally: UESP’s pre-processed JSON-like endpoints (if/when they exist for certain domains), but still funneled through the same local import pipeline.
+When secondary sources disagree with ESO-Hub:
 
-**Reference URLs**
+- ESO-Hub is preferred for **what the user sees** (tooltip text and in-game naming).
+- Secondary data may be used to:
+  - Confirm ESO-Hub is correct.
+  - Justify explicit corrections, which must be documented and reproducible.
 
-- ESO API versions index (UESP): [https://esoapi.uesp.net/index.html](https://esoapi.uesp.net/index.html) [web:422]  
-- Versioned ESO data exports (UESP): [https://esodata.uesp.net](https://esodata.uesp.net) [web:432]
 
+## 3. Ingestion boundary and responsibilities
 
-### 2.2 ESO Lua API / SavedVariables (indirect, via UESP; optional direct use for gaps)
+### 3.1 Local environment vs. repository
 
-**Description**
+The ingestion path is intentionally split:
 
-ESO’s Lua API exposes in-game data (abilities, buffs, sets) to addons. UESP’s `uespLog` addon and associated tooling already collect this data via SavedVariables and upload it to UESP’s processing pipeline. [web:425][web:424][web:426]
+- **Local environment (outside this repo)**:
+  - Owns:
+    - Crawlers/spiders that walk ESO-Hub and collect detail URLs. [file:1021]
+    - Scrapers that fetch ESO-Hub HTML and turn it into compact JSON snapshots for:
+      - Skills.
+      - Sets.
+      - CP stars.
+    - Any optional scripts that merge in secondary sources (UESP, raw ESO data) *into* those snapshots before they reach this repo.
+  - Outputs:
+    - Frozen snapshot files:
+      - `skills-esohub-snapshot.json`
+      - `sets-esohub-snapshot.json`
+      - `cp-esohub-snapshot.json` (and variants as needed). [file:1021]
 
-**Baseline policy**
+- **Repository (`raw-imports/`, `data/`, `tools/`)**:
+  - Sees only snapshot JSON files copied into `raw-imports/`.
+  - Runs import preview tools to map snapshot rows into v1 canonical schemas.
+  - Validates and promotes into `data/*.json` via the Runbook and Alignment Control processes. [file:1020][file:1018]
+  - Never performs live HTTP or external API calls. [file:1020]
 
-- The Build Engine does **not** call the Lua API or SavedVariables directly at runtime.  
-- By default, it relies on **UESP’s processed exports** as the reflection of ESO’s client and Lua API data. [web:422][web:432]
+This separation keeps the repo deterministic and replayable, while allowing the local environment to evolve scraping strategies without changing core tools.
 
-**Evaluation tasks**
 
-- Confirm that UESP exports provide all the **tooltips and math-driving values** we need for:
-  - Effects (IDs, magnitudes, categories).  
-  - Skills (abilityId, resource costs, base durations).  
-  - Sets (setId, bonus magnitudes).  
-  - CP stars.  
+### 3.2 No live external access in tools/backend/frontend
 
-- Determine if there are **gaps** (e.g., brand-new systems, scribing, or subclass interactions) where UESP data is insufficient or delayed.
+The following are **prohibited** inside this repository:
 
-  - If gaps exist and are material to build math, consider a **small, focused custom addon** plus SavedVariables parser to record only those missing pieces, still feeding into the same offline import pipeline.
+- Live HTTP requests to ESO-Hub, UESP, or any other external site in:
+  - `tools/*.py`
+  - `backend/` Node/Express API.
+  - `frontend/` React/Vite UI.
+- Any hidden external database used as a source of ESO data.
 
-- Document which Lua-side identifiers (e.g., `abilityId`, buff IDs, internal set IDs) will be stored under `external_ids.*` fields in our JSON and which remain UESP-only.
+All external ESO data must exist as tracked files in this repo, under `raw-imports/` for snapshots and `data/` for canonical JSON. [file:1020][file:1018]
 
-### 2.3 Community APIs / Tools (secondary / gap fillers)
 
-These are not primary canonical sources but may inform schema design and provide cross-checks:
+## 4. Snapshot expectations and scope
 
-- ESO-Hub / build editors: skill and set semantics, buff naming conventions. [web:429][web:431]  
-- Combat log tools (Combat Metrics, ESO Logs, etc.): how buffs, debuffs, sets appear in logs and real encounters. [web:428][web:434]  
+This section summarizes what the repo expects from snapshot files, matching details in `ESO-Build-Engine-ESO-Hub-Integration.md`. [file:1021]
 
-**Evaluation tasks**
+### 4.1 Snapshot location and naming
 
-- Confirm we **do not** depend on these for authoritative numbers or IDs.  
-- Borrow naming patterns and UX conventions only when they do not conflict with ESO/UESP identifiers and the mapping spec.
+Primary ESO-Hub snapshots are expected under `raw-imports/`:
 
+- Skills:
+  - `raw-imports/skills-esohub-snapshot.json`
+- Sets:
+  - `raw-imports/sets-esohub-snapshot.json`
+- CP stars:
+  - `raw-imports/cp-esohub-snapshot.json` [file:1021]
 
-### 2.4 UESP Build Editor as conceptual guide (docs only)
+Alternative or experimental snapshots (e.g. UESP-aligned) must follow clear naming, such as:
 
-The UESP ESO Build Editor documentation provides a clear, user-facing breakdown of build components and computed outputs (Items/Sets, Skills, Buffs, CP, Raw Data, Computed Statistics). Although we **do not** consume the Build Editor itself as a data source, we treat its structure as a conceptual guide for how to slice and present data in the ESO Build Engine. [web:422]
+- `raw-imports/skills-uesp-snapshot.json`
+- `raw-imports/sets-uesp-snapshot.json`
+- `raw-imports/cp-uesp-snapshot.json`
 
-In particular:
+The repo tools must never treat any snapshot as canonical; snapshots are **inputs** only. [file:1020]
 
-- The Build Editor’s **Items/Sets tab** maps conceptually to our `data/sets.json` and gear sections in `builds/*.json`.  
-- The **Skills tab** maps to `data/skills.json` and bar layouts in `builds/*.json`.  
-- The **Buffs tab** maps to `data/effects.json`, where buff/debuff/HoT/shield effects are defined.  
-- The **CPs tab** maps to `data/cp-stars.json` and CP layouts in `builds/*.json`.  
-- The **Raw Data** and **Computed Statistics** tabs align conceptually with our Python tools (`aggregate_effects.py`, `compute_pillars.py`, future simulators) and any exported summaries. [file:376][file:377][file:389]
 
-Design directive:
+### 4.2 Snapshot content requirements (high-level)
 
-- Use the UESP Build Editor help pages as **UX and concept references** when deciding how to group or label data and computed outputs.  
-- Use `esodata.uesp.net` and `esoapi.uesp.net` as the **only authoritative machine-readable data sources** for skills, sets, effects, and CP stars. [web:432][web:422]
+Regardless of source (ESO-Hub primary, UESP secondary), snapshots must:
 
----
+- Be valid UTF‑8 JSON.
+- Represent each skill, set, or CP star as an object with:
+  - A stable external identifier (`external_id`).
+  - The external URL where applicable (`url`).
+  - Human-readable name (`name`).
+  - Grouping/key metadata (class and skill line for skills, category/source for sets, tree for CP).
+  - Tooltip text fields that will populate `tooltipeffecttext` (skills), `bonuses[].tooltipraw` (sets), and CP tooltip fields in canonical JSON. [file:1021][file:1015][file:1018]
+- Include a `source_tag` or equivalent provenance marker (e.g. `esohub-20260213`, `uesp-20260213`) so runs can be traced and compared. [file:1021][file:1020]
 
-## 3. Canonical ID and naming strategy
+The precise field-level snapshot schemas for ESO-Hub are defined in `ESO-Build-Engine-ESO-Hub-Integration.md`. [file:1021]
 
-This section locks the ID conventions the engine must follow after alignment with ESO/UESP exports.
 
-### 3.1 Core entity IDs
+## 5. Mapping external concepts to v1 JSON
 
-To support mechanical imports and patch resilience:
+This section clarifies how external concepts (primarily from ESO-Hub) are expected to align with v1 Data Center schemas. The detailed field mappings are specified in `ESO-Build-Engine-Data-Model-v1.md` and **must not** be contradicted here. [file:1015]
 
-- **Effects**: `buff.*`, `debuff.*`, `hot.*`, `shield.*`, and possibly `proc.*` or similar categories, with a stable mapping to ESO ability IDs, buff IDs, or UESP effect identifiers where available.  
-- **Skills**: `skill.<machine_name>` (often derived from class/line + name), with `external_ids.ability_id` and/or `external_ids.uesp` storing the ESO numeric ID for round-tripping. [file:381][web:432]  
-- **Sets**: `set.<machine_name>`, with `external_ids.set_id` and/or `external_ids.eso_sets_api` linking to ESO and UESP set identifiers. [file:392][web:423]  
-- **CP stars**: `cp.<machine_name>`, with a stable mapping to ESO/UESP CP IDs where available. [file:393][web:432]
+### 5.1 Skills
 
-Requirements:
+External concepts from ESO-Hub: [file:1021][web:775]
 
-- A given **effect** has **exactly one** ID string in `/data/effects.json`.  
-- All references (`effect_id` in skills, sets, CP stars, and aggregate_effects output) must use that ID verbatim—**no alternative bare vs namespaced forms**.  
-- When we ingest UESP/ESO data, any numeric IDs or internal strings are stored under `external_ids.*`, **not** as the primary `id`.
+- Skill identity:
+  - ESO-Hub skill URL and `external_id`.
+  - Name, class, skill line, morph-of relationship, active/passive/ultimate.
+- Tooltip header:
+  - Cost, target, duration, range, radius, etc.
+- Tooltip body:
+  - Effect text and morph “new effect” text at level‑50 baseline.
 
-### 3.2 Field naming and types
+Expected mapping into `data/skills.json` (high level):
 
-The Build Engine’s fields are stable projections of ESO/UESP columns, not re-inventions.
+- Canonical IDs:
+  - `id`: `skill.<normalized-name-or-key>`
+- Text:
+  - Main tooltip text into `tooltipeffecttext`.
+- Metadata:
+  - ESO-Hub `external_id` into `externalids.esohub`.
+  - Class/skill line mapped to internal `classid`/`skilllineid`.
+- Effects:
+  - Initially, `effects` arrays may be empty or simplistic until curated mappings are established, as allowed by the External Data Runbook. [file:1020][file:1018]
 
-**For effects**
 
-- `stat`: normalized dimension of impact, derived from ESO data, such as:
-  - `resistance_flat` (e.g., Major/Minor Resolve/Breach).  
-  - `movement_speed_scalar`, `movement_speed_out_of_combat_scalar`, `mounted_speed_scalar`.  
-  - `damage_taken_scalar`.  
-  - `hot` (heal-over-time scalar).  
-  - `shield` (shield scalar).  
+### 5.2 Sets
 
-- `magnitude_kind`: how ESO applies the effect numerically, e.g.:
-  - `flat`.  
-  - `multiplier_additive`.  
-  - `multiplier_multiplicative`.  
+External concepts from ESO-Hub: [file:1021][web:921]
 
-- `magnitude_value`: numeric magnitude; sign and scale follow ESO’s conventions:
-  - Negative for reductions (e.g., Breach to resistance, increased damage taken).  
-  - Positive for bonuses (e.g., Resolve, movement speed, HoTs).  
+- Set identity:
+  - ESO-Hub set URL and `external_id`.
+  - Set name and category (overland, dungeon, trial, crafted, class, mythic, etc.).
+- Bonus tiers:
+  - `pieces_required`.
+  - Full tooltip text for each tier at level‑50 baseline.
 
-- `category`, `scope`, `stacking_rule`, `stacks_with`:
-  - Provide enough structure to model ESO’s stacking behavior (Major/Minor exclusivity, unique sources, etc.).
+Expected mapping into `data/sets.json`:
 
-**For skills, sets, and CP**
+- Canonical IDs:
+  - `id`: `set.<normalized-name-or-key>`
+- Text:
+  - Each bonus tier’s tooltip into `bonuses[].tooltipraw`.
+- Metadata:
+  - ESO-Hub `external_id` into `externalids.esohub`.
+  - Category/source into fields like `type` and `sourcetag` (per v1 Data Model). [file:1015][file:1018]
+- Effects:
+  - `bonuses[].effects` may start as empty or minimal until full effect mappings are available.
 
-- Carry raw ESO values faithfully:
-  - `ability_id` / `external_ids.*`.  
-  - Base cost, duration, radius, etc.  
-  - `tooltip_raw` or equivalent for the full tooltip text.  
 
-- Map these into normalized v1 Data Model fields (`duration_seconds`, `resource`, `tooltip_effect_text`, etc.) without losing the ability to reconstruct the original ESO/UESP semantics. [file:375][file:381][file:392][file:393]
+### 5.3 Champion Points
 
----
+External concepts from ESO-Hub: [file:1021][web:972]
 
-## 4. Process steps for external data alignment
+- CP star identity:
+  - ESO-Hub CP URL and `external_id`.
+  - Star name and tree (Warfare, Fitness, Craft).
+- Slottable vs passive.
+- Tooltip text and per-rank descriptions.
 
-This section describes how to go from ESO/UESP source data to aligned `/data/*.json` and tools, in a patch-aware, offline way.
+Expected mapping into `data/cp-stars.json`:
 
-### Step 0 – Freeze current internal data model
+- Canonical IDs:
+  - `id`: `cp.<normalized-name-or-key>`
+- Text:
+  - ESO-Hub tooltip into the canonical CP tooltip field (per v1 Data Model).
+- Metadata:
+  - `tree` and `slot_type` mapped directly.
+  - ESO-Hub `external_id` into `externalids.esohub`.
+- Effects:
+  - `effects` arrays may be initially minimal, consistent with the External Data Runbook. [file:1020][file:1018]
 
-- Lock `ESO-Build-Engine-Data-Model-v1.md` as the reference for JSON shapes. [file:375]  
-- Treat this scope doc (`ESO-Build-Engine-External-Data-Scope.md`) as **authoritative** for IDs and external alignment until it is explicitly updated. [file:437]
 
-### Step 1 – Source analysis and mapping spec
+## 6. Import tools and source-specific pipelines
 
-1. **Catalog UESP data for a chosen ESO API version**
+The actual import logic is defined in `tools/*.py` and governed by `ESO-Build-Engine-External-Data-Runbook.md` and `ESO-Build-Engine-Alignment-Control.md`. [file:1020][file:1018] This section only clarifies **source-specific** expectations.
 
-   - Pick one ESO API version (e.g., `v101047`) as the target. [web:432]  
-   - For each domain (skills, sets, effects, CP):
+### 6.1 ESO-Hub importers (primary path)
 
-     - List the specific UESP tables/files we will read (e.g., skills table, SetItem, buff/effect tables). [web:422][web:423][web:430]  
-     - Identify key columns: IDs, names, raw tooltips, base magnitudes, duration fields, flags.
+The primary import path uses the ESO-Hub snapshots and the following tools:
 
-2. **Design mapping tables (documented, not ad-hoc)**
+- `tools/import_skills_from_esohub.py`
+- `tools/import_sets_from_esohub.py`
+- `tools/import_cp_from_esohub.py` [file:1021][file:1020]
 
-   - ESO/UESP → engine effect `stat` and `magnitude_kind`.  
-   - ESO/UESP IDs → engine IDs (`buff.major_resolve`, `set.mark_of_the_pariah`, `cp.ironclad`, etc.).  
-   - ESO/UESP tooltip/text fields → engine `tooltip_effect_text` / `description`.  
+These tools must:
 
-   Note any **lossy transformations** and ensure they are acceptable for build math (e.g., approximating Pariah’s scaling as a single “max” value for pillars).
+- Accept a `--snapshot-path` pointing to ESO-Hub snapshots under `raw-imports/`.
+- Produce:
+  - `raw-imports/skills.import-preview.json`
+  - `raw-imports/sets.import-preview.json`
+  - `raw-imports/cp-stars.import-preview.json`
+  in v1 canonical shapes.
+- Never write directly to `data/*.json`; promotion is a separate step, as defined in the Runbook. [file:1020][file:1018]
 
-3. **Deliverable**
 
-   - A “Data Mapping Appendix” inside this scope doc or a separate `ESO-Build-Engine-Data-Mapping.md` that lists field-by-field mappings per domain.
+### 6.2 UESP or other importers (secondary, optional)
 
-During this step, **no JSON in `/data` is modified**; we only define the mapping.
+Existing UESP import stubs (if present):
 
-### Step 2 – Normalize `/data/effects.json` to canonical schema
+- `tools/import_skills_from_uesp.py`
+- `tools/import_sets_from_uesp.py`
+- `tools/import_cp_from_uesp.py` [file:932][file:933][file:934]
 
-Once the mapping for effects is defined:
+are considered **optional secondary** pipelines. If they are used:
 
-- Use the mapping from Step 1 to ensure:
+- They must target the same `*.import-preview.json` outputs and schemas as ESO-Hub importers.
+- They must not bypass validation or promotion steps.
+- Their snapshot schemas (e.g. `skills-uesp-snapshot.json`) must be documented separately and kept consistent with v1 Data Model expectations.
 
-  - Every row in `data/effects.json` corresponds to a distinct ESO effect/buff/debuff concept in the UESP data. [web:432][web:429]  
-  - IDs, stats, and magnitudes match the ESO/UESP interpretation, including sign conventions and stacking behavior.
 
-- Add `external_ids` fields as needed (e.g., `external_ids.uesp_effect_id`, `external_ids.ability_id`) to enable round-tripping and future patch diffs; do **not** change the primary `id` structure unless the mapping spec requires it.
+## 7. Frontend scope: hover tooltips and visual fidelity
 
-This normalization should be done via full-file replacements and is **not** repeated per run; future updates are driven by the import pipeline in Step 5.
+Although detailed frontend behavior belongs in UI docs, this scope document captures one key integration requirement:
 
-### Step 3 – Align `skills.json`, `sets.json`, `cp-stars.json` to effects
+- The **visual tooltips** shown in the Build Engine frontend (on hover over skill, set, or CP entries) must be derived from:
+  - `tooltipeffecttext` for skills.
+  - `bonuses[].tooltipraw` for sets.
+  - The canonical CP tooltip field for CP stars. [file:1015][file:1018][file:1021]
+- Those fields are populated from ESO-Hub snapshots and should match ESO-Hub’s baseline tooltips for each patch, barring explicitly documented corrections.
 
-For each data file (`data/skills.json`, `data/sets.json`, `data/cp-stars.json`):
+This ensures that the Data Center’s external alignment directly supports the human-facing UI behavior you rely on for theorycrafting.
 
-- Ensure the entity IDs (`skill.*`, `set.*`, `cp.*`) are stable and, where possible, map to ESO/UESP identifiers via `external_ids.*`. [file:381][file:392][file:393][web:432]  
 
-- For all effect references (`effect_id` fields and set/CP effects lists):
+## 8. Out-of-scope items and removed constraints
 
-  - Replace any non-canonical or “short” IDs with the exact `effects[].id` strings from `data/effects.json`.  
-  - Remove any reliance on tool-side mapping (no prefix/suffix guessing or secondary ID schemes).
+The following are **explicitly out of scope** for v1 external alignment, or have been downgraded from earlier assumptions:
 
-Each file is updated via a full-file replacement, followed by:
+- Mandatory ingestion of full raw ESO client dumps (Lua, CSV, etc.) into the repo.
+- Requirement that UESP or any other single site is the exclusive “source of truth.”
+- Live querying of any external service at runtime for tooltips or metadata.
 
-- `tools/validate_build.py` run against the build(s). [file:387]  
-- `tools/aggregate_effects.py` and `tools/compute_pillars.py` runs to verify references resolve cleanly. [file:376][file:377]
+Instead:
 
-### Step 4 – Simplify Python tools to the canonical model
+- ESO-Hub is the authoritative external baseline for tooltips and in-game naming.
+- Secondary sources are optional validation/augmentation.
+- All external data reaching the repo must flow through offline snapshots and import tools. [file:1020][file:1021]
 
-Once all `/data` files are aligned:
 
-- `tools/validate_build.py`
-  - Confirm every `effect_id` in skills/sets/CP refers to a valid `effects[].id`, using a direct dictionary lookup with no fallback variants. [file:387]
+## 9. Change management
 
-- `tools/aggregate_effects.py`
-  - Treat `effect_id` as a straight foreign key into `effects.id`.  
-  - Do not attempt to add prefixes, strip suffixes, or otherwise “fix” IDs on the fly. [file:376]
+Any change to:
 
-- `tools/compute_pillars.py`
-  - Use only the canonical `stat`, `magnitude_kind`, and `magnitude_value` from `effects.json` for math. [file:377][file:374]  
-  - Recognize HoTs and shields by **stat** (`"hot"`, `"shield"`) and/or by ID prefixes (`"hot."`, `"shield."`) that directly match `effects[].id`.  
-  - Remove any mapping or guessing logic around `effect.*` vs bare IDs.
+- Which external sources are considered primary or secondary.
+- Snapshot shapes or required fields.
+- The mapping of external fields into canonical v1 JSON.
 
-- `tools/export_build_md.py`
-  - When showing effect names and magnitudes, always pull from `effects.json` using the canonical ID, not hardcoded text. [file:389]
+must be reflected in:
 
-Each tool change is a full-file replacement with the standard validation run (validate → aggregate → pillars → export).
+- This document (External Data Scope).
+- `ESO-Build-Engine-ESO-Hub-Integration.md` (for ESO-Hub specifics).
+- `ESO-Build-Engine-External-Data-Runbook.md` (for process).
+- `ESO-Build-Engine-Data-Model-v1.md` and `ESO-Build-Engine-Alignment-Control.md` (for schemas and tool behaviors). [file:1015][file:1018][file:1020][file:1021]
 
-### Step 5 – Plan and implement automated mass dump import (offline)
-
-Design and implement a Python-based import pipeline in `tools/` that can:
-
-1. **Per ESO patch:**
-
-   - Detect that a new ESO API version is live (e.g., `v101047`). [web:432]  
-   - Apply a **buffer window** (e.g., several days) to allow UESP’s data to be fully updated and stabilized from logs and client extraction. [web:430][web:426]  
-
-2. **Snapshot UESP data:**
-
-   - Download the relevant UESP exports for that API version (skills, sets, effects, CP). [web:422][web:432][web:430]  
-   - Store them locally (e.g., under a `raw-data/eso-api-101047/` folder) as part of the repo or an external artifact.
-
-3. **Run importers:**
-
-   - `tools/import_effects_from_uesp.py` → regenerate `data/effects.json`.  
-   - `tools/import_skills_from_uesp.py` → regenerate `data/skills.json`.  
-   - `tools/import_sets_from_uesp.py` → regenerate `data/sets.json`.  
-   - `tools/import_cp_from_uesp.py` → regenerate `data/cp-stars.json`.
-
-   Each importer uses the mapping spec from Step 1 to translate UESP columns into our canonical JSON fields.
-
-4. **Validate and diff:**
-
-   - Run the standard validation chain (`validate_build`, `aggregate_effects`, `compute_pillars`, `export_build_md`).  
-   - Optionally, generate a diff report summarizing changes since the previous ESO API version (e.g., new/removed effects, changed magnitudes).
-
-This pipeline is run manually or via CI/CD only when we decide to **update our local database to a new ESO patch**. There are **no live, runtime calls** to UESP or ESO APIs; all data is static once imported.
-
-### Step 6 – Data safety and backup policy
-
-To protect existing canonical data and known-good snapshots during importer development and patch updates:
-
-- `/data/*.json` is treated as **read-only** by all import tools during development and testing. Import scripts must not overwrite `data/skills.json`, `data/effects.json`, `data/sets.json`, or `data/cp-stars.json` directly in experimental runs. [file:500]  
-- `data-backups/` is reserved for **manual, human-triggered snapshots** of known-good canonical JSON (for example, `effects.backup-2026-02-11.json`). Import tools must not write to `data-backups/` automatically.  
-- All automated or experimental import outputs must be written to a separate tree such as `raw-imports/` (for example, `raw-imports/skills.import-preview.json`, `raw-imports/effects.import-preview.json`, `raw-imports/sets.import-preview.json`, `raw-imports/cp-stars.import-preview.json`).  
-- Promotion from `raw-imports/*.json` into `data/*.json` is a **deliberate, manual step** carried out via full-file replacement under Git, after:
-  - Validation with `tools/validate_data_integrity.py` and build validators, and  
-  - Manual diff review against the previous canonical snapshot. [file:499][file:502]
-
-This policy guarantees that current v1 data (including Permafrost Marshal and any future builds) remains intact while external-alignment import pipelines are designed, tested, and iterated.
-
----
-
-## 5. Acceptance criteria
-
-The external-data alignment is considered complete for v1 when:
-
-**For each domain (effects, skills, sets, CP):**
-
-- There is exactly **one canonical ID scheme**, documented and enforced.  
-- Every reference in `/data` and `builds/` matches those IDs exactly (no implicit translations).
-
-**For Python tools:**
-
-- They perform **no ID translation or guessing** at runtime.  
-- Any mapping logic between ESO/UESP and engine fields is:
-  - Implemented only in the import tools.  
-  - Explicitly documented in the Data Mapping Appendix or `ESO-Build-Engine-Data-Mapping.md`.
-
-**For patch updates:**
-
-- The repo can be updated to a new ESO API version by:
-
-  - Running the documented import tools against a UESP snapshot for that API version.  
-  - Manually reviewing diffs for sanity and correctness.  
-  - Updating version tags in docs (e.g., “Data aligned to ESO API v101047”) without refactoring IDs or core JSON schemas.
-
-At that point, the Build Engine’s `/data/*.json` is a **frozen, accurate snapshot** of ESO’s data per patch, with full tooltips and math-driven stats, and no reliance on live external calls.
-
----
-
-## Appendix A – Effects Data Mapping (UESP → `data/effects.json`)
-
-This appendix defines the high-level mapping between UESP’s ESO data exports and the Build Engine’s `data/effects.json` schema. It is intentionally abstracted from any one specific table so it can be applied to future UESP formats as long as they expose equivalent fields. [web:422][web:432][web:430]
-
-### A.1 UESP source fields (conceptual)
-
-From UESP’s ESO data for a given API version (`esodata.uesp.net` / `esoapi.uesp.net`), we expect to read:
-
-- **Effect identity and naming**
-  - A stable internal identifier for the effect or buff/debuff (e.g., effect row key, buff ID, or abilityId + effect index).
-  - Human-readable name (e.g., "Major Resolve", "Minor Breach"). [web:429][web:432]
-  - An optional category flag (buff/debuff/other) if available.
-
-- **Tooltip and description**
-  - Raw tooltip text or description fields that explain what the effect does.
-  - Optional “short description” fields if present. [web:432]
-
-- **Numeric behavior**
-  - Magnitude values: numeric amount (e.g., +5948 resist, -2974 resist, +10% speed).
-  - Sign conventions (buff vs debuff).
-  - Type/category fields that distinguish:
-    - Flat modifiers vs percent modifiers.
-    - Damage taken vs resistance vs movement vs HoT/shield behavior.
-  - Optional flags or columns that distinguish Major vs Minor tiers and unique vs stackable effects. [web:429][web:432]
-
-- **Linkage to skills/sets/CP**
-  - References to which abilityIds, setIds, or CP stars apply this effect, when available.
-  - These are used only for `external_ids.*` or cross-checks, not as primary keys.
-
-The exact source table names and column names (e.g., `buffs`, `abilities`, `setBonuses`) will be enumerated in the future `ESO-Build-Engine-Data-Mapping.md` document, but must provide the concepts above. [web:422][web:430]
-
-### A.2 Target schema (`data/effects.json`)
-
-Each effect row in `data/effects.json` will use:
-
-- `id` (string): Engine-level effect ID, e.g.:
-  - `buff.major_resolve`
-  - `debuff.minor_breach`
-  - `hot.resolving_vigor`
-  - `shield.barrier`
-- `name` (string): Human-readable name (usually ESO’s name or a clear derivative).
-- `category` (string): Logical category such as `modifier` (buff/debuff), or future categories as needed.
-- `scope` (string): Target scope, e.g. `self`, `target`, `group`, `self_area`.
-- `stat` (string): Normalized impact dimension, such as:
-  - `resistance_flat`
-  - `movement_speed_scalar`
-  - `movement_speed_out_of_combat_scalar`
-  - `mounted_speed_scalar`
-  - `damage_taken_scalar`
-  - `hot`
-  - `shield`
-- `magnitude_kind` (string): How the magnitude is applied:
-  - `flat`
-  - `multiplier_additive`
-  - `multiplier_multiplicative`
-- `magnitude_value` (number): Numeric magnitude in engine convention:
-  - Positive for buffs (e.g., +5948 resist, +0.10 speed).
-  - Negative for debuffs and increased damage taken (e.g., -2974 resist, +0.10 damage taken represented as 0.10 with appropriate `stat`).
-- `stacking_rule` (string): Logical stacking behavior:
-  - Examples: `exclusive_tier`, `unique_source`, `stacking`, etc.
-- `stacks_with` (array of strings): List of other `effects.id` values this effect explicitly stacks with (if any).
-- `description` (string): Human-facing description derived from UESP tooltips, expressing what the effect does in plain language.
-- `external_ids` (object, optional): Pointers back to UESP/ESO identifiers, e.g.:
-  - `external_ids.uesp_effect_id`
-  - `external_ids.ability_id`
-  - `external_ids.buff_id`
-
-### A.3 Mapping rules
-
-When constructing `data/effects.json` from UESP:
-
-1. **ID generation**
-   - Group UESP effect/buff records into conceptual effects (e.g., “Major Resolve” buff as it appears across abilities).
-   - Assign a stable engine `id`:
-     - Buffs: `buff.<normalized_name>` (e.g., `buff.major_resolve`).
-     - Debuffs: `debuff.<normalized_name>` (e.g., `debuff.minor_breach`).
-     - HoTs: `hot.<normalized_name>` (e.g., `hot.resolving_vigor`).
-     - Shields: `shield.<normalized_name>` (e.g., `shield.barrier`).
-   - Normalization rules (lowercase, snake_case where needed) must match the v1 Data Model and Global Rules.
-
-2. **Stat and magnitude mapping**
-   - Determine `stat` based on UESP effect type/category and the dimension impacted:
-     - Resist-type buffs/debuffs → `resistance_flat`.
-     - Movement speed modifiers → `movement_speed_scalar` or `movement_speed_out_of_combat_scalar`.
-     - Mounted movement modifiers → `mounted_speed_scalar`.
-     - Damage taken modifiers → `damage_taken_scalar`.
-     - Periodic healing effects → `hot`.
-     - Shield effects → `shield`.
-   - Determine `magnitude_kind`:
-     - Flat changes (e.g., ±5948 resist) → `flat`.
-     - Percentage-like additive modifiers → `multiplier_additive`.
-     - Multiplicative stacking modifiers (if ESO distinguishes them) → `multiplier_multiplicative`.
-   - Set `magnitude_value` from UESP’s numeric fields, preserving ESO’s sign convention:
-     - Debuffs that reduce resist or increase damage taken become negative or positive in a way consistent with the chosen `stat`.
-
-3. **Stacking behavior**
-   - Use UESP’s Major/Minor tier flags and uniqueness information to choose `stacking_rule`:
-     - Effects in the same Major/Minor “tier” share `exclusive_tier`.
-     - Effects that can only exist once from a unique source use `unique_source`.
-     - Other stacking behaviors can be modeled as needed.
-   - Populate `stacks_with` only where ESO explicitly allows stacking of multiple effects of the same type (e.g., specific combos like Adept Rider + Wild Hunt).
-
-4. **Scope and category**
-   - Map UESP’s targeting and category info to:
-     - `scope`: `self`, `target`, `group`, `self_area`, etc.
-     - `category`: `modifier` or other logical grouping.
-   - Where UESP does not provide explicit scope, infer from ability context and document the rule in `ESO-Build-Engine-Data-Mapping.md`.
-
-5. **Descriptions and external IDs**
-   - Derive `description` from UESP tooltip or summary fields, simplified as necessary while preserving the math-relevant information.
-   - Fill `external_ids` from UESP fields:
-     - Link to the underlying ability or buff record (e.g., `abilityId`, internal effect key).
-     - These fields are used for traceability and future patch diffs, not for in-engine lookup.
-
-### A.4 Import tool expectations
-
-The future `tools/import_effects_from_uesp.py` script must:
-
-- Read one or more UESP exports for a specific ESO API version that contain effect/buff data. [web:422][web:432][web:430]
-- Apply the mapping rules above to produce a complete `data/effects.json` that:
-  - Contains exactly one row per conceptual buff/debuff/effect relevant to builds.
-  - Uses canonical `id` strings consistent with the v1 Data Model and Global Rules.
-  - Fills `stat`, `magnitude_kind`, and `magnitude_value` in a way that is sufficient for Build Engine math (pillars, simulations, aggregation).
-  - Includes `external_ids` for backlinking to UESP/ESO data.
-
-Subsequent tools (validators, aggregators, pillar evaluators, exporters) must treat `data/effects.json` as the **only source** of truth for effect math and names, and must never attempt to re-interpret raw UESP data directly.
+No tool or JSON format is allowed to introduce new external assumptions or shortcuts that contradict these documents without an explicit, documented update and corresponding validation.
